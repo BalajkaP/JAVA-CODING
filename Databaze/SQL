@@ -113,7 +113,7 @@ Comments
 
 Database management:
 
-    CREATE DATABASE database_name;
+    CREATE DATABASE database_name;   Toto napsat normálně do QUERY, nebo klik na ikonku CREATE A NEW SCHEMA (platí pro MySQL Workbench)
         - vytvoreni databaze
 
     DROP DATABASE database_name_to_be_deleted;

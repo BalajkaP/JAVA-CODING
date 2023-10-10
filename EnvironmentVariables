@@ -1,0 +1,57 @@
+
+Slouží pro nastavení proměnných pro danou platformu INTELLIJ nebo OPERAČNÍ SYSTÉM.
+
+1. Environment variables pro DATABASE username a password
+   Storing sensitive information like database usernames and passwords securely is important. Here are some common approaches for storing environment variables securely:
+
+   Environment Variables: You can set environment variables directly on your server or within your deployment environment. This approach keeps sensitive data out of your codebase and configuration files. The method for setting environment variables varies depending on your operating system and deployment platform.
+
+   Configuration Management Tools: If you're using a configuration management tool like Docker, Kubernetes, or tools like Ansible, you can manage environment variables as part of your deployment process. These tools often provide mechanisms for securely managing secrets.
+
+   Secret Management Tools: Consider using a secret management tool like HashiCorp Vault, AWS Secrets Manager, or Google Secret Manager. These tools are designed for securely storing and managing secrets, and they can integrate with your applications to fetch secrets at runtime.
+
+   Secure Files: In some cases, you might store secrets in a separate configuration file that is encrypted or protected with strict file permissions. Your application would then read these secrets from the file when needed.
+
+   Cloud Provider Services: If you are deploying your application on a cloud provider like AWS, Azure, or Google Cloud, they often provide services for storing and managing secrets securely, such as AWS Secrets Manager or Azure Key Vault.
+
+   Containerized Environments: If you're using containers (e.g., Docker), you can pass sensitive data as environment variables during container startup. Container orchestration tools like Kubernetes provide ways to manage secrets for containers.
+
+
+   In IntelliJ IDEA, you can set environment variables for your project or run configurations. Here's how you can set environment variables for your project:
+
+   Open your project in IntelliJ IDEA.
+
+   (Go to "File" > "Project Structure." In the Project Structure dialog, select your project module on the left sidebar.
+   Click on the "Dependencies" tab.)
+   TOTO RADĚJI TAKTO: Kliknout vpravo nahoře do okénka, kde se dělá RUN programu
+                      Zvolit EDIT Configuration
+
+   In the "Environment" section, you can add environment variables by clicking the "..." (Browse) button next to "Environment variables."
+
+   In the "Environment Variables" dialog, you can add (+) new environment variables. For example, you can add variables
+   like DB_USERNAME and DB_PASSWORD and set their values.
+
+   Click "OK" to save the environment variables.
+
+   Now, you can reference these environment variables in your Hibernate configuration or other parts of your code as
+   needed using the ${VARIABLE_NAME} syntax, like we mentioned in the previous response.
+
+   <hibernate-configuration>
+       <session-factory>
+           <!-- Driver for the database (MySQL in this case) -->
+           <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+
+           <!-- JDBC URL for the database -->
+           <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/issdb</property>
+
+           <!-- Use environment variables for username and password -->
+           <property name="hibernate.connection.username">${DB_USERNAME}</property>
+           <property name="hibernate.connection.password">${DB_PASSWORD}</property>
+
+           <!-- Disable SQL logging -->
+           <property name="hibernate.show_sql">false</property>
+
+           <!-- Automatically update the schema -->
+           <property name="hibernate.hbm2ddl.auto">update</property>
+       </session-factory>
+   </hibernate-configuration>

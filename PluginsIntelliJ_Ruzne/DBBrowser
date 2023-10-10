@@ -6,3 +6,6 @@ Funkce: Mohu editovat SQL Databázi přímo v IntelliJ, a netřeba jít do MYSQL
 DŮLEŽITÉ INFO: NESMÍ BÝT AKTIVNÍ PŘIPOJENÍ Z DB Browser, pokud chci mazat tabulky, nebo jiný QUERY v MySQL Workbench.
                Jinak dojde ke KONFLIKTU, A ZABLOKUJE WORKBENCH. V TOM PŘÍPADĚ MUSÍM PRAVÝ KLIK NA CONNECTION nahoře V DB Browser
                a dát DISCONNECT
+
+ Jak konfigurace počáteční: Dát + , pak vybrat DB, Autentication vyplnit, do Connection-Database zadat název mojeho SCHEMA.
+                            Pak Test connection.
