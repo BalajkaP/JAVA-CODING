@@ -1,0 +1,8 @@
+
+Název Pluginu: DATABASE NAVIGATOR
+
+Funkce: Mohu editovat SQL Databázi přímo v IntelliJ, a netřeba jít do MYSQL Workbench
+
+DŮLEŽITÉ INFO: NESMÍ BÝT AKTIVNÍ PŘIPOJENÍ Z DB Browser, pokud chci mazat tabulky, nebo jiný QUERY v MySQL Workbench.
+               Jinak dojde ke KONFLIKTU, A ZABLOKUJE WORKBENCH. V TOM PŘÍPADĚ MUSÍM PRAVÝ KLIK NA CONNECTION V DB Browser
+               a dát DISCONNECT
