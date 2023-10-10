@@ -1,0 +1,8 @@
+ 
+																KOLEKCE		MAPA	POLE
+Lze menit pocet prvku											Y			Y		N
+Lze prvky ukladat jinam nez nakonec								Y			Y		N
+Umoznuje vyjmout prvek z prostredka								Y			Y		N
+Vyhledavani dle klice											N			Y		N
+Lze vlozit prvek bez nutnosti vytvaret klic-hodnota				Y			N		Y
+Lze ukladat primitivni datove typy								N			N		Y

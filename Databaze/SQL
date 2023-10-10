@@ -1,0 +1,1009 @@
+- 3 typy relaci
+    - 1:1 -> person - passport (jedna osoba může mít pouze jedno číslo pasu)
+    - 1:n -> city - citizens (v jednom městě může bydlet N lidí)
+    - n:n -> actors - movies (v jednom filmu může hrát N herců - jeden herec hrál v M filmech), (pomoci spojovacich tabulek)
+
+
+-----------------------------------Prace v MySQL-----------------------------------
+
+Datatype
+- VARCHAR(maximalne 255)
+- TEXT        // pro delsi retezce nez VARCHAR(255)
+- DATA        // datum ve formatu RRRR-MM-DD
+- TIMESTAMP   // casova znamka RRRR-MM-DD HH-MM-SS
+
+PK - primary key (primarni klic tabulky)
+NN - not null (nelze prazdna hodnota)
+UQ - unique index (jedinecny zaznam v cele databazy)
+B - is binary column ()
+UN - unsigned data type ()
+ZF - fil up values for that column with 0's if it is numeric ()
+AI - auto increment (databaze bude sama zvedat hodnotu)
+G - generated column ()
+
+
+-----------------------------------Jmenna konvence-----------------------------------
+
+primary key
+  id / tablenameid / tablename_id
+  id / companiesid / companies_id
+
+foreign keys columns
+  tablename(singular)id / tablename_id / tablename(singular)_id
+  companyid / companies_id / company_id
+
+foreign keys names
+  tablename1_tablename2 / tablename1_tablename2_fk
+  companies_countries / companies_countries_fk
+
+-----------------------------------Operace-----------------------------------
+
+C - create 
+R - read (spada sem i vyhledavani dle ruznych kriterii (mensi, vetsi atd.))
+U - update 
+D - delete 
+
+C - INSERT INTO 
+R - SELECT
+U - UPDATE SET 
+D - DELETE 
+
+-----------------------------------Klicova slova a operatory-----------------------------------
+https://www.sqltutorial.org/
+https://learnsql.com/blog/sql-joins-types-explained/
+https://www.w3schools.com/sql/default.asp
+https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html
+
+
+CREATE - vytvor databazi, tabulku ... (neznamena vytvor zaznam)
+FROM - vyber tabulky (DELETE FROM companies;)
+WHERE - podminka (DELETE FROM companies WHERE id = 1;), (DELETE FROM companies WHERE country_id = 1;)
+OR (+) - nebo (DELETE FROM companies WHERE id = 1 OR is = 3;) - smaze oba zaznamy, ne pouze 1 z nich
+AND (*) - a (DELETE FROM companies WHERE id = 1 AND is = 3;) - smaze pouze 1 zaznam
+BETWEEN (DELETE FROM companies WHERE turnover ....)
+JOIN - spojeni tabulek
+NOT - negace (WHERE NOT ...)
+DISTINCT - pouze jedinecne zaznamy (ne opakujici)
+
+LIMIT:
+  SELECT * FROM matches ORDER BY matches.date DESC LIMIT 1 - Kdyz chci zaznam s nejnovejsim datem
+  SELECT MAX(matches.date) FROM matches - Kdyz chci pouze nejvyssi hodnotou data
+
+DELETE - bez WHERE maze uplne vsechno
+
+IF:
+  IF (podminka, prvni hodnota, druha hodnota) AS pojmenovani
+  IF (tasks.status = 0, "YES", "NO") AS status_text
+
+  Vnořený if
+  IF (tasks.priority = 1 "low",
+    IF (task.priority = 2, "medium", "high")) AS priority_text
+
+
+IFNULL - IFNULL(column, 0) - kdyz se porovnava null s nejakou hodnotou, tak at se hodnota null pocita jako 0
+
+LIKE - vyhledavani (LIKE "Kim%") - vyhledavam string zacinajici na Kim a pokracujici cimkoliv dalsim
+
+NOTLIKE - (NOTLIKE "Kim%") - vyhledava vse ostatni mimo pattern Kim%
+
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+Introduction
+
+SQL provádí čtyři různé typy úloh, které jsou rozděleny do následujících skupin:
+
+DDL (Data Definition Language) - jazyk pro definici dat; implementuje definici datové struktury
+DML (Data Manipulation Language) - jazyk pro manipulaci s daty; provádí vyhledávání a úpravy dat
+DCL (Data Control Language) - Jazyk řízení přístupu k datům
+TCL (Transaction Control Language) - jazyk kontroly transakcí; umožňuje spravovat skupiny dotazů DML.
+
+Jazyk SQL nerozlišuje velká a malá písmena, takže velká a malá písmena lze používat zaměnitelně.
+
+Comments
+--,         - which ignores all characters until the end of a line
+/* and */   - which allow you to comment out multiple lines of code.
+
+----------------------------------------
+
+Database management:
+
+    CREATE DATABASE database_name;
+        - vytvoreni databaze
+
+    DROP DATABASE database_name_to_be_deleted;
+        - odstraneni databaze
+
+use database_name;
+- Na databázovém serveru může být mnoho databází, je proto možné si vybrat databázi, na které budeme pracovat
+
+----------------------------------------
+
+User account management:
+
+    CREATE USER name [IDENTIFIED BY [PASSWORD]];
+        - Vytvoření účtu bez uživatelského hesla. 
+
+    CREATE USER sda_user IDENTIFIED BY 'sda_password';
+        - Vytvoření účtu s uživatelským heslem
+
+    DROP USER username;
+        - Smazání uživatele
+
+    RENAME USER username TO new_username;
+        - Přejmenování uživatele
+
+    SET PASSWORD FOR username=PASSWORD('new_password');
+        - Změna hesla
+
+
+
+----------------------------------------
+
+
+Tables and DDL:
+
+Vytvoření tabulky:
+
+CREATE TABLE table_name
+- Názvy tabulek v základní verzi mohou obsahovat:
+    - písmena
+    - čísla
+    - $, _ characters
+    - znaky U+0080-U+FFFF
+    - malá a velká písmena
+- Názvy tabulek nemohou obsahovat:
+    - pouze čísla
+    - pouze klíčová slova SQL (pokud nejsou v jednoduchých uvozovkách `) 
+    - mezeru na konci
+
+
+
+    CREATE TABLE table_name(
+        column_name_1 column_type_1 [atributes],
+        column_name_2 column_type_2 [attributes],
+        column_name_3 column_type_3 [attributes]
+        ...
+    );
+
+
+Typy sloupců definují datový typ, který lze do sloupce uložit.
+
+    CREATE TABLE Product(
+        id INTEGER,
+        Name VARCHAR(20),
+        Producer VARCHAR(25)
+    );
+
+-----------------------
+
+Vytvoření neexistující tabulky:
+
+    CREATE TABLE IF NOT EXISTS table_name(
+        column_name_1 column_type_1 [attributes],
+        column_name_2 column_type_2 [attributes]
+        ...
+    );
+
+-----------------------
+
+Vytvoření dočasné tabulky:
+- je odstraněna po tom co je připojení ukončeno
+- Tabulka je propojena s konkrétním připojením, a proto mohou dva různí uživatelé vytvořit přesně stejnou dočasnou tabulku.
+
+    CREATE TEMPORARY TABLE table_name(
+        column_name_1 column_type_1 [attributes],
+        column_name_2 column_type_2 [attributes]
+        ...
+    );
+
+-----------------------
+
+Vytvoření tabulky z jiné:
+
+    CREATE TABLE Producer2 LIKE Producer
+        - Taková tabulka neobsahuje data původní tabulky
+
+-----------------------
+
+Attributes of columns:
+
+PRIMARY KEY
+NOT NULL
+AUTO_INCREMENT
+DEFAULT
+INDEX
+UNIQUE.
+
+
+PRIMARY KEY
+- Pokud má být daný sloupec primárním klíčem, měl by být název tohoto atributu umístěn za jeho základní definici:
+
+    CREATE TABLE table_name(
+        column_name column_type PRIMARY KEY,
+        column_name_2 column_type_2 [attributes],
+        column_name_3 column_type_3 [attributes]
+        ...
+    );
+
+    CREATE TABLE Person(
+        Pesel INTEGER PRIMARY KEY,  
+        Name VARCHAR(30),
+        LastName VARCHAR(40)
+    );
+
+- Primární klíč lze definovat i za definicemi sloupců (rovněž pomocí syntaxe PRIMARY KEY). 
+- Tato syntaxe je užitečná, pokud chceme vytvořit primární klíč z mnoha sloupců:
+
+    CREATE TABLE Book(
+        ISBN VARCHAR(20),  
+        Publisher VARCHAR(30),
+        Title VARCHAR(40),
+        PRIMARY KEY(ISBN, Title)
+    );
+
+POZNÁMKA: Kombinace hodnot více primárních klíčů musí být jedinečná.
+
+-----
+
+NOT NULL
+
+    CREATE TABLE Product(
+        Id INTEGER PRIMARY KEY,  
+        Name VARCHAR(30) NOT NULL
+    );
+
+-----
+
+NULL
+Atribut NULL je výchozí atribut používaný při vytváření tabulky. 
+Znamená to, že v daném sloupci mohou být prázdné hodnoty.
+
+POZNÁMKA: Ve většině relačních databází nelze atribut NULL použít u sloupce, který je součástí primárního klíče.
+
+-----
+
+AUTO_INCREMENT
+
+    CREATE TABLE Product(
+        Id INTEGER PRIMARY KEY AUTO_INCREMENT,  
+        Name VARCHAR(30) NOT NULL
+    );
+
+-----
+
+UNIQUE
+
+    CREATE TABLE Product(
+        Id INTEGER PRIMARY KEY AUTO_INCREMENT,  
+        Name VARCHAR(30) UNIQUE
+    );
+
+POZNÁMKA: 
+Atribut UNIQUE lze použít také jako PRIMARY KEY - za deklarací sloupců. 
+Můžeme také vytvořit kombinace více hodnot sloupců jako jedinečné.
+
+-----
+
+DEFAULT
+
+    CREATE TABLE Product(
+        Id INTEGER PRIMARY KEY AUTO_INCREMENT,  
+        Name VARCHAR(30) DEFAULT 'unknown'
+    );
+
+-----------------------
+
+Indexes:
+
+Indexy jsou objekty, které lze přidávat do existujících tabulek. 
+Jejich cílem je zvýšit efektivitu operací, jako je vyhledávání a třídění. 
+Každý další index v tabulce naopak snižuje efektivitu přidávání nebo úprav stávajících záznamů. 
+Při vytváření indexu uvnitř databáze se vytvoří speciální optimalizační struktura.
+
+    CREATE [UNIQUE] INDEX index_name ON table_name;
+        - Lze jej vytvořit pro jeden i více sloupců. 
+        - V rámci jedné tabulky lze vytvořit více indexů. 
+        
+Pro tabulku:
+
+    CREATE TABLE Product(
+        Id INTEGER PRIMARY KEY,  
+        Name VARCHAR(30),
+        Type VARCHAR(15)
+    );
+
+může deklarace indexů vypadat následovně:
+
+    CREATE INDEX ind_name ON Product (Name);
+    CREATE INDEX ind_type ON Product (Type);
+
+nebo také:
+
+    CREATE INDEX product_index ON Product (Name, Type);
+
+
+Indexy lze také deklarovat v samotné definici tabulky, např.:
+
+    CREATE TABLE tab;e_name(
+        column_name column_type PRIMARY KEY,
+        column_name_2 column_type_2 [attributes],
+        column_name_3 column_type_3 [attributes,
+        ...
+        INDEX index_name_1 (columns),
+        INDEX index_name_2 (columns)
+    );
+
+-----
+
+Ukázání indexu:
+    SHOW INDEX FROM Product;
+
+-----
+
+Vymazání indexu:
+    DROP INDEX index_name ON table_name;
+
+-----------------------
+
+
+Data modifications:
+
+Show:
+- Informace o struktuře existující tabulky
+
+    SHOW COLUMNS FROM table [FROM database] [LIKE `table_pattern`];
+
+    SHOW COLUMNS FROM Product.sda;
+    SHOW COLUMNS FROM Product.sda LIKE 'name%';
+
+Místo použití SHOW COLUMNS můžeme použít příkaz DESCRIBE, který má však méně možností pro výběr detailů.
+
+-----
+
+Alter:
+- Pokud potřebujeme změnit strukturu existující tabulky
+
+    ALTER TABLE table_name change1[, change2[, ...]];
+
+- Pomocí tohoto příkazu můžeme:
+    - přidávat sloupce
+    - odstranit sloupce
+    - úprava typu, jmen
+    - přidávat indexy
+    - odstranit indexy.
+
+
+Přidání sloupce:
+
+    ALTER TABLE table_name ADD [COLUMN] column_definition;
+    ALTER TABLE table_name ADD [COLUMN] column_definition [FIRST | AFTER column_name];
+
+Klíčová slova FIRST a AFTER umožňují umístit sloupec do určité struktury tabulky, např.:
+
+    ALTER TABLE Product ADD product_description VARCHAR(255) AFTER product_price;
+
+
+Odstranění sloupce:
+
+    ALTER TABLE Product DROP COLUMN product_description;
+
+
+Přidání primary key:
+
+    ALTER TABLE Person ADD PRIMARY_KEY (Pesel);
+
+
+Odstranění primary key:
+
+    ALTER TABLE Person DROP PRIMARY_KEY (Pesel);
+
+
+Úprava pole:
+
+    ALTER TABLE Product MODIFY COLUMN Id INTEGER AUTO_INCREMENT;
+    ALTER TABLE Product MODIFY COLUMN product_description VARCHAR(200)
+
+
+Přejmenování tabulky:
+
+    ALTER TABLE Product RENAME Product1;
+
+
+Úprava výchozí hodnoty sloupce:
+
+Přidání výchozí hodnoty pro daný sloupec lze provést pomocí operace SET DEFAULT:
+
+    ALTER TABLE table_name ALTER COLUMN column_name SET DEFAULT 'default_value';
+
+V níže uvedeném příkladu bude nastavena výchozí hodnota pro sloupec product_description:
+
+    ALTER TABLE Product1 ALTER COLUMN product_description SET DEFAULT 'missing';
+
+Smazání výchozí hodnoty lze provést příkazem ALTER COLUMN v kombinaci s DROP DEFAULT:
+
+    ALTER TABLE table_name ALTER COLUMN column_name DROP DEFAULT;
+
+U níže uvedeného příkladu bude odstraněna výchozí hodnota pro sloupec product_description:
+
+    ALTER TABLE Product1 ALTER COLUMN product_description DROP DEFAULT;
+
+
+Přidání indexu tabulky:
+
+    ALTER TABLE table_name ADD INDEX index_name (column_name_1, column_name_2);
+    ALTER TABLE Product1 ADD INDEX name_id (name, id);
+
+
+Odebrání indexu tabulky:
+
+    ALTER TABLE tab;e_name DROP INDEX index_name;
+    ALTER TABLE Product1 DROP INDEX name_id;
+
+-----
+
+Odstranění tabulky:
+
+    DROP TABLE [IF EXISTS] table1, table2, ..., tableN;
+
+NOTE: Deleting a table is equivalent to deleting data from it.
+
+    DROP TABLE Product1;
+
+-----
+
+Truncate:
+- Pomocí příkazu Truncate je možné smazat data uvnitř tabulky bez odstranění samotné struktury, např.:
+
+    TRUNCATE TABLE Product1;
+
+POZNÁMKA: Při pokusu o odstranění všech záznamů z tabulky bude TRUNCATE obvykle rychlejší než příkaz DELETE FROM název_tabulky.
+
+
+----------------------------------------
+
+DML:
+- Manipulace s daty v existující tabulce
+- Klíčová slova INSERT, SELECT, UPDATE a DELETE
+
+INSERT:
+
+    INSERT INTO table [(column1, column2, ..., columnN)] VALUES (value1, value2, ..., valueN); `
+
+value1 -> column1
+value2 -> column2
+valueN -> column3
+
+Pro tabulku níže:
+
+    CREATE TABLE Product
+    (
+        ProductId INTEGER PRIMARY KEY,
+        Name VARCHAR(40),
+        Description VARCHAR(255)
+    );
+
+Bude vložení vypadat následovně:
+
+    INSERT INTO Product (ProductId, Name, Description) VALUES (1, 'Macbook Pro 16', 'Late 2019');
+
+Data lze také zadat bez uvedení názvů sloupců, je však nutné předat hodnoty v pořadí sloupců zadaných při vytváření tabulky:
+
+    INSERT INTO Product VALUES (1, 'Macbook Pro 16', 'Late 2019');
+
+-----
+
+Alternativní forma příkazu INSERT:
+
+    INSERT INTO table SET column1=value , column2=value2, columnN=valueN;
+
+Pokyny v tomto formuláři vám umožňují nastavit konkrétní pole, aniž byste museli přecházet do pořadí sloupců a hodnot:
+
+    INSERT INTO Product SET ProductId=2, Name='Macbook Pro 13', Description='Early 2018';
+
+-----
+
+Zavedení více řádků:
+- U příkazu INSERT máme také možnost zadat více řádků
+- Tento způsob zadávání dat, ale nepodporují všechny relační databáze
+
+    INSERT INTO table_name (column1, column2, ..., columnN) VALUES
+    (value1A, value2A, ..., valueNA),
+    (value1B, value2B, ..., valueNB);
+    
+Skutečný příklad může vypadat takto:
+
+    INSERT INTO Product (ProductId, Description, Name) VALUES
+    (3, 'Dell XPS 13', 'New 2020 model'),
+    (4, 'Iphone XS', 'Apple Flaghip Model from 2018');
+
+----------------------------------------
+
+
+SELECT:
+- Všechna data uložená v tabulkách lze načíst pomocí příkazu SELECT.
+
+SELECT column1, column2, ..., columnN FROM table [WHERE condition] [ORDER BY column1, column2, ..., columnN [ASC | DESC]];
+
+
+Další příklady budou provedeny podle tabulky:
+
+    CREATE TABLE Product
+    (
+        ProductId INTEGER PRIMARY KEY,
+        Name VARCHAR(40),
+        Description VARCHAR(255)
+    );
+
+    INSERT INTO Product (ProductId, Name, Description) VALUES
+    (3, 'Dell XPS 13', 'New 2020 model'),
+    (4, 'Iphone XS', 'Apple flagship model from 2018');
+
+-----
+
+Zobrazí veškerý obsah tabulky:
+
+    SELECT * FROM Product;
+    SELECT * FROM Product ORDER BY Name ASC;
+    SELECT * FROM Product ORDER BY Name ASC, Description DESC;
+
+-----
+
+Zobrazte tabulku na základě vybraných sloupců:
+
+    SELECT Name, Description FROM Product;
+
+-----
+
+Pojemnování AS:
+
+    SELECT Name AS product_name, Description AS product_description FROM Product;
+
+-----
+
+Podmínka WHERE:
+
+Relační operátory:
+ %, >, <, >=, <=, !=, BETWEEN, LIKE, IN
+
+Logické operátory:
+AND, &&, OR, ||, NOT, !
+
+
+    SELECT * FROM Product WHERE Name='Macbook';
+    SELECT * FROM Product WHERE Name='Macbook' AND Description LIKE 'Late%';
+    SELECT * FROM Product WHERE ProductId BETWEEN 3 and 10;
+    SELECT * FROM Product WHERE Name IN('Macbook', 'Dell');As part of the query above, you can retrieve all records whose Name is one of those defined within the IN operator. Remember that by using many values inside the IN set, the execution time of such a query can increase significantly.
+
+-----
+
+Omezení počtu záznamů:
+
+    SELECT * FROM Product LIMIT 10;
+    SELECT * FROM Product LIMIT 4,3; 
+        - první číslo označuje pozici, druhé číslo záznamy (začíná se od 4. pozice a budou 3 záznamy)
+
+----------------------------------------
+
+
+UPDATE:
+
+    UPDATE table SET column1=value1, column2=value2, ..., columnN=valueN [WHERE condition];
+    UPDATE Product SET Name='Macbook Pro';
+    UPDATE Product SET Name='Macbook Pro' where Name='Macbook';
+
+----------------------------------------
+
+DELETE:
+
+    DELETE FROM Product [WHERE condition];
+    DELETE FROM Product;
+    DELETE FROM Product WHERE Name LIKE `Macbook%`;
+    DELETE FROM Product WHERE Name='Macbook' AND ProductId IN(2,3,10);
+
+----------------------------------------
+
+
+DCL:
+- Tato část popisuje, jak udělovat a odebírat oprávnění k databázovým objektům
+
+GRANT:
+
+    GRANT rights [columns] ON level TO user [IDENTIFIED By password] 
+        [WITH [GRANT OPTION | MAX_QUERIES_PER_HOUR howMany | MAX_UPDATES_PER_HOUR howMany | 
+            MAX_USER_CONNECTIONS howMany | MAX_CONNECTIONS_PER_HOUR]];
+
+
+Uživatel má k dispozici následující možnosti:
+
+global level
+- úroveň parametru rovna * nebo *.* umožňuje udělit globální práva všem objektům v dané databázi
+database level 
+- úroveň parametru rovna názvu_databáze.* umožňuje udělit práva ke konkrétní databázi
+table level 
+- úroveň parametru rovna názvu_databáze.název_tabulky umožňuje udělit práva ke konkrétní databázové tabulce
+column level 
+- parametr level lze definovat pro získání kontroly nad konkrétními sloupci konkrétní databáze.
+
+
+
+Základní operace:
+
+    GRANT CREATE, SELECT, INSERT, UPDATE, DELETE ON * TO sda_user;
+        - příkaz umožňuje udělit CREATE, SELECT, INSERT, UPDATE, DELETE oprávnění ke všem databázím pro uživatele sda_user.
+
+    GRANT SELECT ON sda.* TO sda_user IDENTIFIED BY `sdapassword` WITH MAX QUERIES_PER_HOUR 50;
+        - uděluje oprávnění SELECT databázi sda se změnou hesla uživatele sda_user na sdapassword s omezením počtu dotazů na 50 za hodinu.
+
+
+Informace o oprávněních vybraného uživatele:
+
+    SHOW GRANTS FOR user_name;
+
+----
+
+REVOKE:
+
+    REVOKE rights [columns] ON object FROM user;
+
+    REVOKE UPDATE, DELETE ON sda.* FROM sda_user;
+        - odstraní příkazy UPDATE a DELETE pro uživatele sda_user z databáze sda.
+
+    REVOKE UPDATE, DELETE ON sda.* FROM sda_user, sda_employee;
+        - V rámci dotazu REVOKE je možné odebrat oprávnění mnoha uživatelům současně
+
+    REVOKE ALL ON sda.* FROM sda_user;
+        - Získání všech oprávnění je možné podle následujících pokynů:
+
+
+
+----------------------------------------
+
+FOREIGN KEY:
+- Vytváření vztahů mezi tabulkami
+- Kromě definování primárních klíčů je potřeba určit korelované cizí klíče, které budou indikovat vztah mezi objekty 
+- Tj. budou ukazovat na primární klíč jiné tabulky.
+
+    CONSTRAINT name FOREIGN KEY (column1, column2, column3, ..., columnN) REFERENCES table_name (column1, column2, ..., columnN)
+
+----
+
+Vytvoření FOREIGN KEY:
+
+    CREATE TABLE Product
+    (
+        Id INTEGER PRIMARY KEY,
+        Name VARCHAR(20),
+        ProducerId INTEGER, 
+        CONSTRAINT producerId_fk FOREIGN KEY (ProducerId) REFRENCES Producer(Id)
+    );
+
+- Cizí klíče lze také přidat do již existujících tabulek. 
+- Za tímto účelem se provede příkaz ALTER TABLE. 
+
+    ALTER TABLE table_name ADD CONSTRAINT fk_name FOREIGN KEY (column1, column2, ..., columnN) REFERENCES table_name(column1, column2, ..., columnN);
+    ALTER TABLE Product ADD CONSTRAINT producer_fk FOREIGN KEY (ProducerId) REFERENCES Producer(Id);
+
+----
+
+Odstranění FOREIGN KEY:
+
+    ALTER TABLE Product DROP FOREIGN KEY producer_fk;
+
+----------------------------------------
+
+Pokročilé konstrukce klauzule SELECT:
+
+Načítání dat z několika tabulek:
+
+    SELECT column1, column2, column3, ...,columnN FROM table1, table2, ..., tableN [WHERE condition]...;
+    SELECT k.Publisher, p.Name FROM Book AS k, Product AS p;
+
+POZNÁMKA:
+Klíčové slovo AS je při zadávání aliasů nepovinné.
+Navíc, pokud dané tabulce nezadáte alias, můžete při výběru sloupce použít název tabulky.
+
+----------------------------------------
+
+JOIN:
+
+JOIN
+INNER JOIN
+LEFT JOIN
+RIGHT JOIN.
+
+----
+
+INNER JOIN:
+
+    SELECT column1, column2, ..., columnN FROM table1 [INNER] JOIN table2 [ON condition];
+    
+    SELECT ProductId, Product.Name, Product.ProducterId, Producer.ProducerId, Producer.Name, Producer.Address 
+    FROM Product INNER JOIN Producer ON Product.ProducerId=Producer.Producer.Id;
+
+V případě, že obě tabulky mají stejné názvy sloupců, musíte určit konkrétní sloupec pomocí názvu tabulky jako předpony.
+
+----
+
+LEFT JOIN:
+- jsou-li v table1 záznamy, které nejsou v korelaci se záznamy table2, budou zahrnuty do spojení a chybějící hodnoty budou vyplněny hodnotami NULL 
+
+    SELECT column1, column2, ..., columnN FROM table1 [LEFT] JOIN table2 [ON condition];
+
+    SELECT ProductId, Product.Name, Proukt.ProducerId, Producer.ProducerId, Producetn.Name, Producer.Address 
+    FROM Product LEFT JOIN Producer ON Product.ProducerId=Producer.Producer.Id;
+
+----
+
+RIGHT JOIN:
+- to samé jako LEFT JOIN, jen opačně
+
+    SELECT column1, column2, ..., columnN FROM table1 [RIGHT] JOIN table2 [ON condition];
+
+    SELECT ProductId, Product.Name, Proukt.ProductentId, Producer.ProducerId, Producetn.Name, Producer.Adres 
+    FROM Product RIGHT JOIN Producer ON Product.ProducerId=Producer.Producer.Id;
+
+----
+
+FULL OUTER JOIN:
+- Toto spojení umožní získat všechny záznamy ze dvou tabulek. 
+
+    SELECT column1, column2, ..., columnN FROM table1 [FULL OUTER] JOIN table2 [ON condition];
+
+    SELECT ProductId, Product.Name, Proukt.ProductentId, Producer.ProducerId, Producer.Name, Producer.Address FROM Product 
+    FULL OUTER JOIN Producer ON Product.ProducerId=Producer.Producer.Id;
+
+----------------------------------------
+
+
+Data grouping:
+- SELECT kromě načítání konkrétních hodnot sloupců umožňuje agregaci výsledků dotazu. 
+
+Agregační a Statistické funkce:
+AVG, COUNT, MIN, MAX, SUM
+
+
+Počítání počtu řádků tabulky:
+
+    SELECT COUNT(*) FROM Product;
+    SELECT COUNT(*) AS 'Amount of products' FROM Product;
+    SELECT COUNT(*) AS 'Amount of products'' FROM Product WHERE Name='Macbook';
+
+
+Výpočet střední hodnoty:
+
+    SELECT AVG(Price) AS 'Average product value' FROM Product;
+    SELECT AVG(Price) AS 'Average product value' FROM Product WHERE Price > 10;
+
+
+Min and Max:
+
+    SELECT MIN(Price) AS 'Minimum value product' FROM Product;
+    SELECT MAX(Price) AS 'Maximum value product' FROM Product;
+
+
+Kombinace agregačních funkcí:
+
+    SELECT AVG(Price) AS 'Average product value', COUNT(*) AS 'Amount of products' FROM Product;
+
+
+Součet:
+
+    SELECT SUM(Price) AS 'The total value of Apple's products' FROM Product WHERE ProducerId <> 3;
+
+----------------------------------------
+
+
+Výsledky dotazu seskupení:
+
+    SELECT column1, column2, ..., columnN FROM table1, table2, ..., tableN WHERE conditions GROUP BY column1, column2, ..., columnN;
+    SELECT COUNT(*) FROM Product GROUP BY ProducerId;
+    SELECT MIN(Price), Max(Price) FROM Product WHERE Name='Keyboard' GROUP BY ProducerId;
+    SELECT MIN(Price), Max(Price) FROM Product WHERE Name='Keyboard' GROUP BY ProducerId, ClientId;
+
+
+Podmínky seskupování:
+- Seskupení výsledků dotazu lze rozšířit o další podmínky, které jsou implementovány pomocí klauzule HAVING.
+
+    SELECT column1, column2, ..., columnN FROM table1, table2, ..., tableN 
+    WHERE where_conditions GROUP BY column1, column2, ..., columnN HAVING having_conditions;
+
+    SELECT COUNT(*) AS  'Sum_of_products' FROM Product GROUP BY ProducerId HAVING COUNT(*) > 10;
+    SELECT SUM(Price) FROM Product WHERE Name LIKE 'Notebook %' GROUP BY ProducerId HAVING COUNT(*) > 40;
+    SELECT SUM(Price) as price_sum FROM Product GROUP BY ProducerId HAVING price_sum > 20;
+
+----------------------------------------
+
+
+Transakce:
+- Transakce jsou soubor databázových dotazů, které představují a tvoří logický celek. 
+- Měly by být integrální nebo vůbec. 
+- Příkladem velmi oblíbené transakce je převod. 
+- Chcete-li provést základní převod, musíte provést dvě operace:
+    - aktualizaci účtu odesílatele za účelem snížení převáděné částky
+    - aktualizaci účtu příjemce pro navýšení celkové částky na účtu.
+
+- Obě operace lze provést jako UPDATE dotazy. 
+- Nebezpečí spuštění dvou nezávislých dotazů může být selhání, které se bude nacházet mezi první a druhou aktualizací. 
+- Neměla by nastat situace, kdy peníze z jednoho účtu zmizí a na druhém účtu se neobjeví. 
+- Tyto operace by měly být prováděny jako součást transakce, ve které lze specifikovat 3 fáze:
+    - zahájení transakce
+    - provádění pokynů
+    - schválení nebo zrušení transakce
+
+Transakce je zahájena pomocí následujících pokynů:
+
+START TRANSACTION;
+- Všechny další operace budou součástí transakce a budou viditelné pouze v relaci, dokud nebudou schváleny.
+- Schválení se provádí podle následujících pokynů:
+
+    COMMIT;
+
+Transakce se skládá z následujících pokynů:
+
+    START TRANSACTION;
+    SQL statements;
+    COMMIT;
+
+
+Popsaný příklad bankovní transakce by mohl vypadat takto:
+
+    START TRANSACTION:
+    UPDATE BankAccount SET Balance=Balance-40 WHERE Id=1;
+    UPDATE BanAccount SET Balance=Balance+40 WHERE Id=2;
+    COMMIT;
+
+
+
+Zrušení transakce:
+- Transakci lze buď potvrdit příkazem COMMIT, nebo zrušit příkazem ROLLBACK. 
+- Provedení níže uvedené transakce neprovede v databázi žádné skutečné změny.
+
+    START TRANSACTION:
+    UPDATE BankAccount SET Balance=Balance-40 WHERE Id=1;
+    UPDATE BankAccount SET Balance=Balance+40 WHERE Id=2;
+    ROLLBACK;
+
+----
+
+Automatické schválení:
+- Databáze jako MySQL mají ve výchozím nastavení zapnutou volbu autocommit. 
+- To znamená, že provedení jednoho dotazu automaticky provede změny v databázi. 
+- Díky tomu se taková instrukce vždy provede úplně nebo se neprovede vůbec. 
+- Můžeme se tak vyhnout situaci, kdy by se kvůli poruše upravovaly pouze některé příkazy.
+
+Automatické schvalování lze vypnout pomocí instrukce:
+
+    SET autocommit=0;
+
+a znovu povolit pomocí:
+
+    SET autocommit=1;
+
+----
+
+ACID:
+- ACID je sada vlastností, které zajišťují správné zpracování transakcí v databázi. 
+
+Atomicity
+Consistency
+Isolation
+Durability
+ACID
+
+Atomicity
+- Transakce musí být nedělitelná, tj. bude provedena celá nebo vůbec
+- např. v rámci bankovního převodu se nemůže stát, že peníze budou staženy z účtu, ale nebudou převedeny příjemci převodu.
+
+Consistency
+- Stav databáze musí vždy odrážet stav před transakcí nebo být správně aktualizován po správném provedení transakce. 
+- Nemůže nastat situace, kdy databáze bude odrážet stav v provádění.
+
+Isolation
+- Transakce musí být prováděny nezávisle na jakékoli jiné prováděné operaci, včetně jiných transakcí.
+
+Durability
+- V důsledku jakéhokoli selhání musí být transakce dokončena celá nebo musí být zrušena (neprovedena vůbec).
+
+----------------------------------------
+
+
+Funkce spouštěcí procedury:
+
+Uložené procedury:
+- Procedury jsou kód SQL, který lze spustit vícekrát. 
+- Procedury jsou uloženy na databázovém serveru a jsou kompilovány při prvním spuštění. 
+- To umožňuje zavedení podmíněného zpracování a syntaxe programování v databázovém prostředí. 
+
+    CREATE PROCEDURE procedure_name(parameters)
+    BEGIN
+        procedure_body
+    END    
+
+- V rámci vytvořené procedury můžete definovat parametry (vstup IN a výstup OUT), které se mu předávají pomocí parametrů. 
+- Kód konkrétní procedury musí být mezi klíčovými slovy BEGIN a END.
+
+    CREATE PROCEDURE GetProductsDetails(IN name VARCHAR(20))
+    BEGIN
+        SELECT * FROM Product INNER JOIN Producer ON Product.id=Producer.id WHERE Producer.Name= name;
+    END;
+
+POZNÁMKA: 
+U klienta mysql byste před deklarováním procedury měli změnit oddělovač z; na např.//, abychom v kódu procedury mohli stále používat středníky. 
+Oddělovač lze definovat pomocí příkazu oddělovač, tj. před vytvořením procedury provedeme oddělovač // a po jeho definování oddělovač;.
+
+
+Procedura může být vyvolána příkazem:
+
+    CALL procedure_name(parameters);
+    CALL GetProductsDetails('Notebook');
+
+----
+
+Funkce:
+- Uživatelské funkce, jako jsou procedury, umožňují uživateli spouštět SQL kód a podobně jako procedury jsou uloženy na straně databáze. 
+- Rozdíl mezi procedurou a funkcí je v tom, že funkce vrací výsledek dotazů implementovaných uvnitř jejího těla. 
+- Navíc funkce může mít pouze vstupní parametry a může být volána uvnitř funkce. Opačná situace není možná.
+
+    CREATE FUNCTION function_name(parameters)
+    RETURNS result
+    BEGIN
+        function_body
+    RETURN result;
+    END
+
+- V rámci vytvořené funkce je možné definovat jí předávané vstupní parametry pomocí parametrů. 
+- Klauzule RETURNS definuje typ vrácený funkcí. Kód pro konkrétní funkci musí být mezi klíčovými slovy BEGIN a END. 
+- Poslední pokyn těla by měl být NÁVRAT. Příkladem pracovní funkce může být:
+
+    CREATE FUNCTION getProducentRanking(price DECIMAL(10,2))
+    RETURNS VARCHAR(30)
+    BEGIN
+        DECLARE ranking VARCHAR(30)
+        IF price > 10000 THEN
+            SET ranking = 'PREMIUM';
+        ELSEIF price > 5000 THEN
+            SET ranking = 'BUSINESS';
+        ELSE
+            SET ranking = 'BUDGET';
+        END IF;            
+        RETURN (ranking);
+    END;
+
+POZNÁMKA: 
+- Při použití klienta mysql vhodné provést před vytvořením funkce oddělovač /příkaz a po jeho definování oddělovač;. 
+- Navíc je možné, že před vytvořením funkce, jako je výše, budete muset změnit výchozí konfiguraci databáze mysql a navíc provést příkaz:
+    set global log_bin_trust_function_creators = 1;.
+
+
+Příkaz SET umožňuje nastavit konkrétní hodnotu deklarované proměnné (deklarované pomocí DECLARE). 
+
+SET ranking=getProducentRanking(3000);
+
+SELECT getProducentRanking(12000);
+
+----
+
+Triggers:
+- Takzvané spouštěče jsou speciální druhy procedur připojených k vytvořeným tabulkám. 
+- Spouštěče se spouštějí pouze tehdy, když dojde k zadané operaci DML: INSERT, UPDATE, DELETE. 
+- Při deklaraci spouště je zvolena konkrétní operace buzení.
+
+    CREATE TRIGGER trigger_name {BEFORE | AFTER} {INSERT, UPDATE, DELETE} ON table_name FOR EACH ROW SET operation;
+
+- Klíčové slovo BEFORE a jeden z příkazů INSERT, UPDATE, DELETE označují, kdy má být spouštěč vyvolán. 
+- Výraz FOR EACH ROW definuje typ prováděné operace: operace na každém z předchozích záznamů tabulky.
+
+    CREATE TRIGGER before_produkt_update BEFORE UPDATE ON Produkt FOR EACH ROW 
+    INSERT INTO Produkt SET 
+        Nme=OLD.Nazwa, 
+        IDOFTHEPRODUCER=OLD.ProducentID, 
+        timestamp = NOW();
+
+- Výše uvedený spouštěč vytvoří zálohu záznamu před pokusem o jakoukoli aktualizaci. 
+- Klíčové slovo OLD umožňuje přístup k hodnotě aktualizovaného záznamu.

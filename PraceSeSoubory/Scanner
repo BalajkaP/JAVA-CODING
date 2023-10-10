@@ -1,0 +1,29 @@
+next()
+- čte a vrátí další slovo ze vstupu jako řetězec (bez mezer).
+
+nextInt()
+-čte a vrátí další celé číslo ze vstupu jako `int`.
+
+nextDouble()
+- čte a vrátí další desetinné číslo ze vstupu jako `double`.
+
+nextLine()
+-čte a vrátí další řádek textu ze vstupu jako řetězec.
+
+hasNext()
+-vrací logickou hodnotu `true`, pokud existuje další token (slovo nebo číslo) ve vstupu, jinak vrací `false`.
+
+hasNextInt()
+-vrací logickou hodnotu `true`, pokud existuje další celé číslo ve vstupu, jinak vrací `false`.
+
+hasNextDouble()
+-vrací logickou hodnotu `true`, pokud existuje další desetinné číslo ve vstupu, jinak vrací `false`.
+
+skip(pattern)
+-přeskočí vstup, který odpovídá zadanému regulárnímu výrazu.
+
+useDelimiter(pattern)
+-nastaví oddělovač tokenů (slov) na zadaný regulární výraz. Implicitně je oddělovačem mezerový znak.
+
+close()
+-uzavře scanner a uvolní všechny související zdroje. Po zavolání této metody nelze dále číst ze vstupu.

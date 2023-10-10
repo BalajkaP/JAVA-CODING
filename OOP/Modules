@@ -1,0 +1,77 @@
+- umoznuje seskupit packages na jednom miste 
+- skupina úzce souvisejících balíčků
+- dalo by se říci, že se jedná o abstrakci „balíčku Java“.
+- umožňují vyhnout se chybějícím/cyklickým závislostem nebo rozpadu paketů
+
+
+-------------------Modul descriptor-------------------
+
+- soubor, který specifikuje vlastnosti modulu
+- má:
+    - jedinečné jméno,
+    - závislost na jiných modulech,
+    - jasně definované API poskytované modulem.
+- měl by se jmenovat module-info.java. 
+- tento soubor by měl být umístěn v adresáři se stejným názvem 
+- např. soubor s obsahem (module pl.sdacademy {}) by měl být v adresáři (src / pl.sdacademy)
+
+
+-------------------Vytvoření jednoduchého modulu-------------------
+
+- zdrojový kód by měl být podle konvence umístěn v balíčku umístěném v hlavním adresáři modulu
+- napr. src/pl.sdacademy/pl/sdacademy/module
+
+
+    package pl.sdacademy.pl.sdacademy.module;
+
+    public class HelloModules {
+
+        public static void main(String[] args) {
+            System.out.println("Hello modules!");
+        }
+    }
+
+
+-------------------compilation-------------------
+
+- aby bylo možné zkompilovat modul na úrovni projektu, je nutné vytvořit adresář mods
+- kompilace modulu se provádí příkazem:
+
+    javac -d mods/pl.sdacademy src/pl.sdacademy/module-info.java src/pl.sdacademy/pl/sdacademy/module/HelloModules.java
+
+    - volba -d určuje adresář decel pro zkompilované třídy 
+    - dalším parametrem je cesta k deskriptoru modulu 
+    - nakonec je definována cesta ke zdrojovému kódu.
+
+
+-------------------Provedení-------------------
+
+- modul je implementován pomocí příkazu:
+
+    java --module-path mods -m pl.sdacademy/pl.sdacademy.pl.sdacademy.module.HelloModules
+
+
+    - pro spuštění zkompilovaných tříd musíme nastavit cestu k modulu (--module-path)
+    - tato volba nastavuje adresáře, kde lze moduly nalézt
+    - volba modulu (-m) nastavuje hlavní třídu, která má být volána
+    - je nutné nastavit modul a balíček a třídu, ve které se master class nachází
+
+
+-------------------Exports a Requires-------------------
+
+- abychom umožnili ostatním modulům používat třídy, musíme v našem balíčku také použít klíčové slovo exports
+- toto slovo používáme v souboru module-info.java 
+- poté zadáme název balíčku, který chceme v rámci našeho modulu sdílet, např.:
+
+    module pl.sdacademy {
+        exports pl.sdacademy.some.package;
+    }
+
+- pokud chceme využít možnosti jiného modulu v modulu, který vytváříme, musíme v souboru module-info.java uvést, které balíčky chceme použít, např.:
+
+    module pl.sdacademy.other.module {
+        requires pl.sdacademy.some.package;
+    }
+
+
+

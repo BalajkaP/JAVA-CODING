@@ -1,0 +1,77 @@
+Tridy `ObjectInput` a `ObjectOutput` jsou rozhraní, která slouží pro čtení a zápis objektů do různých datových proudů. Tato rozhraní poskytují metody pro serializaci (zápis objektů do binární podoby) a deserializaci (čtení objektů z binární podoby). 
+
+Rozsiruji DataInput a DataOutput.
+
+ObjectInput:
+
+close()
+-uzavře proud a uvolní všechny související zdroje.
+
+readObject()
+- čte a vrátí další objekt ze vstupního proudu.
+
+readInt()
+- čte a vrátí další hodnotu typu `int` ze vstupního proudu.
+
+readLong()
+- čte a vrátí další hodnotu typu `long` ze vstupního proudu.
+
+readDouble()
+- čte a vrátí další hodnotu typu `double` ze vstupního proudu.
+
+readBoolean()
+- čte a vrátí další hodnotu typu `boolean` ze vstupního proudu.
+
+readByte()
+- čte a vrátí další hodnotu typu `byte` ze vstupního proudu.
+
+readShort()
+- čte a vrátí další hodnotu typu `short` ze vstupního proudu.
+
+readFloat()
+- čte a vrátí další hodnotu typu `float` ze vstupního proudu.
+
+readChar()
+- čte a vrátí další hodnotu typu `char` ze vstupního proudu.
+
+skip(long n)
+- přeskočí `n` bajtů ve vstupním proudu.
+
+
+
+Metody třídy `ObjectOutput`:
+
+writeObject(Object obj)
+-  zapíše objekt `obj` do výstupního proudu.
+
+writeInt(int v)
+- zapíše hodnotu typu `int` do výstupního proudu.
+
+writeLong(long v)
+- zapíše hodnotu typu `long` do výstupního proudu.
+
+writeDouble(double v)
+- zapíše hodnotu typu `double` do výstupního proudu.
+
+close()
+- uzavře proud a uvolní všechny související zdroje.
+
+writeBoolean(boolean v)
+- zapíše hodnotu typu `boolean` do výstupního proudu.
+
+writeByte(int v)
+- zapíše hodnotu typu `byte` do výstupního proudu.
+
+writeShort(int v)
+- zapíše hodnotu typu `short` do výstupního proudu.
+
+writeFloat(float v)
+- zapíše hodnotu typu `float` do výstupního proudu.
+
+writeChar(int v)
+- zapíše hodnotu typu `char` do výstupního proudu.
+
+flush()
+- vynutí vyprázdnění všech dat z bufferu do výstupního proudu.
+
+Obě třídy `ObjectInput` a `ObjectOutput` jsou součástí Java IO frameworku a poskytují možnost práce s objekty a jejich převodu na binární formát pro ukládání nebo přenos dat. Používají se v situacích, kdy je potřeba ukládat nebo posílat komplexní data, která nelze jednoduše reprezentovat primitivními datovými typy.

@@ -1,0 +1,157 @@
+- Record je speciálním druhem třídy, které se používají hlavně k zjednodusovani kodu
+- lze pouzivat misto lombok
+- nelze z nich dědit
+- mohou implementovat rozhraní
+
+----------------------Definování----------------------
+
+- místo class klíčové slovo record. 
+- za názvem třídy definujeme proměnné třídy a současně hlavní konstruktor (také známý jako kanonický konstruktor).
+
+
+Příklad jednoduchého zápisu:
+
+    public record Car(String model, String producer, int wheelSize) {
+    }
+
+Ve výše uvedeném příkladu má záznam následující proměnné (model, producer, wheelsize) a konstruktor všech argumentů. 
+
+
+----------------------Vytvareni instance----------------------
+
+- jako u bezne tridy
+
+    Car car = new Car("Corolla", "Toyota", 4);
+
+
+----------------------Promenne----------------------
+
+- vsechny promenne jsou u Records final
+- ke každé promenne lze přistupovat voláním metody se stejným názvem jako promenne (bez get jako v getteru).
+
+    System.out.println(car.model());
+    System.out.println(car.producer());
+    System.out.println(car.wheelSize());
+
+
+
+----------------------Konstruktory----------------------
+
+- každý Record musí definovat alespoň jeden hlavní konstruktor (kanonický) - definovaný vedle názvu třídy.
+- může mít libovolný počet argumentů (také 0).
+- záznamy mohou mít další konstruktory (definované uvnitř těla záznamu), ale každý z nich musí volat kanonický konstruktor (pomocí tohoto klíčového slova)
+
+
+Níže uvedený příklad ukazuje, jak definovat více konstruktorů uvnitř záznamu:
+
+    // hlavni konstruktor
+    public record Car(String model, String producer, int wheelSize) {
+
+        // dalsi konstruktor
+        public Car(String model, String producer) {
+            // musime volat hlavni konstruktor pomoci this
+            this(model, producer, 4);                 
+        }
+    }
+
+
+Nesprávný způsob definování dalsiho konstruktoru:
+
+
+    public record Car(String model, String producer, int wheelSize) {
+
+        // Chyba kompilace - konstruktor nevola hlavni konstruktor
+        public Car(String model, String producer) { 
+            this.model = model;
+            this.wheelSize = 4;
+            this.producer = producer;
+        }
+    }
+
+
+----------------------Metody----------------------
+
+- každý Record má výchozí implementaci pro následující metody:
+    - equals
+    - hashCode
+    - toString
+
+- Každá implementace je generována na základě každé proměnné:
+
+    public record Car(String model, String producer, int wheelSize) {
+    }
+
+    public class Main {
+        public static void main(String[] args) {
+            Car car = new Car("Corolla", "Toyota", 4);
+            System.out.println(car);                                            // Car[model=Corolla, producer=Toyota, wheelSize=4]
+            System.out.println(car.equals(car));                                // true
+            System.out.println(car.equals(new Car("Auris", "Toyota", 4)));      // false
+            System.out.println(car.hashCode());                                 // 1249046302
+        }
+    }
+
+
+- Tyto metody je však možné přepsat:
+
+    public record Car(String model, String producer, int wheelSize) {
+
+        @Override
+        public String toString() {
+            return "Car{" +
+            "model='" + model + '\'' +
+            ", producer='" + producer + '\'' +
+            ", wheelSize=" + wheelSize +
+            '}';
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            final Car car = (Car) o;
+            return wheelSize == car.wheelSize && Objects.equals(model, car.model) && Objects.equals(producer, car.producer);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(model, producer, wheelSize);
+        }
+    }
+
+- každý Record, stejně jako každá jiná třída, může definovat další metody a statická pole:
+
+    public record Car(String model, String producer, int wheelSize) {
+
+        private static final String TOYOTA = "Toyota";
+
+        public static boolean isToyota(Car car) {
+            return car.model.equals(TOYOTA);
+        }
+
+        public String getFullName() {
+            return producer + " " + model;
+        }
+
+        private boolean isHybrid() {
+            return producer.equals(TOYOTA);
+        }
+
+    }
+
+
+----------------------Implementace rozhrani----------------------
+
+    import java.util.Comparator;
+
+    public record Car(String model, String producer, int wheelSize) implements Comparator<Car> {
+  
+        @Override
+        public int compare(final Car o1, final Car o2) {
+            return 0;
+        }
+  
+    }
+
+
+

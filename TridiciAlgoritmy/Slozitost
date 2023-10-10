@@ -1,0 +1,19 @@
+Casova:
+- zalezi na velikosti vstupu
+- je funkce, ktera kazde mnozine vstupnich dat prirazuje pocet operaci vykonavanych pri vypoctu podle daneho algoritmu
+- vypocita kolik operaci se musi vykonat, abychom dostali pozadovany vystup
+
+Konstantni 0(1)
+Logaritmicka 0(log(n))
+Linearni 0(n)
+Kvadraticka 0(n^2)
+Kubicka 0(n^3)
+Exponencialni 0(k^n)
+
+
+
+
+Prostorova:
+- jde o spotrebu pameti
+- zavisi na velikosti datovych struktur, ktere algoritmus vyuziva a na velikosti vstupu
+- vysledkem je maximalni soucet tzv. elementarnich bunek, ktere budou na kazdem kroku v algoritmu pouzity

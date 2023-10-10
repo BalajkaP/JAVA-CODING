@@ -1,0 +1,310 @@
+- potomek tridy Objekt
+- dedi veskere metody, atributy ... tridy Objekt
+- pouziti pro hodnoty, ktere se nebudou menit
+- každý výčet může definovat libovolný počet předefinovaných hodnot
+- instanci enum načítáme tečkovou notaci (JsonSerializationStrategy strategy = JsonSerializationStrategy.SNAKE_CASE;)
+
+Kromě definování seznamu možných hodnot mohou výčtové typy (enum):
+- definovat konstruktory
+- definovat pole
+- definovat metody
+- implementovat rozhraní
+- používat modifikátory přístupu
+
+Není možné:
+- rozšířit výčet
+- rozšířit další třídu ve výčtu
+
+--------------------------konstrukce--------------------------
+
+public enum NazevTypu {
+	VARIANTA1, VARIANTA2, VARIANTA3;
+}
+
+NazevTypu nazevPromenne;
+nazevPromenne = NazevTypu.VARIANTA1;
+System.out.println(nazevPromenne);
+
+--------------------------------------------------------------
+
+
+Porovnání výčtových typů
+JsonSerializationStrategy strategyA = JsonSerializationStrategy.CAMEL_CASE;
+JsonSerializationStrategy strategyB = JsonSerializationStrategy.CAMEL_CASE;
+System.out.println(strategyA == strategyB); // true
+System.out.println(strategyA.equals(strategyB)); // true
+
+--------------------------------------------------------------
+
+Konstruktory a enumová pole
+Každý výčet může definovat více konstruktorů a všechny by měly být soukromé (nebo pokud možno nedefinovat žádný modifikátor přístupu). 
+V případě, že konstruktor používá vstupní parametry, musí být tyto parametry specifikovány pro každou hodnotu výčtu, např.:
+
+
+public enum JsonSerializationStrategy {
+  SNAKE_CASE("snake case"),
+  CAMEL_CASE("camel case"),
+  KEBAB_CASE("kebab case");
+
+  private final String readableName;
+
+  JsonSerializationStrategy(final String readableName) {
+    this.readableName = readableName;
+  }
+}
+
+--------------------------------------------------------------
+
+Metody a rozhraní
+Každý výčet, stejně jako každá třída, může implementovat rozhraní a definovat metody, např.:
+
+
+public enum JsonSerializationStrategy implements IdProvider {
+  SNAKE_CASE("snake case"),
+  CAMEL_CASE("camel case", "1"),
+  KEBAB_CASE("kebab case", "2");
+
+  private final String readableName;
+  private final String id;
+
+  JsonSerializationStrategy(final String readableName) {
+    this.readableName = readableName;
+    this.id = "0";
+  }
+
+  JsonSerializationStrategy(final String readableName, final String id) {
+    this.readableName = readableName;
+    this.id = id;
+  }
+
+  public String getReadableName() {
+    return readableName;
+  }
+
+  @Override
+  public String getId() {
+    return id;
+  }
+}
+
+
+Pro volání metody bychom měli použít tečkovou notaci, stejně jako pro jakoukoli třídu:
+
+
+JsonSerializationStrategy strategy = JsonSerializationStrategy.CAMEL_CASE;
+System.out.println(strategy.getId() + " " + strategy.getReadableName());
+
+--------------------------------------------------------------
+
+Dědění
+Výčty nemohou rozšířit třídu. Následující kód se nezkompiluje:
+
+public class SomeBaseClass {
+}
+
+public enum EnumExample extends SomeBaseClass {
+}
+
+
+Jiné třídy také nemohou rozšířit výčet. Následující kód se také nezkompiluje:
+
+
+public enum EnumExample {
+}
+
+public class SomeBaseClass extends EnumExample {
+}
+
+--------------------------------------------------------------
+
+
+Vestavěné metody
+Každý výčet má přístup k následujícím statickým metodám:
+- hodnoty - vrátí pole všech možných hodnot výčtu
+- valueOf - vrátí instanci výčtu na základě názvu vstupu
+
+Každá instance enum má metodu name(), která vrací název instance jako String.
+
+Následující příklad ukazuje použití těchto metod:
+
+
+public enum Difficulty {
+  EASY,
+  MEDIUM,
+  HARD
+}
+
+
+Stream.of(Difficulty.values()).forEach(System.out::println); // EASY MEDIUM HARD
+System.out.println(Difficulty.valueOf("EASY") == Difficulty.EASY); // true
+System.out.println(Difficulty.MEDIUM.name()); // MEDIUM
+
+
+
+
+
+--------------------------priklad 1--------------------------
+
+public enum Den {
+	PONDELI, UTERY, ...N;
+}
+
+Den den;
+den = Den.PONDELI;
+System.out.println(den);
+
+--------------------------priklad 2--------------------------
+
+public enum TypeOfStay {
+	PRACOVNI, REKREACNI;
+	
+	PRACOVNI("pracovni"), REKREACNI("rekreacni");
+	
+	String description;
+	
+	TypeOfStay (String description) {
+		this.description = description;
+	}
+	
+	@Override
+	public String toString() {
+		return description;
+}
+
+public class Main {
+
+example.TypeOfStay(TypeOfStay.REKREACNI);
+example.TypeOfStay(TypeOfStay.PRACOVNI);
+System.out.println("Typ pobytu: " +example.getTypeOfStay()));
+System.out.println(example);
+
+--------------------------priklad 3--------------------------
+
+public enum DriversLicenceType {
+	AM, A1, A2, B1, B, BE, C1, ...;
+}
+
+public class DriversLicence {
+	final String owner;
+	final DriversLicenceClass class;
+	
+	public DriversLicence(String owner, DriversLicenceType class) {
+		this.owner = owner;
+		this.class = class;
+	}
+	public DriversLicenceClass getClass() {
+		return this.class;
+	}
+}
+
+public class Mine {
+
+DriversLicence drivers Licence = new DriversLicence ("Karel Dvořák", DriversLicenceClass.B);
+System.out.println(driversLicence.getClass());
+
+-----------------hotovy vyctovy typ DayOfWeek-----------------
+
+- lze vyuzit hotovy vyctovy typ DayOfWeek z knihovny java.time
+- vypisovani nazvu dnu v CZ (pouiti informace o narodnim nastaveni operacniho systemu)
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+
+public class WeekDays {
+	public static void main (String [] args) {
+		LocalDate today = LocalDate.of(2020, 10, 27);			// objekt s datem 27.10.2020
+		DayOfWeek day = today.getDayOfWeek();				// zjistíme den v týdnu
+		System.out.println(day);					// TUESDAY
+
+
+
+- v ostatnich jazycich pobezi spravne
+- metoda getDisplayName
+- parameter dostane jestli se ma vypsat cely nazev dne TextStyle.FULL_STANDALONE
+- v jakem jazyce se ma vypsat Local.getDefault()
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.format.TextStyle;
+import java.time.Locale;
+
+public class WeekDays {
+	public static void main (String [] args) {
+		LocalDate today = Localdate.of(2020, 10, 27);
+		DayOfWeek day = today.getDayOfWeek();
+		System.out.println(day);
+		String dayAsText = day.getDisplayName();
+		TextStyle.FULL_STANDALONE, Local.getDefault());
+	System.out.println(dayAsText);
+}
+
+--------------------------priklad 3--------------------------
+
+public enum Den {
+	PONDELI (true),
+	UTERY (true),
+	STREDA (true),
+	CTVRTEK (true),
+	PATEK (true),
+	SOBOTA (false),
+	NEDELE (false);
+
+	private boolean jePracovni;
+		
+	private Den (boolean je Pracovni) {
+		this.jePracovni = jePracovni;
+	}
+	public boolean jePracovni() {
+		return jePracovni;
+	}
+}
+
+--------------------------priklad 4--------------------------
+
+enum Planet{
+	MERCURY(1),
+	VENUS(2),
+	EARTH(3),
+	MARS(4),
+	JUPITER(5),
+	SATURN(6),
+	URANUS(7),
+	NEPTUNE(8),
+	PLUTO(9);
+	
+	int number;
+	
+	Planet(int number){
+		this.number = number;
+	}
+}
+
+
+public class Main {
+
+	public static void main(String[] args) {
+
+		//enum = enumerated (ordered listing of items in a collection)
+		//grouping of constants that behave similarly to objects
+	
+		Planet myPlanet = Planet.PLUTO;
+		
+		canILiveHere(myPlanet);
+		
+	}
+	
+	static void canILiveHere(Planet myPlanet){
+		
+		switch(myPlanet) {
+		case EARTH:
+			System.out.println("You can live here :)");
+			System.out.println("This is planet #"+myPlanet.number);
+			break;
+		default:
+			System.out.println("You can't live here...yet");
+			System.out.println("This is planet #"+myPlanet.number);
+			break;
+		}
+	}
+	
+}

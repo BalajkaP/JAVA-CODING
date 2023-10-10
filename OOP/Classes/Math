@@ -1,0 +1,55 @@
+Třída pro matematické operace:
+
+Math.max(5,10);                                                    // 10
+Math.min(55,100);                                                  // 55
+Math.abs(-77);                                                     // 77
+Math.ceil(3.55D);                                                  // 4.0
+Math.floor(3.55D);                                                 // 3.0
+Math.pow(2,10);                                                    // 1024.0
+Math.random();                                                     // 0.20464094804059307 (vrací hodnotu <0,1))
+Math.round(9.99D);                                                 // 10
+Math.sqrt(81);                                                     // 9.0
+Math.PI;                                                           // 3.141592653589793
+Math.E;                                                            // 2.718281828459045
+
+
+-----------Třída Math-----------
+
+Java Math class
+
+Math.max(x,y)
+Math.min(x,y)
+Math.abs(y)
+Math.sqrt(x)
+Math.round(x)
+Math.ceil(x)
+Math.floor(x)
+
+-----------Třída Main-----------
+
+import java.util.Scanner;
+
+public class Main {
+
+ public static void main(String[] args) {
+  
+ double x;
+ double y;
+ double z;
+
+ Scanner scanner = new Scanner(System.in);
+    
+ System.out.println("Enter side x: ");
+ x = scanner.nextDouble();
+ System.out.println("Enter side y: ");
+ y = scanner.nextDouble();
+
+ z = Math.sqrt((x*x)+(y*y));
+
+ System.out.println("The hypotenuse is : "+z);
+  
+ scanner.close();   
+ }
+}
+
+-----------Konec-----------

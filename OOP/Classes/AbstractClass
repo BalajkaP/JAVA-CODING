@@ -1,0 +1,137 @@
+Abstraktni trida
+- zamezime tride, aby z ni byl objekt
+- deklaruje 1 nebo vice abstraktnich metod, ktere mohou byt i konkretni
+- konstruktory mohou byt vychozi nebo parametrizovane
+- umoznuje definovat final a static metody
+- k abstraktni tride lze pristupovat pouze pomoci dedeni
+- abstraktni trida muze zahrnovat i promenne
+- kdyz je zdedena trida abstract nemusi se v ni implementovat vsechny abstract metody predka 
+- kdyz je zdedena trida default musi implementovat vsechny abstract metody (neabstraktni implementovat nemusi)
+
+
+-------------------------------Rozdil mezi abstraktni tridou a rozhranim------------------------------
+
+Abstraktni trida                                            Rozhrani
+--------------------------------------------------------------------------------------------------------------
+extends (dedeni)                                            implements (implementace rozhrani)
+muze deklarovat promenne                                    nemuze deklarovat promenne
+muzu deklarovat abstraktni i neabstraktni metody            vsechny metody jsou abstraktni pokud neuvedu default
+nepodporuje vicenasobne dedeni                              podporuje vicenasobne dedeni
+muze rozsirit tridu a take implementovat rozhrani           muze rozsirit pouze dalsi rozhrani
+clenove mohou byt protected, private ...                    clenove pouze public
+promenne mohou byt static, nestaticke, final                promenne pouze static a final
+chceme sdílet určitý kód mezi mnoha příbuznými třídami      chceme pouze vytěžit nějakou abstrakci, kterou lze použít pro mnoho nesouvisejících tříd
+
+
+Abstraktní třída může implementovat rozhraní, aniž by deklarovala těla svých metod, nicméně bychom měli dát tělo všem abstraktním metodám 
+bez ohledu na to, zda patří rozhraní nebo abstraktní třídě.
+
+
+
+
+
+-----------------------------Definice abstraktní třídy-----------------------------
+
+    public abstract class Button { 
+
+        public String getComponentName() {
+            return "Button";
+        }
+
+        // Abstraktní metody nelze deklarovat jako private
+        public abstract void onClick(); 
+    }
+
+
+- chceme-li vytvořit instanci takové třídy, musíme ji nejprve rozšířit, protoze nelze vytvorit instanci abstraktni tridy
+
+
+    // Neabstraktni trida - musime implementovat vsechny abstraktni metody
+    public class SimpleButton extends Button { 
+        @Override                                
+        void onClick() {
+            System.out.println("Simple Button was clicked");
+        }
+    }
+
+- nyni lze vytvorit instanci
+
+    Button button = new SimpleButton();
+
+
+------------------------------------------------------------------------------------
+
+- Definováním abstraktní třídy, která dědí z abstraktní třídy, můžeme, ale nemusíme implementovat zděděné abstraktní metody. 
+
+
+    public abstract class TestTemplate {
+        abstract public void run();
+        protected abstract int getNumberOfIterations();
+    }
+
+// abstract trida - muze, ale nemusi implementovat vsechny abstraktni metody
+    public abstract class PerformanceTestTemplate extends TestTemplate { 
+        public void run() {            
+            System.out.println("I should run test here");
+        }
+    public abstract double getAverageExecutionTime();
+    }
+
+// neabstraktni trida - musi implementovat vsechny abstraktni metody
+    public class SortListPerformanceTest extends PerformanceTestTemplate {
+        @Override 
+        public double getAverageExecutionTime() {
+            // calculate value based on real scenario
+            return 5.0;
+        }
+
+        @Override
+        protected int getNumberOfIterations() {
+            return 3;
+        }
+}
+
+
+
+-----------metoda v abstraktni tride obyc, ale uvnitr teto metody je vyuziti abstraktni metody-----------
+
+
+public abstract class MusicalInstrument {
+
+    private final InstrumentRange range;
+
+    public MusicalInstrument(InstrumentRange range) {
+        this.range = range;
+    }
+
+    public abstract String whoIAm();
+
+    public String play(){
+        return whoIAm() + " " + "is played";
+    }
+
+    public String showToneRange(){
+        return range.toString();
+    }
+}
+
+
+
+public class Guitar extends MusicalInstrument{
+    public Guitar() {
+        super(InstrumentRange.GUITAR);
+    }
+
+    @Override
+    public String whoIAm() {
+        return "Guitar";
+    }
+}
+
+
+
+
+
+
+
+

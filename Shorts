@@ -1,0 +1,15 @@
+//  - Ctrl + /    // komentar pro vice radku naraz
+\   - RAlt + q
+|   - RAlt + w 
+&   - RAlt + c 
+{}  - RAlt + b/n 
+[]  - RAlt + f/g 
+Ctrl + d             // duplikace radku
+Shift + F6           // Refactor (IntelliJ)
+Ctrl + Shift + -/+   // rozbalovania  zabalovani kodu   
+Ctrl + Alt + v       // generovani zbytku kodu pri new
+
+
+Ctr+R - nahrazovani hodnot hromadne pro jednu danou tridu
+Ctrl+Shift+R - nahrazovani hodnot hromadne pro cely projekt
+Ctrl+Shift+F - hledani v celem programu

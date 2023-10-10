@@ -1,0 +1,336 @@
+- poskytuji pristup k praci s ruznymi datovymi typy
+- umoznuji parametrizovat tridy, rozhrani a metody, aby mohly pracovat s rutnymi typy objektu, aniz by se musel vytvaret duplicitni kod
+- umoznuji kontrolovat typovou spravnost pri kompilaci (snazsi odhalit chyby v ramci vyvoje)
+- lze psat obecny kod pro pouziti u ruznych datovych typu (minimalizace duplicit a snadne opetovne pouziti kodu)
+ - napr. ArrayList<E> -> E reprezentuje libovolny datovy prvek (Integer, Dog, String ...)
+- nazev generickeho typu je v zavorkach <>
+- konvence pro genericky typ:
+ - E - Element
+ - K - Key
+ - N - Numbers
+ - T - Type
+ - V - Value
+ 
+
+- Priklad bez generic:
+
+public class Box {
+
+    private Object item;
+
+    public Object getItem() {
+        return item;
+    }
+
+    public void setItem(Object item) {
+        this.item = item;
+    }
+}
+
+- V případě výše uvedeného fragmentu kódu jsme schopni předat objektu třídy Box (kvůli použití typu Object) jakýkoli objekt. 
+- Na úrovni kompilace však nejsme nijak chráněni před chybným předáním různých typů objektů do stejného objektu Box, což může vést k chybám v běhovém prostředí. 
+- Vzhledem k možnosti použití generických typů je kompilátor schopen ověřit přenesené typy.
+
+- Pouziti generickeho typu
+
+public class Box<T> {
+    private T item;
+
+    public T getItem() {
+        return item;
+    }
+
+    public void setItem(T item) {
+        this.item = item;
+    }
+}
+
+- Při porovnání výše uvedených úryvků kódu je vidět, že typ T nahrazuje typ Object. 
+- Konkrétní typ pro parametr T je předán při vytváření instance třídy nebo pomocí statických metod třídy.
+
+
+-----------------------------Vytváření instancí generických tříd-----------------------------
+
+- Abychom vytvořili objekt, kterému potřebujeme předat hodnotu generického typu, musíme poskytnout konkrétní typ, který parametr nahradí, např. T:
+
+    // T nahrazeno Integer
+    Box<Integer> numberBox = new Box<Integer>(); 
+
+
+- pokud odkaz, ke kterému přiřazujeme vytvořený generický objekt, obsahuje informace o typu, 
+nemusíme tento typ při vytváření objektu opakovat, ale použití <> je stále povinné:
+
+    Box<Integer> numberBox = new Box<>();
+
+
+- Tento typ je zase nutné zadat při vytváření objektu, pokud použijeme klíčové slovo var(viz google), např.:
+
+    var intList = new ArrayList<Integer>();
+
+
+
+-----------------------------Počet generik-----------------------------
+
+- V rámci jedné třídy můžete deklarovat více generik, které budou součástí třídy. 
+- Každý parametr typu by měl být podle konvence deklarován jako jedinečný znak.
+
+- Následující příklad definuje dvojici dvou obecných objektů. 
+  - Promenne key i hodnoty promenne mohou být libovolného typu.
+
+public class Pair<K, V> {
+    private K key;
+    private V value;
+
+    public K getKey() {
+        return key;
+    }
+
+    public void setKey(K key) {
+        this.key = key;
+    }
+
+    public V getValue() {
+        return value;
+    }
+
+    public void setValue(V value) {
+        this.value = value;
+    }
+}
+
+
+- Vytvoření instance pro třídu výše bude vypadat takto:
+
+  Pair<String, Float> pair = new Pair<String, Float>();
+
+
+-----------------------------Rozšíření generické třídy-----------------------------
+
+- Můžeme snadno rozšířit generickou třídu. Třída, která zdědí generickou třídu, musí specifikovat generický typ nebo zůstat generická. 
+
+- Následující definice tříd demonstrují tyto možnosti:
+
+  public class BaseClass<T, V> {
+  }
+
+  // jsou zadána generika
+  public class NoLongerGenericClass extends BaseClass<String, Integer> { 
+  }
+
+  // jeden genericky typ byl specifikovan - V. Trida je stale generic and pozaduje aby byl parametr T specifikovan.
+  public class StillGenericClass<T> extends BaseClass<T, Integer> { 
+  }
+
+
+-----------------------------Obecné metody-----------------------------
+
+- Nejen třídy mohou být default. Metody také umožňují deklarovat vlastní parametrické typy. 
+- Viditelnost těchto typů je omezena na konkrétní metodu. 
+- Jsou povoleny statické i nestatické obecné metody. 
+- Syntaxe pro generické metody rozšiřuje deklaraci metody o parametrické typy umístěné před návratovým typem. 
+- Při použití takových metod nemusíme, ale můžeme specifikovat generika. Děláme to s použitím závorek <>, ve kterých udáváme hodnoty generik, např.:
+
+public class PairGenerator {
+  public static <K, V> Pair<K, V> generatePair(K key, V value) {
+    Pair<K, V> pair = new Pair<K, V>();
+    pair.setKey(key);
+    pair.setValue(value);
+    return pair;
+  }
+
+  public static void main(String[] args) {
+    final Pair<Integer, String> firstPair = PairGenerator.generatePair(1, "value1");
+    final Pair<Long, String> secondPair = PairGenerator.<Long, String>generatePair(2L, "value2");
+  }
+}
+
+
+
+-----------------------------Typy limitujících parametrů-----------------------------
+
+- chceme, aby generické třídy, které vytváříme, mohly používat pouze určité hodnoty generik, jako jsou ty, 
+které dědí z určité třídy nebo implementují specifické rozhraní. 
+- deklarace se provádí <typ, extends a definování omezení>
+- klíčové slovo extends se používá pro třídy i rozhraní
+- je možné vynutit použití generického typu k implementaci mnoha rozhraní (např. public class NumberBox<T extends Number & Cloneable & Comparable<T>>)
+
+
+public class NumberBox<T extends Number> {
+
+  private T value;
+
+  public T getValue() {
+    return value;
+  }
+
+  public void setValue(T value) {
+    this.value = value;
+  }
+
+  public static void main(String[] args) {
+    NumberBox<Double> doubleBox = new NumberBox<>();
+    doubleBox.setValue(3.3);
+    NumberBox<Integer> intBox = new NumberBox<>();
+    intBox.setValue(10);
+    System.out.println(intBox.getValue() + " " + doubleBox.getValue());
+  }
+}
+
+-----------------------------Podtypy-----------------------------
+
+- Kdyz je Integer podtypem Number, neznamená to, že Box<Integer> je podtypem Box<Number>.
+- Abychom získali očekávaný vztah, měli byste používat takzvané Wildcards.
+
+---------------------------Wildcards----------------------------
+
+- U generic znak '?' představuje neznámý typ. 
+
+Wildcard '?' může představovat:
+- promenne metody (variables)
+- promenne tridy (class fields)
+- volitelný typ návratu.
+
+Wildcard '?' nemůže představovat:
+- argument generické metody
+- argument generické třídy.
+
+
+---------------------------Horní hranice---------------------------
+
+- pouziva se tvar ? extends Type
+- Type je horni hranice (konkretni typ, nebo jeho nadtyp)
+- timto zpusobem lze omezit genericky typ tak, aby prijimal pouze objekty daneho typu nebo jeho podtypy
+
+
+- chci vytvořit metodu, která bude fungovat pro List obsahující libovolný číselný typ (tj. objekty, které dědí ze třídy Number). 
+
+public class UpperBoundedWildcards{
+
+  public static double sum(final List<? extends Number> numbers) { // the method accepts only types extending the Number class
+    double sum = 0;
+    for (Number number : numbers) {
+      sum += number.doubleValue();
+    }
+    return sum;
+  }
+
+  public static void main(String[] args) {
+    List<Integer> values = List.of(1, 2, 3);
+    System.out.println(sum(values));
+  }
+}
+
+
+---------------------------Dolní hranice---------------------------
+
+- pouziva se tvar ? super Type
+- Type je dolni hranice (konkretni typ, nebo ejho nadtyp)
+- timto zpusobem lze omezit genericky typ tak, aby prijimal objekty daneho typu, nebo jeho nadtypy
+
+
+- chci metodu, která vezme jako argument List objektů typu Integer nebo ze kterých tato třída dědí (např. Number nebo Object). 
+
+public class LowerBoundedWildcards {
+
+  public static void main(String[] args) {
+    addNumbers(List.of(1, 2, 3));
+    addNumbers(List.of(new Object(), new Object(), new Object()));
+  }
+
+  public static void addNumbers(List<? super Integer> list) {
+    for (int i = 1; i <= 10; i++) {
+      list.add(i);
+    }
+  }
+}
+
+
+
+
+-----------------------Generic Method-----------------------
+
+public class Main {
+
+   public static void main(String args[]) {
+	  
+      Integer[] intArray = {1, 2, 3, 4, 5};
+      Double[] doubleArray = {5.5, 4.4, 3.3, 2.2, 1.1};
+      Character[] charArray = {'H', 'E', 'L', 'L', 'O'};
+      String[] stringArray = {"B","Y","E"};
+      
+      System.out.print("Integer Array: ");
+      displayArray(intArray);
+      System.out.println(firstIndex(intArray));
+
+      System.out.print("Double Array: ");
+      displayArray(doubleArray);
+      System.out.println(firstIndex(doubleArray));
+
+      System.out.print("Character Array: ");
+      displayArray(charArray);
+      System.out.println(firstIndex(charArray));
+      
+      System.out.print("String Array: ");
+      displayArray(stringArray);
+      System.out.println(firstIndex(charArray));
+      */
+   }
+   
+   // Generic method
+   public static <Thing> void displayArray(Thing[] array) {
+
+      for(Thing x : array) {
+         System.out.print(x+" ");
+      }
+      System.out.println();
+   }
+  
+   // Generic method with generic return type 
+   public static <Thing> Thing firstIndex(Thing[] array) {
+
+		return array[0];
+   }
+}
+
+-----------------------Generic Class-----------------------
+
+public class Main {
+
+   public static void main(String args[]) {
+
+	   //bounded types = 	you can create the objects of a generic class to have data 
+	   //					of specific derived types ex.Number
+	   
+	   MyGenericClass<Integer,Integer> myInt = new MyGenericClass<>(1,9);
+	   MyGenericClass<Double,Double> myDouble = new MyGenericClass<>(3.14,1.01);   
+	   //MyGenericClass<Character,Character> myChar = new MyGenericClass<>('@','$');
+	   //MyGenericClass<String,Character> myString = new MyGenericClass<>("Hello",'!');
+	  
+	   	   
+	   System.out.println(myInt.getValue());
+	   System.out.println(myDouble.getValue());
+	  //System.out.println(myChar.getValue());
+	  //System.out.println(myString.getValue());
+   } 
+}
+
+----------------------------------------------------------------
+public class MyGenericClass <Thing extends Number, Thing2 extends Number>{
+
+	Thing x;
+	Thing2 y;
+	
+	MyGenericClass(Thing x, Thing2 y){
+		this.x = x;
+		this.y = y;
+	}
+	
+	public Thing2 getValue() {
+		return y;
+		
+	}
+}
+
+
+
+

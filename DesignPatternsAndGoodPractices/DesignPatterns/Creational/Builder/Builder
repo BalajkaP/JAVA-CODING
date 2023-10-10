@@ -1,0 +1,40 @@
+/*
+Záměr tohoto vzoru:
+- Vytvářet složité objekty krok za krokem 
+- Umožňuje vytvářet různé reprezentace objektu pomocí stejného konstrukčního kódu 
+- Nejčastěji se používá k vytváření objektů, které obsahují mnoho polí. 
+- Objekty, které obsahují mnoho polí (např. 4 a více), lze také vytvořit pomocí konstruktorů, ale pakliže chceme inicializovat pouze některá z těchto polí:
+    - musíme napsat velmi mnoho konstruktorů.
+    - můžeme v konstruktoru předat null (používat null jako argumenty je špatný přístup).
+    - musíme si pamatovat pořadí argumentů v konstruktoru.
+
+- Vzor Builder všechny tyto problémy odstraňuje.
+
+Konstrukce:
+- Abychom mohli vytvořit třídu konstruktoru pro určitou třídu, musíme vytvořit:
+    - statickou třídu uvnitř třídy
+    - nebo samostatnou třídu
+
+- Oba přístupy jsou si podobné, ale první z nich brání uživatelům v použití konstruktoru k vytvoření cílového objektu. 
+- Nezáleží na tom, který z nich si vybereme, vždy musíme implementovat:
+    - "konfigurační" metody pro každé pole, které vypadají jako běžné settery, ale zároveň dávají možnost zavolat další metodu konstruktoru za tečkou.
+    - metodu "build", která vytvoří cílový objekt na základě hodnot nastavených metodami "configuring".
+
+- Díky tomuto přístupu můžeme volat libovolnou podmnožinu "konfiguračních" metod v libovolném pořadí.
+
+----------------------------
+
+Problém, který řeší 
+- Některé objekty mohou mít v konstruktoru mnoho vlastností 
+- Mnohé z těchto vlastností mohou být nepovinné 
+- Konstrukce těchto objektů může být obtížná 
+- Cílem konstruktoru je usnadnit tento proces přesunutím logiky mimo samotnou třídu do samostatných tříd konstruktoru
+
+
+
+-------------------------------------Priklad-------------------------------------
+
+
+*/
+
+//------------------------Main------------------------

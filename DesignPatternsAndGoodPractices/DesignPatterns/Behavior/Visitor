@@ -1,0 +1,39 @@
+/*
+Záměr tohoto vzoru 
+- Oddělit algoritmy od objektů, s nimiž pracují. 
+
+Problém, který řeší 
+- Řekněme, že máme systém s třídami, které jsou již čisté, otestované a používají se v produkci, a potřebujeme je změnit 
+- Softwarový architekt nám to nedovolí, protože bychom mohli rozbít celou aplikaci a později by mohlo být požadováno další rozšíření této funkce 
+- Řešení => Použijeme vzor Visitor a oddělíme funkčnost od těchto objektů
+
+Kdy chceme tento vzor použít? 
+- Pokud potřebujeme provést operaci na každém prvku kompletní struktury, ale chování se bude lišit podle toho, na který prvek působíme. 
+- Aby kód v původních objektech zůstal čistý 
+
+----------------------------
+
+Důležité věci: 
+- Metoda visit() se chová různě v závislosti na objektu, se kterým pracuje. 
+- Třídy ConcreteElement mohou tyto návštěvníky přijmout a provést nové chování voláním metody accept() 
+- metoda accept() přesměruje volání na konkrétního návštěvníka, který by měl zpracovat novou funkci 
+- Třídy ConcreteVisitor implementují nové chování v závislosti na objektu, který je jim předán
+
+----------------------------
+
+Výhody 
+- OCP => zavedení nového chování beze změny původních objektů 
+- SRP => Nové chování žije ve vlastní třídě 
+
+Nevýhody 
+- Pokud potřebujeme přidat novou třídu do hierarchie objektů (například nový tvar), musíme aktualizovat všechny návštěvníky 
+- Návštěvníci nemusí mít přístup k soukromému poli objektů, se kterými pracují
+
+
+
+-------------------------------------Priklad-------------------------------------
+
+
+*/
+
+//------------------------Main------------------------

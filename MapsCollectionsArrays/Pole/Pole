@@ -1,0 +1,222 @@
+POLE:
+- hodi se, kdyz pracujeme s posloupnosti hodnot stejneho typu a predem vime, kolik hodnot bude , nebo alespon jaky maximalni pocet jich bude
+- obsahuje pouze 1 datovy clen
+- jako jedine umoznuje ukladat primitivni datove typy (int, char...)
+- pro ulozeni skupiny objektu nejefektivnejsi zpusob
+- prvky pole objektu obsahuji odkazy na objekty
+- prvky pole primitivnich datovych typu obsahuji skutecne hodnoty
+
+
+----------------Deklarace promenne typu pole----------------
+
+int [] poleCisel;
+String [] poleTextu;
+Racer [] poleZavodniku;
+
+----------------Vytvoreni pole----------------
+
+new datovyTyphodnot [pocetPrvku];
+
+polecisel = new int [10];
+int velikostPole = 15;
+poleTextu = new String [velikostPole];
+Racer [] dalsiPoleZavodniku = new Racer [12];			// prazdne pole kam se vleze 12 objektu
+int [] zaznamy = { 0, 1, 18};
+
+----------------Ulozeni prvku do pole a ziskani prvku z pole----------------
+
+nazevPole [index prvku, se kterym chci pracovat]
+
+poleCisel [1] = 5;
+poleTextu [5] = "Karel";
+poleZavodniku [0];
+System.out.println("Na druhe pozici je cislo: " +poleCisel[1]);
+System.out.println("Prvni zavodnik se jmenuje: " +poleZavodniku [0].getName());
+
+- podobne jako u kolekci ukladame do pole objektu odkazy na objekty, nikoli objekty samotne, proto jeden objekt muze byt ulozen do vice polozek v poli
+- stale se, ale jedna o jediny objekt
+
+----------------Zjisteni poctu prvku v poli----------------
+
+System.out.println("Pocet prvku v poli cisel je: " +poleCisel.length);
+
+- length neni metoda, nepiseme tedy poleCisel.length()
+
+
+----------------Provedeni akce se vsemi prvky v poli----------------
+
+- slouzi k tomu cykly
+
+int [] pole = new int [10];
+for (int i = 0; i < pole.length-1; i++) {
+	pole [i] = 0;
+}
+
+
+Integer[] numbers = {1,2,3,4,5,6,7,8,9};
+String[] words = {"pes", "kocka", "zajic", "slon", "vrabec"};
+System.out.println(Arrays.toString(numbers));
+System.out.println(Arrays.toString(words));
+
+
+
+
+
+
+TRIDA Arrays:
+- obsahuje pomocne metody pro praci s poli
+- obsazena v knihovne java.util
+- obsahuje sadu statickych metod
+
+
+
+----------------Kopirovani pole----------------
+
+System.arraycopy();
+
+- staticka metoda standardni knihovny JAVA urychlujici  kopirovani
+- pretizena pro vsechny datove typy
+
+- můžeme pole (nebo jen jeho část) kopírovat pomocí metody copyOf(). Pro zobrazení obsahu pole můžeme použít metodu toString(), např.:
+
+int[] original = new int[]{1, 2, 3, 4};
+int[] copiedResult = Arrays.copyOf(original, 3);
+System.out.println(Arrays.toString(copiedResult)); // [1, 2, 3]
+
+----------------Prevraceni pole na knihovnu (kontejner) typu List (seznam)----------------
+
+asList();
+
+- umožňuje vytvořit seznam ze zadaných prvků
+
+List<Integer> ints = Arrays.asList(1, 2, 3, 4, 5);
+List<Integer> ints2 = Arrays.asList(5, 2, 7, 4);
+
+----------------Porovnani prvku pole----------------
+
+A/ prirozena metoda ziskana impelementaci rozhrani java.lang.Comparable
+-compareTo();
+	- jako argument ocekava jiny objekt
+		- je-li argument mensi nez aktualni -> vraci zapornou hodnotu
+		- objekty stejne -> vraci 0
+		- argument vetsi nez aktualni -> vraci kaldnou hodnotu
+
+Pro podobný efekt je možné použít metodu equals (vrací se boolean, takže nemáme informaci o lexikografickém pořadí).
+
+int result1 = Arrays.compare(new int[]{1, 2, 3}, new int[]{1, 2, 3});
+System.out.println(result1); // 0
+
+int result2 = Arrays.compare(new int[]{1, 2}, new int[]{1, 2, 3});
+System.out.println(result2); // -1
+
+int result3 = Arrays.compare(new int[]{3, 1}, new int[]{1, 3});
+System.out.println(result3); // 1
+
+boolean result = Arrays.equals(new int[]{3, 1}, new int[]{1, 3});
+System.out.println(result); // false
+
+
+
+B/ implementace rozhrani Comparable
+-Arrays.Sort();
+
+
+C/ implementace rozhrani Comparable
+-compare();
+-equals();
+	- nemusi se az na vyjimky impelementovat, protoze tuto metodu dedi kazda trida od tridy Objekt
+	- jako argument ocekavan jiny objekt
+		- 1. argument vetsi nez 2. -> vraci zapornou hodnotu
+		- argumenty stejne -> vraci 0
+		- 1. argument mensi nez 2. -> vraci kladnou hodnotu
+
+----------------Trideni pole----------------
+
+- libovolne pole primitivnich datovych typu, nebo objektu
+- pomoci metod, jejichz tridy implementuji rozhrani Comparable, nebo je s nimi sdruzen Comparator
+- serizuje i retezce String (nejprve slova zacinajici velkymi pismeny a teprve pote malymi)
+- trideni podle abecedy (bez ohledu na velikost pismen)
+	- definuji tridu Comparator, ktera prekryje zdedene chovani rozhrani Comparable pro tridu String
+	- kazdy retezec je pred porovnanim preveden na mala pismena (funkci poskytuje vestavena metoda compareTo() tridy String
+- algoritmus trideni pouzivany knihovnou JAVA je optimalni pro urcity typ trideni
+
+
+----------------Vyplneni pole hodnotami----------------
+
+fill();
+
+-prijima pouze 1 argument, ktery vlozi do pole
+- lze uplatnit jak cele pole, tak urcity interval prvku
+- umoznuje zaplnit prvky pole pouze 1 stejnou hodnotou
+
+int [] arraysOFintegers = new int [5];
+Arrays.fill(arrayOfIntegers.0);
+System.out.println(Arrays.toString(arraOfIntegers)); 				// [0, 0, 0, 0, 0]
+
+- nastavi vsechny prvky na zadanou hodnotu, neprida ale nove prvky
+- u prazdneho seznamu neni tedy co nastavovat
+
+----------------Setrideni pole----------------
+
+sort();
+
+int [] arrayOfIntegers = { 64, 12, 35, 52 };
+Arrays.sort(arrayOfIntegers);
+System.out.println(Arrays.toString(ArrayOfIntegers));				// [12, 35, 52, 64]
+
+----------------Vypis obsahu pole----------------
+
+- zejmena pro hledani chyb v programu se nam hodi moznost obsahu pole ci kolekce prevest na text toString
+
+int [] arrayOfIntegers = { 64, 12, 35, 52 };
+System.out.println(Arrays.toString(ArrayOfIntegers));
+
+- pro vicerozmerna pole deepToString
+
+int [][] array2d = { {0, 1, 2}, {3, 4, 5} };
+System.out.println(Arrays.deepToString(array2d));
+
+----------------Porovnani poli zda jsou shodna----------------
+
+equals();
+
+- pretizena pro vsechny primitivni datove typy a pro tridu Objekt
+- pole jsou shodna, maji-li stejny pocet prvku a je-li kazdy prvek 1. pole ekvivalentem odpovidajicimu prvku 2. pole
+- volani ruzna, dle objektove interpretace (Integers.equals()...)
+
+----------------Prohledavani setrideneho pole----------------
+
+binarySearch();
+
+- najde prvek v setridenem poli s primitivnimi datovymi typy i s objekty
+- nepouzivat metodu u nesetridenych poli
+- vracenou hdonotou je index pro hledanou hodnotu
+- nenajde polozku -> vraci zapornou hodnotu
+- algoritmus zdvojene polozky nepodporuje, pouze toleruje
+- potrebuje-li pole s jedinecnymi hodnotami pouziji TreeSet (TreeSet nahradit pouze v pripade potizi s vykonem)
+- setridil jsem-li objekty pole pomoci Comparator (nelze pole primitivnich datovych typu), 
+musim stejny Comparator pouzit take pro vyhledavani pomoci metody binarySearch() (pretizene verze metody
+
+int result = Arrays.binarySearch(new int[]{1, 2, 4, 5 ,6}, 5);
+System.out.println(result); // 3
+
+----------------Zjisteni indexu prvního prvku, odlisnych poli----------------
+
+mismatch();
+
+- výsledek -1 znamená, že pole se rovnají
+- výsledek nezáporný - jedná se o index neshodného prvku.
+
+int result1 = Arrays.mismatch(new int[]{1, 2, 3}, new int[]{1, 2, 3});
+System.out.println(result1); // -1
+
+int result2 = Arrays.mismatch(new int[]{1, 2, 3}, new int[]{1, 3, 2});
+System.out.println(result2); // 1
+
+----------------Převedení pole na stream----------------
+
+stream();
+
+Arrays.stream(new int[]{1, 2, 3}) // IntStream
+        .map(x -> x * 2)
+        .sum(); // 12

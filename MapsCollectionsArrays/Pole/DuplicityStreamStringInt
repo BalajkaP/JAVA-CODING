@@ -1,0 +1,36 @@
+
+
+----------------Odstraneni duplicit z pole (String)----------------
+
+import java.util.Arrays;
+
+public class E2 {
+
+    public static void main(String[] args) {
+
+        String[] strColors = {"red", "blue", "green", "red", "yellow", "green"};
+
+        strColors = Arrays.stream(strColors).distinct().toArray(String[]::new);
+
+        System.out.println("Array after removing duplicates: " + Arrays.toString(strColors));
+
+    }
+}
+
+
+----------------Odstraneni duplicit z pole (int)----------------
+
+import java.util.Arrays;
+
+public class E21Second {
+
+    public static void main(String[] args) {
+
+        int[] strColors = {1, 1, 1, 5, 3, 8};
+
+        strColors = Arrays.stream(strColors).distinct().toArray();
+
+        System.out.println("Array after removing duplicates: " + Arrays.toString(strColors));
+
+    }
+}

@@ -1,0 +1,230 @@
+- reflexní mechanismus je implementován pomocí objektů dostupných v balíčku java.lang.reflect.
+- umoznuje ziskat informace o strukture trid, dynamicky volat metody, pristupovat a manipulovat s promennymi a vytvaret instance trid, aniz 
+    by bylo nutne mit o nich predem znalosti pri kompilaci
+- reflection umožňuje snadno spravovat kód, jako by to byla data
+- Kód, který využívá reflexi, je hůře čitelný a neumožňuje syntaktickou a sémantickou validaci během kompilace - na to pozor 
+
+
+-------------------Pouziti-------------------
+
+Ziskani informaci o tride
+    - reflection umoznuje ziskat informace o jmenech trid a metodach, konstruktorech, promennych a dalsich vlastnostech trid za behu programu
+Dynamicke volani metod
+    - reflection umoznuje dynamicky volat  metody trid pomoci jejich nazvu a parametru
+    - to muze byt uzitecne pri vytvareni univerzalnich a konfigurovatelnych komponent
+Manipulace s promennymi
+    - reflection umoznuje pristupovat k promennym trid a modifikovat jejich hodnoty, i kdyz jsou private
+    - to muze byt uzitecne napr. pri Serializaci a Deserializaci objektu
+Vytvareni novych instanci
+    - reflection umoznuje vytvaret nove instance trid pomoci konstruktoru
+    - tim lze dynamicky vytvaret objekty bez znalosti typu tridy predem
+
+-------------------Nezbytne nutna pouziti Reflection-------------------
+
+Frameworky a nastroje testovani
+    - nastroje jako napr. JUnit, Spring, Mocjito ... vyuziva reflection k ziskani informaci o tridach ... pro ucely automatickeho testovani
+Seriovani objektu
+    - pri procesu serializace a deserializace objektu, napr. pri ukladani objektu do souboru nebo prenosu dat po siti muze byt reflection pouziti
+        ke cteni a zapisu hodnot promennych, i kdyz nejsou public
+Zasuvne moduly a rozsireni
+    - pri vyvoji zasuvnych modulu a rozsireni, ktere musi dynamicky ziskavat informace o dostupnych funkcionalitach a tridach
+    - to umoznuje dynamiske nacitani modulu za behu aplikace
+Frameworky pro IoC (Frameworky zalozene na IoC - napr. Spring framework)
+    - mohou vyuzivat reflection k automatickemu vytvareni a sprave objektu na zaklade anotaci nebo konfiguracnich souboru
+Debugging a diagnostika
+    - pomoci reflection muzu ziskat informace o tridach ... za behu programu a analyzovat jejich stav
+
+
+------------------------------------------------------------------------------------
+
+Níže budou diskutovány naznačené mechanismy pro Reflection API. 
+
+
+Zdrojové kódy budou založeny na následující definici třídy:
+
+public class Car {
+    private boolean isPrototype = true;
+    private String name;
+    private String model;
+
+    public Car() {
+    }
+
+    public Car(String name, String model) {
+        this.name = name;
+        this.model = model;
+    }
+
+    public Car(String name, String model, boolean isPrototype) {
+        this.name = name;
+        this.model = model;
+        this.isPrototype = isPrototype;
+    }
+
+    gettery / settery ...
+
+}
+
+----------------------------Class----------------------------
+
+V Javě je každý typ odkazem (např. třídy, výčty, pole, rozhraní) nebo primitivem.
+
+- Pro každý typ objektu vytvoří JVM instanci java.lang.Class
+- ta poskytuje metody pro manipulaci a načítání runtime vlastností objektu, včetně jeho členů a informací o typu
+- tato třída také poskytuje možnost vytvářet nové třídy a objekty. 
+- A co je nejdůležitější, je to vstupní bod pro všechna rozhraní API Reflection. 
+
+
+Níže uvedený příklad ukazuje, jak „prozkoumat“ předdefinovanou třídu Car, když je program spuštěn.
+
+Class<?> carClass = Class.forName("pl.sdacademy.Car");
+Method[] methods = carClass.getDeclaredMethods();
+Field[] fields = carClass.getDeclaredFields();
+System.out.println("Available methods: ");
+for (Method method : methods) {
+  System.out.println(method);
+}
+
+System.out.println("Available fields: ");
+for (Field field : fields) {
+  System.out.println(field);
+}
+
+
+Spuštění výše uvedeného programu zobrazí na obrazovce následující řádky:
+
+Available methods: 
+public java.lang.String pl.sdacademy.Car.toString()
+public java.lang.String pl.sdacademy.Car.getName()
+public void pl.sdacademy.Car.setName(java.lang.String)
+public void pl.sdacademy.Car.setModel(java.lang.String)
+public java.lang.String pl.sdacademy.Car.getModel()
+private boolean pl.sdacademy.Car.isPrototype()
+Available fields: 
+private boolean pl.sdacademy.Car.isPrototype
+private java.lang.String pl.sdacademy.Car.name
+private java.lang.String pl.sdacademy.Car.model
+
+
+----------------------------Method----------------------------
+
+- metody vracejí hodnoty, předávají parametry a mohou vyvolávat výjimky. 
+- třída java.lang.reflect.Method poskytuje metody pro získání informací o typu parametrů a návratové hodnotě
+- lze ji také použít k volání metod na daném objektu
+
+
+Níže uvedený příklad ukazuje, jak volat příslušné settery a getry (a tedy metody) pomocí reflexe:
+
+Class<?> carClass = Class.forName("pl.sdacademy.Car");                        // získání objektu třídy pro třídu Car
+
+// vytvoří novou instanci objektu pomocí metody označené jako @ Deprecated. Vrátíme se ke správnému vytváření objektů pomocí odrazu.
+Car car = (Car) carClass.newInstance();                                      
+
+// pomocí objektu Class na instanci carClass získáme objekt Method reprezentující metody setName a setModel s jedním vstupním argumentem typu String
+Method setNameMethod = carClass.getDeclaredMethod("setName", String.class);   
+Method setModelMethod = carClass.getDeclaredMethod("setModel", String.class);
+
+// opět pomocí reflexe získáme objekt Method, tentokrát pro bezargumentový getter getName
+Method getNameMethod = carClass.getDeclaredMethod("getName");             
+
+// voláme dříve stažené nastavovače s příslušnými vstupními argumenty ("Porsche" a "K1")
+// tyto metody musíme volat na určitý objekt - nyní jsou vyvolány na instanci auta vytvořené na začátku.
+setNameMethod.invoke(car, "Porsche");                                      
+setModelMethod.invoke(car, "K1");          
+
+// tisk na obrazovku, - Get name: Porsche, Use method using reflection: iCar {isPrototype = true, name = 'Porsche', model = 'K1'}
+System.out.println("Get name: " + getNameMethod.invoke(car));                 // (7)
+System.out.println("Use method using reflection: ");                          // (8)
+System.out.println(car);                                                      // (9)
+
+
+----------------------------Field----------------------------
+
+- promenne maji modifikátory přístupu, typ a hodnotu. 
+- třída java.lang.reflect.Field poskytuje metody pro přístup k informacím o typu, hodnotě a poskytuje sadu operací pro změnu konkrétní hodnoty, 
+    dokonce i s modifikátorem přístupu private. 
+- abychom mohli nastavit hodnotu pole s modifikátorem private access, musíme nejprve zavolat metodu thesetAccessible pro toto pole s argumentem true
+
+
+Další příklad ukazuje, jak můžeme nastavit hodnoty private promenne v dříve vytvořené třídě Car:
+
+Car car = new Car();
+Field field = Car.class.getDeclaredField("name");
+field.setAccessible(true);
+field.set(car, "test");
+Field modelField = Car.class.getDeclaredField("model");
+modelField.setAccessible(true);
+modelField.set(car, "BMW");
+System.out.println("Set field using reflection: " + car);
+
+
+Výše uvedený program zobrazí na obrazovce následující řetězec: 
+- Set field using reflection: Car {isPrototype = true, name = 'test', model = 'BMW'} 
+
+
+----------------------------Konstruktor----------------------------
+
+- sada operací pro konstruktory v Reflection API je definována v java.lang.reflect.Constructor
+- je podobná mechanismům implementovaným pomocí java.lang.reflect.Method, se dvěma hlavními výjimkami:
+    - konstruktory nemají žádné návratové hodnoty
+    - volání konstruktoru vytvoří novou instanci objektu pro danou třídu.
+
+
+Následující příklad ukazuje, jak vytvořit novou instanci objektu Car pomocí binárního konstruktoru:
+
+Car car = Car.class.getConstructor(String.class, String.class).newInstance("param1", "param2");
+System.out.println("Create object using reflection: " + car);
+
+Tento program vytiskne: 
+- Create object using reflection: Car {isPrototype = true, name = 'param1', model = 'param2'} 
+
+
+----------------------------Reflection a dědění----------------------------
+
+- Při načítání objektu Class pro určitou třídu a následném načítání seznamu dostupných proměnných ... je na výběr ze dvou skupin metod k tomu určených:
+    - obsahující v názvu slovo Declared 
+        - vrátí seznam proměnných, metod nebo konstruktorů s libovolným modifikátorem přístupu definovaným v objektu Class, se kterým právě pracujeme
+    - neobsahující v názvu slovo Declared 
+        – vracejí seznam public proměnných, metod nebo konstruktorů napříč hierarchií tříd nebo rozhraní
+
+
+Následující příklady ukazují tyto rozdíly na základě dostupných metod:
+
+final Method[] methods = Car.class.getMethods();
+for (final Method method : methods) {
+  System.out.println(method);
+}
+
+Výše uvedený příklad nám ukáže seznam veřejných metod dostupných ve třídě Car, ale také ve třídách, ze kterých dědí (v tomto případě Object). 
+
+public java.lang.String pl.sdacademy.Car.toString()
+public java.lang.String pl.sdacademy.Car.getName()
+public void pl.sdacademy.Car.setName(java.lang.String)
+public java.lang.String pl.sdacademy.Car.getModel()
+public void pl.sdacademy.Car.setModel(java.lang.String)
+public final native void java.lang.Object.wait(long) throws java.lang.InterruptedException
+public final void java.lang.Object.wait(long,int) throws java.lang.InterruptedException
+public final void java.lang.Object.wait() throws java.lang.InterruptedException
+public boolean java.lang.Object.equals(java.lang.Object)
+public native int java.lang.Object.hashCode()
+public final native java.lang.Class java.lang.Object.getClass()
+public final native void java.lang.Object.notify()
+public final native void java.lang.Object.notifyAll()
+
+----------------------
+
+Další část kódu nám ukáže pouze metody deklarované přímo ve třídě Car:
+
+final Method[] methods = Car.class.getDeclaredMethods();
+for (final Method method : methods) {
+  System.out.println(method);
+}
+
+Na obrazovce kromě veřejných metod vidíme také soukromou metodu isPrototype:
+
+public java.lang.String pl.sdacademy.Car.toString()
+public java.lang.String pl.sdacademy.Car.getName()
+public void pl.sdacademy.Car.setName(java.lang.String)
+private boolean pl.sdacademy.Car.isPrototype()
+public java.lang.String pl.sdacademy.Car.getModel()
+public void pl.sdacademy.Car.setModel(java.lang.String)

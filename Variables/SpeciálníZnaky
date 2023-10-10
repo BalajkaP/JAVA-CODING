@@ -1,0 +1,33 @@
+Speciální znaky:
+\n - zalomení řádku
+\t - tabulátor
+\\ - zpětné lomítko
+\" - uvozovky
+\' - apostrof
+\b - mezera
+\r
+
+
+        System.out.println("Pes Kočka");                    
+        System.out.println("Pes" + "Kočka");
+        
+        System.out.println("Pes \n Kočka");
+        System.out.println("Pes" + '\n' + "Kočka");
+        
+        System.out.println("Pes \t Kočka");
+        System.out.println("Pes" + '\t' + "Kočka");
+        
+        System.out.println("Pes \\ Kočka");
+        System.out.println("Pes" + '\\' + "Kočka");
+        
+        System.out.println("Pes \" Kočka");
+        System.out.println("Pes" + '\"' + "Kočka");
+        
+        System.out.println("Pes \' Kočka");
+        System.out.println("Pes" + '\'' + "Kočka");
+        
+        System.out.println("Pes\bKočka");
+        System.out.println("Pes" + '\b' + "Kočka");
+        
+        System.out.println("Pes \r Kočka");
+        System.out.println("Pes" + '\r' + "Kočka");

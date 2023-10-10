@@ -1,0 +1,371 @@
+Collection:
+- mimo primitivni typy lze pouzit i jejich objektove protejsky (int - Integer ...)
+
+Nevyhoda Collection -> neznamy typ
+- objekt ztraci po vlozeni do Collection typovou informaci a Collection o objektu vi jen to, ze se jedna o odkaz na objekt
+- chci-li objekt pouzit, musim jej nejprve pretypovat na spravny typ
+- pokud do Collection kde jsou kocky vlozim psa a pokusim se s objekty zachazet jako s kockou, program vyvola vyjimku
+- vyjimkou je trida String, kde se automaticky pri nalezeni objektu typu String, zavola metoda toString() ve tride Objekt.
+- vytvorim-li novou tridu pouzivajici knihovnu ArrayList a budu tam ukladat pouze 1 typ objektu, tak pro vyzvednuti objektu
+nebude treba zadna konverze
+
+Parametrizovane typy: potrebuji vytvorit nove typy zalozene na typech jinych
+
+
+----------------------Operace s kolekcemi----------------------
+
+- nezahrnuty metody, ktere se stanou soucasti Collection dedenim od tridy Objekt
+- je zde vse co muzu s List nebo Set delat
+- List ma navic rozsirenou funkcnost
+- tyto metody muzu uplatnovat na vsechny objekty, ktere implementuji rozhrani Collection
+
+add(E e)						        // zajistuje, ze Collection bude obsahovat pozadovanou hodnotu (nepodari-li se polozku do kolekce vlozit, vraci false)
+addAll(Collection<? extends E> c)	          // pridava do kolekce vsechny prvky v argumentu (podari-li se do kolekce vlozit alespon 1 polozku, vraci false)
+clear()							          // vyjme z Collection vsechny prvky
+contains(Objekt o)			        // je-li argument v kolekci nalezen, vraci true - při porovnání s null by metoda měla vracet false.
+containsAll(Collections<?> c)	    // jsou-li vsechny polozky argumentu v kolekci nalezeny vraci true
+isEmpty()						          // je-li kolekce prazdna, vraci true
+iterator()						        // vraci objekt typu Iterator, jenz lze pouzivat k prochaze i vsech polozek Collection
+remove(Objekt o)				        // je-li argument v Collection nalezen, bude jedna jeho instance vyjmuta (podari-li se oprace, bude true)
+removeAll(Collection<?> c)			    // odstrani z kolekce vsechny nalezene polozky argumentu (dojde-li k nejake zmene, vraci true)
+retainAll(Collection<?> c)			    // ponecha v Collection pouze prvky, jenz se shoduji s polozkami argumentu (dojde-li k nejake zmene vraci true)
+size()							          // vraci pocet prvku Collection
+toArray()						          // vraci pole obsahujici vsechny prvky Collection
+toArray(Objekt [] a)			    // vraci pole obsahujici vsechny prvky Collection, jejichz typ se shoduje s typem pole (potreba provest konverzi pole na spravny typ)
+enumeration(Collecation)	    // vraci objekt zastaraleho typu Enumeration pro argument
+max(Collecation)			        // vraci nejvetsi prvek v Collection
+min(Collection)				        // vraci nejmensi prvek v Collection
+max(Collection, Comparator)		// vraci nejvetsi prvek v Collection a pri porovnavani pouzije Comparator
+min(Collection, Comparator)		// vraci nejmensi prvek v Collection a pri porovnavani pouzije Comparator
+reverse()						          // obraci poradi prvku v List bez pouziti dodatecne pameti
+Collections.reverseOrder()
+copy(List dest, List src)		  // kopiruje prvky z mista src na misto dest
+fill(List list, Objekt o)		  // nahrazuje vsechny prvky List list hodnotou o
+nCopies(int n, Objekt o)		  // vraci List pevne delky velikosti n, jehoz vsechny odkazy ukazuji na o
+
+
+hashCode()
+Vrátí hodnotu hash kódu pro tuto kolekci.
+
+parallelStream()
+Vrátí možná paralelní proud s touto sbírkou jako zdrojem.
+
+removeIf(Predicate<? super E> filter)
+Odebere všechny prvky této kolekce, které splňují daný predikát.
+
+spliterator()
+Vytvoří Spliterator nad prvky v této kolekci.
+
+stream()
+Vrátí sekvenční stream s touto sbírkou jako zdrojem.
+
+equals(Object o)
+Porovná zadaný objekt s touto kolekcí pro dosažení rovnosti.
+
+
+Methods inherited from interface java.lang.Iterable
+forEach
+
+
+
+
+
+
+--------------Collections.min/max(nazevKolekce)--------------
+- zjisteni minima/maxima v Collection
+- metody min()/max() funguji s objekty typu Collection nikoli s objekty typu List
+- nemusim se starat zda ma byt List setriden ci nikoli
+
+Integer min = Collections.min(List.of(1, 2, 3));
+Integer max = Collections.max(List.of(1, 2, 3));
+Integer maxWithReverseOrder = Collections.max(List.of(1, 2, 3), Collections.reverseOrder());
+System.out.println(min + " " + max + " " + maxWithReverseOrder); // 1 3 1
+
+--------------Collections.sort(nazevKolekce)--------------
+- razeni Collection
+- ciselne datove typy podle hodnoty
+- textove prvky podle abecedy
+- u jinych prvku muzeme definovat vlastni zpusob razeni
+- pred pouzitim metody binarySearch() musim vykonat nad objektem List metodu sort()!!!
+
+--------------Collections.empty...()--------------
+- k vytvoření prázdných (neměnných) kolekcí můžeme použít metody, jejichž název začíná na empty, např:
+List<String> list = Collections.emptyList();
+Map<String, Integer> map = Collections.emptyMap();
+Set<Object> set = Collections.emptySet();
+
+list.add("2"); // UnsupportedOperationException - collection is immutable
+
+
+- Collections umožňuje kromě prázdných kolekcí vytvářet i kolekce jednotlivých prvků nebo synchronizované kolekce, např.
+List<Integer> immutableList = Collections.singletonList(1);
+Map<String, String> immutableMap = Collections.singletonMap("key", "value");
+List<String> mutableList = new ArrayList<>();
+mutableList.add("hi");
+Collections.synchronizedSet(Set.of(1, 2, 3));
+
+List<String> immutableWordList = Collections.unmodifiableList(mutableList);
+immutableWordList.add("boom"); // UnsupportedOperationException
+
+
+--------------replaceAll()--------------
+- pomocná metoda, která nahradí všechny výskyty zadanou hodnotou.
+List<Integer> ints = new ArrayList<>();
+ints.add(1);
+ints.add(2);
+ints.add(2);
+ints.add(3);
+Collections.replaceAll(ints, 2, 4);
+ints.forEach(System.out::println); // 1 4 4 3
+
+
+--------------Collections.reverseOrder()--------------
+- Operaci třídění lze provést nad proměnlivou kolekcí pomocí metody sort. Je také možné zadat komparátor, např:
+List<String> words = new LinkedList<>();
+words.add("hi");
+words.add("welcome");
+words.add("hello!");
+Collections.sort(words, Collections.reverseOrder());
+
+System.out.println(words); // [welcome, hi, hello!]
+
+
+
+
+
+------------------------------------Queue (fronta)------------------------------------
+
+- obecné rozhraní představující datovou strukturu pro implementaci front FIFO a LIFO. 
+- tyto fronty fungují stejným způsobem jako fronty u pokladny v obchodě, tj.:
+  - přidané položky jdou na konec fronty.
+  - můžeme nejprve "obsloužit" osobu z:
+    - na začátku fronty ( FIFO )
+    - na konci fronty ( LIFO ).
+
+- Queue kromě základních operací z rozhraní Collection provádí další operace manipulace s daty:
+
+public interface Queue<E> extends Collection<E> {
+
+- E element() - vrací prvek z "čela" fronty (ale neodstraní jej ze struktury) nebo v případě prázdné kolekce vyhodí výjimku NoSuchElementException.
+- E peek() - funguje stejně jako metoda element, ale nevyhodí výjimku v případě prázdné fronty
+- boolean offer(E e) - přidá prvek do fronty a vrátí, pokud byla operace úspěšná
+- E remove() - odstraní prvek z "hlavy" fronty a vrátí jeho hodnotu nebo v případě prázdné kolekce vyhodí výjimku NoSuchElementException
+- E poll() - pracuje stejně jako metoda remove, ale při prázdné frontě nevyhodí výjimku
+
+
+Základní implementací fronty je LinkedList.
+
+final Queue<String> events = new LinkedList<>();
+events.offer("ButtonClicked");
+events.offer("MouseMoved");
+System.out.println(events.peek());   // displaying the first element
+System.out.println(events.poll());   // removing the first item from the queue and returning a value
+System.out.println(events.poll());   // removing the first item from the queue again and returning the value
+System.out.println(events.isEmpty()); // at this point the queue is empty
+
+
+
+
+
+------------------------------------Deque (dvoukoncová fronta)------------------------------------
+
+- Deque, je rozhraní popisující datovou strukturu, která je druhem fronty umožňující přidávání a odebírání položek na začátku i na konci.
+- rozhraní Deque rozšiřuje dříve rozhraní Queue 
+- nejčastěji používané implementace rozhraní Deque jsou ArrayDeque a LinkedList.
+
+Deque nám navíc poskytuje přístup k následujícím metodám:
+- addFirst(e) a offerFirst(e), které přidávají prvek na začátek fronty.
+- addLast(e) a offerLast(e), které přidávají prvek na konec fronty
+- removeFirst() a pollFirst(), které odstraní prvek z čela fronty
+- removeLast() a pollLast(), které odstraňují prvek z konce fronty
+- getFirst() a peekFirst(), které získávají prvek z horní části fronty
+- getLast() a peekLast(), které získávají položku z konce fronty.
+
+Je třeba mít na paměti, že výše uvedené metody prefixů:
+- add, remove a get při selhání vyhodí výjimku.
+- offer, poll a peek vrátí při selhání operace speciální hodnotu (null pro objekty a false pro boolean).
+
+
+Níže je uveden příklad použití fronty s dvojitým koncem:
+
+final Deque<Integer>deque = new ArrayDeque<>();
+// add elements to deque
+deque.offerLast(2);
+deque.offerFirst(1);
+System.out.println (deque.pollLast()); // remove elements from deque along with removing from structure -> 2
+System.out.println (deque.peekLast()); // remove elements from deque without removing them from structure -> 1
+
+
+
+
+
+------------------------------------Kontrakt v Javě------------------------------------
+
+- Při přidávání položek do kolekcí, jako je například Set, musíme na základě nějakého údaje zjistit, zda se takový objekt v kolekci již nachází. 
+- Kontrakt v Javě úzce souvisí s metodami equals a hashCode, které jsou deklarovány ve třídě Object. 
+- Implementace obou metod se často používají společně. 
+- Kontrakt je založen na následujících pravidlech:
+  - pokud x.equals(y) == true, pak x.hashCode () == y.hashCode() je nutné.
+  - pokud x.hashCode() == y.hashCode (), není nutné, aby x.equals(y) == true
+  - více volání hashCode na stejný objekt by mělo vždy dát stejný výsledek.
+
+
+hashCode():
+- Metoda hashCode vrací primitivni typ a je určena k tomu, aby reprezentovala nějaký druh číselné reprezentace objektu. 
+- Protože tento typ má omezený rozsah, není pro každý objekt jedinečnou hodnotou, a proto mohou dva různé objekty vracet stejnou hodnotu hashCode. 
+- Právě tuto vlastnost používá mnoho rozhraní Java API a je základem kontraktu. 
+- Metoda hashCode se používá k implementaci mnoha datových struktur a algoritmů, např. trideni (sort). 
+- Tato metoda se vyznačuje následujícími vlastnostmi:
+  - metoda dostupná ve třídě Object
+  - implementace metody hashCode by měla být vázána na metoduequals
+  - metoda se nejčastěji vytváří na základě hashů jednotlivých polí třídy. 
+  - Hashe atributů obvykle vynásobíme prvočísly a sečteme.
+
+
+- implementace metody hashCode() ve třídě Car:
+
+@Override 
+public int hashCode () { 
+  int result = name.hashCode (); 
+  result = 31 * result + type.hashCode (); 
+  return result; 
+}
+
+POZNÁMKA: 
+- V praxi jen zřídkakdy píšeme implementace metod equals a hashcode ručně. 
+- Nejčastěji je generujeme nebo používáme externí knihovny, např. anotaci @EqualsAndHashCode z knihovny lombok
+
+
+
+
+
+------------------------------------Třídění------------------------------------
+
+- Porovnávání prvků kolekcí v Javě se provádí pomocí obecných rozhraní:
+  - Comparator <T>, který umožňuje porovnávat dva objekty stejného typu pomocí metody compare().
+  - Comparable <T>, který porovnává aktuální objekt s objektem nějakého typu pomocí metody compareTo().
+- Metody compare() a compareTo() vracejí hodnotu int. 
+
+
+- Metoda compareTo() by měla vracet následující hodnoty:
+  - hodnota větší než 0 znamená, že porovnávaný objekt by měl být umístěn před základním objektem
+  - hodnota 0 znamená, že objekty mají stejnou hodnotu
+  - hodnota menší než 0 znamená, že základní objekt by měl být umístěn před porovnávaný objekt.
+
+Integer x = 3;
+System.out.println(x.compareTo(2)); // 1
+System.out.println(x.compareTo(3)); // 0
+System.out.println(x.compareTo(4)); // -1
+
+
+
+- Metoda compare() by měla vrátit:
+  - hodnotu menší než 0, pokud by měl být první argument umístěn před druhým argumentem.
+  - hodnotu rovnou 0, když se oba objekty rovnají
+  - hodnotu větší než 0, když má být první argument umístěn za druhým argumentem
+
+Comparator<Integer> intComparator = Comparator.naturalOrder();
+System.out.println(intComparator.compare(1, 2)); // -1
+System.out.println(intComparator.compare(2, 2)); // 0
+System.out.println(intComparator.compare(2, 1)); // 1
+
+
+
+-------------Comparator-------------
+
+- Abychom mohli přesně kontrolovat pořadí třídění, můžeme použít instance komparátorů a předávat je mimo jiné třídicím metodám 
+(například Collections.sort, Arrays.sort nebo třídicím metodám v Stream API).
+
+- Comparator lze také použít k řízení pořadí objektů v datových strukturách, jako jsou TreeMap nebo TreeSet.
+
+
+public class User {
+  private final String name;
+  private final int age;
+
+  public User(final String name, final int age) {
+    this.name = name;
+    this.age = age;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public int getAge() {
+    return age;
+  }
+}
+
+
+- Chceme-li seřadit seznam objektů typu User podle abecedy pomocí pole name, můžeme použít [anonymní třídu] (anonymous_classes.md) 
+a následující implementaci rozhraní Comparator:
+
+
+List<User> users = Arrays.asList(
+  new User("Peter", 20),
+  new User("John", 23));
+
+Collections.sort(users, new Comparator<User>() {
+  @Override
+  public int compare(User o1, User o2) {
+    return  (int)o1.getName().charAt(0) - (int)o2.getName().charAt(0);
+  }
+});
+
+for (final User user : users) {
+  System.out.println(user.getName());
+}
+
+
+- Ve výše uvedeném příkladu bude první hodnotou, která se zapíše na obrazovku, John, poté Peter.
+
+
+
+-------------Comparable-------------
+
+- Pomocí implementace rozhraní Comparable definujeme výchozí pořadí tříd, podle kterého lze objekty např. uspořádat do kolekcí. 
+
+
+- Napr. mladší lidé se zařadí před starší.
+
+public class Sorting {
+
+    public static void main(String[] args) {
+        User[] users = new User[]{
+                new User("Peter", 40),
+                new User("John", 23)
+        };
+        Arrays.sort(users); // This method uses an implementation of the Comparable interface to sort the array
+        System.out.println(Arrays.toString(users)); // output: [User{name='John', age=23}, User{name='Peter', age=40}]
+    }
+}
+
+class User implements Comparable<User>{
+    private String name;
+    private int age;
+
+    public User(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "name='" + name + '\'' +
+                ", age=" + age +
+                '}';
+    }
+
+    @Override
+    public int compareTo(User o) {
+        return  this.getAge() - o.age;

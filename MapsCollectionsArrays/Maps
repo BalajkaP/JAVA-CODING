@@ -1,0 +1,557 @@
+MAPY:
+- datova struktura ukladajici dvojice (identifikator-hodnota) a umoznuje podle indentifikatoru velmi efektivne vyhledavat
+- ukladaji pouze hodnotu objektu
+- každý klíč v takovém objektu musí být jedinečný
+- nulová hodnota může být také klíčem
+- mapy lze jako pole rozsirovat do vice rozmeru
+- tři běžné implementace rozhraní Map jsou HashMap, TreeMap a LinkedHashMap. 
+
+- HashMap:
+    - pořadí párů není zachováno
+    - ukládá informace do hashovací tabulky.
+
+- TreeMap:
+    - Pořadí dvojic je zachováno podle tzv. přirozeného pořadí klíčů nebo podle určitého komparátoru klíčů.
+    - ukládá data do červeno-černého stromu.
+
+- LinkedHashMap:
+    - ukládá informace o pořadí přidávání jednotlivých párů.
+    - implementace je založena na hašovací tabulce s podporou spojového seznamu.
+
+
+---------------------Operace s mapami---------------------
+
+map.put(klic, hodnota);							            // pridani prvku, nebo nahrazení staré hodnoty novou pro určitý klíč.
+map.containsValue(hodnota), map containsValue(klic)			// zjisteni zda mapa obsahuje hodnotu, ci klic
+map.containsKey()                                           // vrací, zda je v mapě hodnota pro daný klíč.
+map.get(klic)								                // ziskani prvku se zadanym klicem
+map.remove(klic)							                // odebrani prvku se zadanym klicem
+map.clear()								                    // vymazani vsech prvku
+map.size()								                    // zjisteni poctu paru
+map.isEmpty()								                // zjisteni zda je mapa prazdna
+
+Kromě standardních operací obsahuje mapa sadu operací, které jsou zodpovědné za vracení položek ve formě jiné kolekce:
+map.keySet()                                                // vrací množinu klíčů jakoSet
+map.values()                                                // vrací všechny hodnoty jakoCollection
+map.entrySet()                // vrací množinu objektů klíč-hodnota. Jediný pár je reprezentován třídou [inner] (inner_classes.md) Map.Entry.
+
+Map<String, Float> employees = HashMap<>();
+Map.Entry<String, Float> pair : employees.entrySet()) {
+	// prochazeni paru klic-hodnota
+}
+
+-----------HashMap-----------
+
+final Map<Integer, String> ageToNames = new HashMap<>(); 		
+ageToNames.put(11, "Andrew"); 									
+ageToNames.put(22, "Michael");  								
+ageToNames.put(33, "John");  									
+ageToNames.remove(22);    		 								
+System.out.println(ageToNames.get(11)); 						
+
+-----------LinkedHashMap-----------
+
+final Map<Integer, String> ageToNames = new LinkedHashMap<>(); // creating LinkedHashMap
+ageToNames.put(20, "Maggie");
+ageToNames.put(40, "Kate");
+ageToNames.put(30, "Anne");
+
+for (final Integer key : ageToNames.keySet()) { // key iteration using keySet()
+  System.out.println("Key is map: " + key);     // the order of the keys is always the same -> 20, 40, 30
+}
+
+for (final String value : ageToNames.values()) {   // iteration over values using values()
+  System.out.println("Value in map is: " + value); // the order of the values is always the same -> Maggie, Anne, Kate
+}
+
+for (final Map.Entry<Integer, String> ageToName : ageToNames.entrySet()) { // iteration over pairs with entrySet()
+  System.out.println("Value for key  " + ageToName.getKey() + " is " + ageToName.getValue());
+  /* the result will always be the following 3 lines, in this exact order (results from the use of LinkedHashMap)
+     Value for key 20 is Maggie
+     Value for key 40 is Kate
+     Value for key 30 is Anne
+   */
+}
+
+-----------TreeMap-----------
+
+final Map<Integer, Integer> numberToDigitsSum = new TreeMap<>();
+numberToDigitsSum.put(33, 6);
+numberToDigitsSum.put(19, 10);
+numberToDigitsSum.put(24, 6);
+numberToDigitsSum.forEach((key, value) -> System.out.println(key + " " + value));
+
+/* Items will always be listed in the same order:
+  19 10
+  24 6
+  33 6
+*/
+
+
+---------------------Volba mezi typy map---------------------
+
+- vykon mapy je ovlivnen jeji velikosti
+- TreeMap pomalejsi, ale lze pouzivat nikoli jako mapu, ale jako zpusob vytvareni LinkedList
+- jakmile do struktury TreeMap vlozim nejake hodnoty, muzu volat keySet() - tim ziskam pohled na mnozinu klicu
+- pote zavolam toArray() a vytvorim z predem ziskane mnoziny klicu jejich pole
+- pak mohu zavolat statickou metodu Arrays.binarySearch() - s jeji pomoci mohu rychle nachazet pozadovane objekty ve svem setridenem poli
+- objekt tridy TreeMap mohu snadno prevest na objekt tridy HashMap
+
+HashMap - jde mi hlavne o rychlost a neresim poradi prvku
+LinkedHashMap - rozsireni HashMap, ktere pridava moznost iterovat skrze prvky v poradi v jakem byly do mapy vlozeny
+TreeMap - chci pracovat se serazenymi prvky podle klicu nebo podle hodnot
+
+
+
+
+
+
+----------------Implementace HashMap---------------- 
+
+- neduplicitni klice
+- nezachovava poradi klice
+- null klic muze obsahovat pouze 1x
+- implementace zalozena na hashovaci tabulce
+- zarucuje konstantni vykon pri vkladani a vyhledavani polozek
+- vykon lze upravit pomoci konstruktoru, ktere umoznuji nastavit kapacitu a soucinitel hashovaci tabulky
+- kontejner typu HashMap vezme metodu hashcode() prislusneho objketu a pouzije ji k rychlemu nalezeni pozadovaneho klice
+
+
+----------------HashMap----------------
+
+import java.util.HashMap;
+
+public class Main {
+
+	public static void main(String[] args) {
+
+		// HashMap implements the Map interface (need import)
+		// HashMap is similar to ArrayList, but with key-value pairs
+		// stores objects, need to use Wrapper Class
+		// ex: (name,email),(username,userID),(country,capital)
+		
+		HashMap<String,String> countries = new HashMap<String,String>();
+		
+		//add a key and value
+		countries.put("USA","Washington DC");
+		countries.put("India","New Delhi");
+		countries.put("Russia","Moscow");
+		countries.put("China","Beijing");
+		
+		//System.out.println(countries);
+		//countries.remove("USA");
+		//System.out.println(countries.get("Russia"));
+		//countries.clear();
+		//System.out.println(countries.size());
+		//countries.replace("USA", "Detroit");
+		//System.out.print(countries.containsKey("England"));
+		//System.out.print(countries.containsValue("Beijing"));
+		
+		for(String i : countries.keySet()) {
+			System.out.print(i+"\t"+"= ");
+			System.out.println(countries.get(i));
+		}
+		
+	}
+}
+
+
+
+
+
+----------------Implementace SortedMap----------------
+
+- jedina collection tohoto typu je TreeMap
+- zaruceno spravne setrideni prvku
+- doplni knihovnu o dalsi funkce rozhrani SortedMap
+
+Operace:
+comparator()				// vrati objekt typu Comparator, pouzivany aktualnim Collection typu Map, nebo vrati hodnotu null, 
+							ktera oznacuje prirozene trideni
+firstKey()					// vraci nejmensi prvek
+lastKey()					// vraci nejvetsi prvek
+subMap(fromKey, toKey)		// vrati podmnozinu urcene mapy, prvkem fromKey pocinaje a prvkem toKey konce
+headMap(toKey)				// vraci podmnozinu klicu mensich nez klic toKey
+tailMap(fromKey)			// vraci podmnozinu klicu vetsich nebo rovnych klici fromKey
+
+
+
+
+
+
+----------------Implementace TreeMap----------------
+
+- neduplicitni klice
+- zachovava poradi klice dle Comparator
+- neumoznuje null hodnoty
+- implementace zalozena na cerveno-cernem stromu
+- klice nebo dvojice jsou setrideny podle implementace rozhrani Comparable nebo Comparator
+- vysledky se zobrazi setrideny
+- jedina mapa obsahujici subMap() vracejici cast stromu
+
+
+
+
+
+
+
+
+
+Map:
+clear()
+Odebere všechna mapování z této mapy (volitelná operace).
+
+compute(K key, BiFunction<? super K,? super V,? extends V> remappingFunction)
+Pokusí se vypočítat mapování pro zadaný klíč a jeho aktuální mapovanou hodnotu (nebo null, pokud neexistuje žádné aktuální mapování).
+
+computeIfAbsent(K key, Function<? super K,? extends V> mappingFunction)
+Pokud zadaný klíč ještě není přidružen k hodnotě (nebo je mapován na hodnotu null), pokusí se vypočítat jeho hodnotu pomocí dané mapovací funkce a vloží ji do této mapy, pokud není null.
+
+computeIfPresent(K key, BiFunction<? super K,? super V,? extends V> remappingFunction)
+Pokud je hodnota pro zadaný klíč přítomna a není nulová, pokusí se vypočítat nové mapování dané klíčem a jeho aktuální mapovanou hodnotou.
+
+containsKey(Object key)
+Vrátí hodnotu true, pokud tato mapa obsahuje mapování pro zadaný klíč.
+
+containsValue(Object value)
+Vrátí hodnotu true, pokud tato mapa mapuje jeden nebo více klíčů na zadanou hodnotu.
+
+entrySet()
+Vrátí nastavení zobrazení mapování obsažených v této mapě.
+
+equals(Object o)
+Porovná zadaný objekt s touto mapou pro dosažení rovnosti.
+
+forEach(BiConsumer<? super K,? super V> action)
+Provede danou akci pro každý záznam v této mapě, dokud nebudou zpracovány všechny záznamy nebo akce vyvolá výjimku.
+
+get(Object key)
+Vrátí hodnotu, na kterou je zadaný klíč mapován, nebo hodnotu null, pokud tato mapa neobsahuje žádné mapování pro klíč.
+
+getOrDefault(Object key, V defaultValue)
+Vrátí hodnotu, na kterou je zadaný klíč mapován, nebo defaultValue, pokud tato mapa neobsahuje žádné mapování pro klíč.
+
+hashCode()
+Vrátí hodnotu hash kódu pro tuto mapu.
+
+isEmpty()
+Vrátí hodnotu true, pokud tato mapa neobsahuje žádná mapování párů klíč–hodnota.
+
+keySet()
+Vrátí zobrazení sady klíčů obsažených v této mapě.
+
+merge(K key, V value, BiFunction<? super V,? super V,? extends V> remappingFunction)
+Pokud zadaný klíč ještě není přidružen k hodnotě nebo je přidružen k hodnotě null, přidruží jej k dané jiné hodnotě.
+
+put(K key, V value)
+Přiřadí zadanou hodnotu zadanému klíči v této mapě (volitelná operace).
+
+putAll(Map<? extends K,? extends V> m)
+Zkopíruje všechna mapování ze zadané mapy do této mapy (volitelná operace).
+
+putIfAbsent(K key, V value)
+Pokud zadaný klíč ještě není přidružen k hodnotě (nebo je namapován na hodnotu null), přidruží jej k dané hodnotě a vrátí hodnotu null, jinak vrátí aktuální hodnotu.
+
+remove(Object key)
+Odstraní mapování klíče z této mapy, pokud je přítomno (volitelná operace).
+
+remove(Object key, Object value)
+Odebere položku pro zadaný klíč pouze v případě, že je aktuálně namapován na zadanou hodnotu.
+
+replace(K key, V value)
+
+replace(K key, V oldValue, V newValue)
+Nahradí položku pro zadaný klíč, pouze pokud je aktuálně namapován na zadanou hodnotu.
+
+replaceAll(BiFunction<? super K,? super V,? extends V> function)
+Nahradí hodnotu každé položky výsledkem vyvolání dané funkce na této položce, dokud nebudou zpracovány všechny položky nebo funkce vyvolá výjimku.
+
+size()
+Vrátí počet mapování párů klíč–hodnota v této mapě.
+
+values()
+Vrátí pohled kolekce hodnot obsažených v této mapě.
+
+
+
+
+
+
+TreeMap:
+ceilingEntry(K key)
+Vrátí mapování klíč–hodnota přidružené k nejmenšímu klíči většímu nebo rovnému danému klíči nebo null, pokud takový klíč neexistuje.
+
+ceilingKey(K key)
+Vrátí nejmenší klíč, který je větší nebo roven danému klíči, nebo null, pokud takový klíč neexistuje.
+
+clear()
+Odstraní všechna mapování z této mapy.
+
+clone()
+Vrátí mělkou kopii této instance TreeMap.
+
+comparator()
+Vrátí komparátor použitý k řazení klíčů v této mapě nebo hodnotu null, pokud tato mapa používá přirozené uspořádání svých klíčů.
+
+containsKey(Object key)
+Vrátí hodnotu true, pokud tato mapa obsahuje mapování pro zadaný klíč.
+
+containsValue(Object value)
+Vrátí hodnotu true, pokud tato mapa mapuje jeden nebo více klíčů na zadanou hodnotu.
+
+descendingKeySet()
+Vrátí zobrazení NavigableSet v obráceném pořadí klíčů obsažených v této mapě.
+
+descendingMap()
+Vrátí zobrazení v obráceném pořadí mapování obsažených v této mapě.
+
+entrySet()
+Vrátí nastavení zobrazení mapování obsažených v této mapě.
+
+firstEntry()
+Vrátí mapování párů klíč–hodnota přidružené k nejmenšímu klíči v této mapě nebo hodnotu null, pokud je mapa prázdná.
+
+firstKey()
+Vrátí první (nejnižší) klíč aktuálně na této mapě.
+
+floorEntry(K key)
+Vrátí mapování klíč–hodnota přidružené k největšímu klíči menšímu nebo rovnému danému klíči nebo null, pokud takový klíč neexistuje.
+
+floorKey(K key)
+Vrátí největší klíč menší nebo roven danému klíči nebo null, pokud takový klíč neexistuje.
+
+forEach(BiConsumer<? super K,? super V> action)
+Provede danou akci pro každý záznam v této mapě, dokud nebudou zpracovány všechny záznamy nebo akce vyvolá výjimku.
+
+get(Object key)
+Vrátí hodnotu, na kterou je zadaný klíč mapován, nebo hodnotu null, pokud tato mapa neobsahuje žádné mapování pro klíč.
+
+headMap(K toKey)
+Vrátí pohled na část této mapy, jejíž klíče jsou striktně menší než toKey.
+
+headMap(K toKey, boolean inclusive)
+Vrátí pohled na část této mapy, jejíž klíče jsou menší než (nebo se rovnají, pokud je zahrnuto true) toKey.
+
+higherEntry(K key)
+Vrátí mapování klíč–hodnota spojené s nejmenším klíčem, který je přísně větší než daný klíč, nebo null, pokud takový klíč neexistuje.
+
+higherKey(K key)
+Vrátí nejmenší klíč přísně větší než daný klíč, nebo null, pokud takový klíč neexistuje.
+
+keySet()
+Vrátí zobrazení sady klíčů obsažených v této mapě.
+
+lastEntry()
+Vrátí mapování párů klíč–hodnota přidružené k největšímu klíči v této mapě nebo hodnotu null, pokud je mapa prázdná.
+
+lastKey()
+Vrátí poslední (nejvyšší) klíč aktuálně na této mapě.
+
+lowerEntry(K key)
+Vrátí mapování klíč–hodnota spojené s největším klíčem, který je přísně menší než daný klíč, nebo null, pokud takový klíč neexistuje.
+
+lowerKey(K key)
+Vrátí největší klíč striktně menší než daný klíč, nebo null, pokud takový klíč neexistuje.
+
+navigableKeySet()
+Vrátí zobrazení NavigableSet klíčů obsažených v této mapě.
+
+pollFirstEntry()
+Odstraní a vrátí mapování párů klíč–hodnota přidružené k nejmenšímu klíči v této mapě nebo null, pokud je mapa prázdná.
+
+pollLastEntry()
+Odstraní a vrátí mapování párů klíč–hodnota přidružené k největšímu klíči v této mapě nebo hodnotu null, pokud je mapa prázdná.
+
+put(K key, V value)
+Přidruží zadanou hodnotu k zadanému klíči v této mapě.
+
+putAll(Map<? extends K,? extends V> map)
+Zkopíruje všechna mapování ze zadané mapy do této mapy.
+
+remove(Object key)
+Odstraní mapování tohoto klíče z této stromové mapy, pokud je přítomno.
+
+replace(K key, V value)
+Nahradí položku pro zadaný klíč pouze v případě, že je aktuálně namapován na nějakou hodnotu.
+
+replace(K key, V oldValue, V newValue)
+Nahradí položku pro zadaný klíč, pouze pokud je aktuálně namapován na zadanou hodnotu.
+
+replaceAll(BiFunction<? super K,? super V,? extends V> function)
+Nahradí hodnotu každé položky výsledkem vyvolání dané funkce na této položce, dokud nebudou zpracovány všechny položky nebo funkce vyvolá výjimku.
+
+size()
+Vrátí počet mapování párů klíč–hodnota v této mapě.
+
+subMap(K fromKey, boolean fromInclusive, K toKey, boolean toInclusive)
+Vrátí pohled na část této mapy, jejíž klíče se pohybují od fromKey do toKey.
+
+subMap(K fromKey, K toKey)
+Vrátí pohled na část této mapy, jejíž klíče se pohybují od fromKey včetně po toKey, bez.
+
+tailMap(K fromKey)
+Vrátí pohled na část této mapy, jejíž klíče jsou větší nebo rovné fromKey.
+
+tailMap(K fromKey, boolean inclusive)
+Vrátí pohled na část této mapy, jejíž klíče jsou větší než (nebo se rovnají, je-li včetně true) fromKey.
+
+values()
+Vrátí pohled kolekce hodnot obsažených v této mapě.
+
+
+Methods inherited from class java.util.AbstractMap
+equals, hashCode, isEmpty, toString
+
+Methods inherited from class java.lang.Object
+finalize, getClass, notify, notifyAll, wait, wait, wait
+
+Methods inherited from interface java.util.Map
+compute, computeIfAbsent, computeIfPresent, equals, getOrDefault, hashCode, isEmpty, merge, putIfAbsent, remove
+
+
+
+
+
+
+
+
+
+
+
+
+LinkedHashMap:
+clear()
+Odstraní všechna mapování z této mapy.
+
+containsValue(Object value)
+Vrátí hodnotu true, pokud tato mapa mapuje jeden nebo více klíčů na zadanou hodnotu.
+
+entrySet()
+Vrátí nastavení zobrazení mapování obsažených v této mapě.
+
+forEach(BiConsumer<? super K,? super V> action)
+Provede danou akci pro každý záznam v této mapě, dokud nebudou zpracovány všechny záznamy nebo akce vyvolá výjimku.
+
+get(Object key)
+Vrátí hodnotu, na kterou je zadaný klíč mapován, nebo hodnotu null, pokud tato mapa neobsahuje žádné mapování pro klíč.
+
+getOrDefault(Object key, V defaultValue)
+Vrátí hodnotu, na kterou je zadaný klíč mapován, nebo defaultValue, pokud tato mapa neobsahuje žádné mapování pro klíč.
+
+keySet()
+Vrátí zobrazení sady klíčů obsažených v této mapě.
+
+removeEldestEntry(Map.Entry<K,V> eldest)
+Vrátí hodnotu true, pokud má tato mapa odstranit svůj nejstarší záznam.
+
+replaceAll(BiFunction<? super K,? super V,? extends V> function)
+Nahradí hodnotu každé položky výsledkem vyvolání dané funkce na této položce, dokud nebudou zpracovány všechny položky nebo funkce vyvolá výjimku.
+
+values()
+Vrátí pohled kolekce hodnot obsažených v této mapě.
+
+
+Methods inherited from class java.util.HashMap
+clone, compute, computeIfAbsent, computeIfPresent, containsKey, isEmpty, merge, put, putAll, putIfAbsent, remove, remove, replace, replace, size
+
+Methods inherited from class java.util.AbstractMap
+equals, hashCode, toString
+
+Methods inherited from class java.lang.Object
+finalize, getClass, notify, notifyAll, wait, wait, wait
+
+Methods inherited from interface java.util.Map
+compute, computeIfAbsent, computeIfPresent, containsKey, equals, hashCode, isEmpty, merge, put, putAll, putIfAbsent, remove, remove, replace, replace, size
+
+
+
+
+
+
+
+
+
+
+
+HashMap:
+clear()
+Odstraní všechna mapování z této mapy.
+
+clone()
+Vrátí mělkou kopii této instance HashMap: samotné klíče a hodnoty nejsou klonovány.
+
+compute(K key, BiFunction<? super K,? super V,? extends V> remappingFunction)
+Pokusí se vypočítat mapování pro zadaný klíč a jeho aktuální mapovanou hodnotu (nebo null, pokud neexistuje žádné aktuální mapování).
+
+computeIfAbsent(K key, Function<? super K,? extends V> mappingFunction)
+Pokud zadaný klíč ještě není přidružen k hodnotě (nebo je mapován na hodnotu null), pokusí se vypočítat jeho hodnotu pomocí dané mapovací funkce a vloží ji do této mapy, pokud není null.
+
+computeIfPresent(K key, BiFunction<? super K,? super V,? extends V> remappingFunction)
+Pokud je hodnota pro zadaný klíč přítomna a není nulová, pokusí se vypočítat nové mapování dané klíčem a jeho aktuální mapovanou hodnotou.
+
+containsKey(Object key)
+Vrátí hodnotu true, pokud tato mapa obsahuje mapování pro zadaný klíč.
+
+containsValue(Object value)
+Vrátí hodnotu true, pokud tato mapa mapuje jeden nebo více klíčů na zadanou hodnotu.
+
+entrySet()
+Vrátí nastavení zobrazení mapování obsažených v této mapě.
+
+forEach(BiConsumer<? super K,? super V> action)
+Provede danou akci pro každý záznam v této mapě, dokud nebudou zpracovány všechny záznamy nebo akce vyvolá výjimku.
+
+get(Object key)
+Vrátí hodnotu, na kterou je zadaný klíč mapován, nebo hodnotu null, pokud tato mapa neobsahuje žádné mapování pro klíč.
+
+getOrDefault(Object key, V defaultValue)
+Vrátí hodnotu, na kterou je zadaný klíč mapován, nebo defaultValue, pokud tato mapa neobsahuje žádné mapování pro klíč.
+
+isEmpty()
+Vrátí hodnotu true, pokud tato mapa neobsahuje žádná mapování párů klíč–hodnota.
+
+keySet()
+Vrátí zobrazení sady klíčů obsažených v této mapě.
+
+merge(K key, V value, BiFunction<? super V,? super V,? extends V> remappingFunction)
+Pokud zadaný klíč ještě není přidružen k hodnotě nebo je přidružen k hodnotě null, přidruží jej k dané jiné hodnotě.
+
+put(K key, V value)
+Přidruží zadanou hodnotu k zadanému klíči v této mapě.
+
+putAll(Map<? extends K,? extends V> m)
+Zkopíruje všechna mapování ze zadané mapy do této mapy.
+
+putIfAbsent(K key, V value)
+Pokud zadaný klíč ještě není přidružen k hodnotě (nebo je namapován na hodnotu null), přidruží jej k dané hodnotě a vrátí hodnotu null, jinak vrátí aktuální hodnotu.
+
+remove(Object key)
+Odstraní mapování pro zadaný klíč z této mapy, pokud existuje.
+
+remove(Object key, Object value)
+Odebere položku pro zadaný klíč pouze v případě, že je aktuálně namapován na zadanou hodnotu.
+
+replace(K key, V value)
+Nahradí položku pro zadaný klíč pouze v případě, že je aktuálně namapován na nějakou hodnotu.
+
+replace(K key, V oldValue, V newValue)
+Nahradí položku pro zadaný klíč, pouze pokud je aktuálně namapován na zadanou hodnotu.
+
+replaceAll(BiFunction<? super K,? super V,? extends V> function)
+Nahradí hodnotu každé položky výsledkem vyvolání dané funkce na této položce, dokud nebudou zpracovány všechny položky nebo funkce vyvolá výjimku.
+
+size()
+Vrátí počet mapování párů klíč–hodnota v této mapě.
+
+values()
+Vrátí pohled kolekce hodnot obsažených v této mapě.
+
+
+Methods inherited from class java.util.AbstractMap
+equals, hashCode, toString
+
+Methods inherited from class java.lang.Object
+finalize, getClass, notify, notifyAll, wait, wait, wait
+
+Methods inherited from interface java.util.Map
+equals, hashCode

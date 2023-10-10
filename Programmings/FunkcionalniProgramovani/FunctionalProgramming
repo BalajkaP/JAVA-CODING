@@ -1,0 +1,100 @@
+FUNKCIONALNI PROGRAMOVANI:
+- funkcionální programování se opírá pouze o funkce
+- program si muzu predstavit jako dlouhou funkci, ktera neco vezme na vstupu a vrati vysledek 
+- umoznuje paralelizovat, coz znamena, ze vezmu 3 vstupy, dam je do trech funkci a dostanu 3 vystupy
+- chci, aby mi jasny vstup dal jasny vystupy
+- skladam do sebe male programy 
+
+- mnoho rozhraní se v Javě skládá pouze z jedné abstraktní metody (Runnable, Comparator...)
+- takovým rozhraním se říká Single Abstract Method, nebo-li FunctionalInterface od Java 8
+- anotace @FunctionalInterface informuje, že uvedené rozhraní má být FunctionalInterface
+- tato anotace by měla být umístěna nad definicí rozhraní, nicmene byt uvedena nemusi
+- pokus o umístění této anotace nad rozhraní, které má 0 nebo 2 a vice abstraktních metody, povede k chybě při kompilaci
+- kazdy funkcionalni interface ma totiz pouze 1 metodu (vyjimka default viz nize)
+
+    public interface Action {
+        void execute(int x, int y);
+    }
+
+- níže uvedené rozhraní nelze kvalifikovat jako rozhraní typu SAM, protože má dvě abstraktní metody.
+
+    public interface Presenter {
+        void present(String text);
+        void present(String text, int size);
+    }
+
+- níže uvedené rozhraní lze kvalifikovat jako rozhraní typu SAM, protože má 1 abstraktní metodu a 1 metodu default s tělem.
+
+    @FunctionalInterface
+    public interface Executor {
+        void executor(int x);
+
+        default void executor(int x, int y) {
+            // I have a body I am a default method
+        }
+    }
+
+
+- nacházejí se v balíčku java.util.function
+- nejčastěji používaná jsou:
+    - Supplier<T>
+    - Function<T, R>
+    - Consumer<T>
+    - UnaryOperator<T, T>
+    - Predicate<T>
+
+
+--------------------Zakladni principy--------------------
+
+----------Pure function----------
+
+- musi splnovat 2 zakladni podminky
+    - stejny vstup vrati stejny vysledek
+    - zadne vedlejsi efekty (zmena stavu aplikace, nebo argumentu)
+- volani API nebo komunikace s databazi porusuje princip ciste funkce
+
+
+Referential transparency:
+- kvuli principu ciste funkce, je mozne zapamatovat si jednou zavolany vysledek a nahradit volani funkce rovnou vysledkem
+
+
+----------Immutability----------
+
+- zmena datovych struktur je nachylna na poruseni principu ciste funkce, proto je dobre zmenit princip prace s datovymi strukturami
+- jedna vytvorena datova struktura nejde dal modifikovat
+- pokud je potreba strukturu upravit, tak je mozne vytvorit novou strukturu a misto puvodni, pouzit novou 
+
+
+----------Rekursion----------
+
+- princip volani stejne funkce uvnitr tela funkce
+- docili se tim podobneho efektu jako cyklu
+
+    public class RecursionSum {
+        public static void main (String [] args) {
+            int result = sum(10);
+            System.out.println(result);
+        }
+
+        public static int sum (int k) {
+            if (k > 0) {
+                return k + sum (k-1);
+            } else {
+                return 0;
+            }
+        }
+    }
+
+
+----------Functional composition----------
+
+- kombinaci volani cistych funkci je mozne docilit retezeni funkci
+- timto principem lze slozitejsi funkci poskladat z nekolika mensich funkci 
+
+    Predicate<String> startsWithA = (text) -> text.startsWith("A");
+    Predicate<String> endsWithX = (text) -> text.endsWith("X");
+    Predicate<String> startsWithAAndEndWithX = (text) -> startsWithA.test(text) && endsWithX.test(text);
+    String input = "A hard working person must relax";
+    boolean result = startsWithAAndEndWithX.test(input);
+    System.out.println(result);
+

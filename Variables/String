@@ -1,0 +1,172 @@
+-String-
+- je immutable (nemenny)
+- může být deklarován 2. způsoby:
+String text = "text";
+String text = new String("text");
+
+
+String text1 = "pes";
+String text2 = "skakal";
+String a = "jablko hruska ananas";
+String s = "pokus";
+String str = "pes a pes skakali pres plot";
+
+
+s.replace("p", "f");                                       
+str.replaceAll("pes", "kocka");                                     // vystup -> kocka a kocka skakali pres plot
+s.length();                                                       	// 5 (včetně mezer) -> int result	
+s.charAt(2);                                                      	// 'k' -> char result
+s.toLowerCase();                                                  	// "pokus" -> String result
+s.toUpperCase();                                                  	// "POKUS" -> String result
+s.codePointAt(3);                                                   // Unicode označení pro zadaný index
+s.codePointBefore(1);                                               // Unicode označení před zadaným inexem
+s.codePointCount(1, 10);                                            // Unicode označení index 1-10, tisk charakteru index 1-10
+s.substring(2,3);                                                 	// odstrani text pred indexem 2 a za indexem 3
+s.replace("p", "f");                                                // nahradí pouze charakter
+s.replaceAll("p", "f");                                           	// focus -> String result
+s.contains("kus");                                                	// true
+s.trim();								                            // ostraneni mezer
+s.isEmpty();								                        // boolean result
+s.isBlank();								                        // boolean result
+s.endsWith("us");								                    // konci na us?
+s.startsWith("fo");								                    // zacina na fo?
+s.equalsIgnoreCase("POKUS");						                // jestli je stejne se zanedbanim velikosti pismen
+text1.equals(text2)                                                 // porovnani textu - pro objketove typy pouze equals()
+String [] fruitsArray = a.split(" ");                               // vytvori pole s hodnotami jablko, hruska, ananas
+System.out.println("Skakal pes".length());                          // metody lze davat primo za text
+int hash_code = s.hashCode();                                       // nastavi hashcode pro String s "pokus"
+s.indexOf("oku");                                                 	// 1, protoze o zacina na prvnim indexu -> int result
+s.indexOF("p");                                                     // index prvniho vyskytu p, coz je v tomto pripade 0
+str.lastIndexOf("e", str.length() - 1);                             // index posledniho vyskytu e, coz je v tomto pripade 20
+
+String finalText = text1 + text2;                                   // spojovani textu -> pes skakal
+String finalText = text1.concat(text2);                             // spojovani textu -> pes skakal
+
+char[] arr_num = new char[] { '1', '2', '3', '4' };
+String str = String.copyValueOf(arr_num, 1, 3);
+System.out.println(str);                                            // vystup - 234 (index od 1 do 3)
+
+
+String str = "This is a sample String.";
+byte[] byte_arr = str.getBytes();                                   // ulozeni textu na byte kod (kody charakteru dle ASCCI atd.)
+String new_str = new String(byte_arr);
+String str = new String(byteArray, StandardCharsets.UTF_8);
+
+char[] arr = new char[] { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' };
+str.getChars(4, 10, arr, 2);                                        // vlozi do pole  ,  ,  , i, s,  , a,  , 
+char[] arr = str.toCharArray();                                     // vystup This is a sample String.
+
+
+String bookDescription = "author";
+bookDescription += "wrote";
+bookDescription += "book";
+bookDescription += ".";
+sout(bookDescription);                                              // "author wrote book."
+
+
+String str1 = "example.com";
+String str2 = "Example.com";
+CharSequence cs = "example.com";
+StringBuffer strbuf = new StringBuffer(str1);
+str1.contentEquals(cs);                                             // true
+str2.contentEquals(cs);                                             // false
+str1.contentEquals(strbuf);                                         // true
+str2.contentEquals(strbuf);                                         // false
+
+
+- číslo lze převést na text, ale opačně ne, takže pozor při spojování
+int row = 126;
+String flower = "daisy";
+sout(flower + " " + row); // daisy 126
+sout(row + " " + flower); // 126 daisy
+
+String decimal = "126";
+sout(15 + decimal); // 15126 (15 se převedlo na text a přidalo ke 126
+sout(15 + Integer.parseInt(decimal)); // 141 (textový zápis čísla decimal musíme převést na číslo)
+
+
+
+- Vypíše aktuální datum a čas v zadaném formátu
+ public static void main(String[] args) { 
+    Calendar c = Calendar.getInstance();
+    System.out.println("Current Date and Time :"); 
+    System.out.format("%tB %te, %tY%n", c, c, c);
+    System.out.format("%tl:%tM %tp%n", c, c, c); 
+}
+
+
+
+
+StringBuilder - muze menit String - rychlejsi nez StringBuffer
+StringBuffer - muze menit String - pro praci s vlakny
+
+StringBuilder str = new StringBuilder("JAVA");
+
+str.append("test");                 // JAVA test
+str.reverse();                      // tset AVAJ
+str.delete(1, 4);                   // Jtest
+str.insert(0, "lol ");              // lol JAVA test
+str.replace(0, 5, "kanada ");       // kanada est
+
+
+
+
+intern()                                                            // vraci String z pameti, pokud je vytvoren pres new
+String s1 = "Javatpoint";  
+String s2 = s1.intern();  
+String s3 = new String("Javatpoint");  
+String s4 = s3.intern();          
+s1==s2                                                              // True  
+s1==s3                                                              // False  
+s1==s4                                                              // True       
+s2==s3                                                              // False  
+s2==s4                                                              // True        
+s3==s4                                                              // False  
+
+
+
+regionMatches()                                                     // porovna cast textu dle zvolenych indexu a poctu charakteru
+String str1 = "Shanghai Houston Colorado Alexandria";
+String str2 = "Alexandria Colorado Houston Shanghai";
+
+boolean match1 = str1.regionMatches(0, str2, 28, 8);
+boolean match2 = str1.regionMatches(9, str2, 9, 8);
+
+System.out.println("str1[0 - 7] == str2[28 - 35]? " + match1);          // true
+System.out.println("str1[9 - 15] == str2[9 - 15]? " + match2);          // false
+
+
+
+
+    
+CHYBI: 
+cviceni 32+
+
+
+
+
+
+
+@Override
+public String toString() {
+    return String.format("(%s,%s,%s", getX(),getY(),z);
+}
+
+
+
+
+----------------------pouziti radku rovnou pri dejkarace promenne a nemusim davat /n----------------------
+
+-od java 17
+
+private String csvContent= """
+    all
+    dede
+    dede""";
+
+
+System.out.println("""
+    ahoj
+    jak
+    se
+    mas""");

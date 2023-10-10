@@ -1,0 +1,6 @@
+podmínka ? trueVýraz : falseVýraz;
+
+int secondsPassed = 10;
+final int LIMIT = 8;
+
+String result = (secondsPassed > LIMIT) ? "Přes limit" : " OK";

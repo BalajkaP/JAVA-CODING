@@ -1,0 +1,21 @@
+Future:
+- rozhraní reprezentující budoucí výsledek asynchronní metody, který bude vrácen v budoucnosti po dokončení zpracování operace. 
+
+
+
+cancel(boolean mayInterruptIfRunning)
+- Pokusí se zrušit provádění této úlohy.
+
+get()
+- lze získat hodnoty operace
+- funguje podobně jako metoda join() ve třídě Thread, tj. blokuje aktuální vlákno a čeká, až bude k dispozici očekávaný výsledek.
+- V případě potřeby počká na dokončení výpočtu a poté načte jeho výsledek.
+
+get(long timeout, TimeUnit unit)
+- V případě potřeby počká na dokončení výpočtu maximálně po zadanou dobu a poté získá jeho výsledek, pokud je k dispozici.
+
+isCancelled()
+- Vrací hodnotu true, pokud byla úloha zrušena před jejím normálním dokončením.
+
+isDone()
+- Vrací hodnotu true, pokud byl tento úkol dokončen

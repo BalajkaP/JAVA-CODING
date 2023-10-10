@@ -1,0 +1,48 @@
+Přetypování:
+
+- Automatická konverze směrem od menšího k většímu
+byte -> short -> int -> long -> float -> double
+
+                  char
+                   |
+ byte -> short -> int -> long
+                   |   X   |
+                 float -> double
+
+
+int i = 25;
+float j = i;							                                          // automaticka konverze
+
+int a = 500;
+double d = a;                                                       // automatická konverze
+int c = (int)d;
+sout(c);                                                            // 500
+
+int j = (int) 100L;                                                 //z long na int
+
+
+Metody pro převod z objektových na primitivní:
+Byte.valueOf(byte b);
+Short.valueOf(short s);
+Integer.valueOf(int i);
+...
+
+Autoboxing:
+-automatická konverze primitivních na objektové
+
+Unboxing:
+-automatická konverze objektových na primitivní
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+Parsování:
+- prevest String na neco
+
+Integer.parseInt(String s);
+Double.parseDouble(String s);
+Long.parseLong(String s);
+...
+
+String s = "56";
+int a = Integer.parseInt(5);

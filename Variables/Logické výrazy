@@ -1,0 +1,76 @@
+Logické výrazy:
+
+- výstupem boolean
+- used to connect two or more expressions
+
+5 == 3                                                             // false
+5 != 3                                                             // true
+5 > 3                                                              // true
+5 < 3                                                              // false
+5 >= 3                                                             // true
+5 <= 3                                                             // false
+
+
+&& - AND - both conditions must be true
+|| - OR - either condition must be true
+! - NOT - reverses boolean value of condition
+
+
+&& / || - vyhodnocení probíhá zkráceně - pokud nějaká část nabyde hodnotu, která jasně určí výsledek, tak se výraz ukončí
+int iii = 0;
+boolean res2 = iii == 0 || iii++ > 0;                              // || - vyhodnocuje se pouze prvni cast, protoze je true, proto bude iii 0
+boolean res3 = iii == 0 | iii++ > 0;                               // | - vyhodnocuje se cele i presto, ze je prvni strana true, proto bude iii 1
+
+int a = 10;
+boolean eq = (a == 10);                                            //true
+eq = a == 20;                                                      //false
+eq = a != 10;                                                      //false
+eq = a != 5;                                                       //true
+
+
+
+int temp = 15;
+		
+if(temp>30) {
+	System.out.println("It is hot outside");
+}
+else if(temp>=20 && temp<=30) {
+	System.out.println("It is warm outside");
+}
+else {
+	System.out.println("It is cold outside");
+}
+
+
+
+Scanner scanner = new Scanner(System.in);
+		
+System.out.println("You are playing a game! Press q or Q to quit");
+String response = scanner.next();
+		
+if(!response.equals("q") && !response.equals("Q")) {
+	System.out.println("YOu are still playing the game *pew pew*");
+}
+else {
+	System.out.println("You quit the game");
+}
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+Tabulka priorit (sestupně):
+
+inkrementace/dekrementace (postifoxá)
+inkrementace/dekrementace (prefixová negace)
+násobení, dělení, modulo
+sčítání, odčítání
+bitové posuny
+porovnání <, >, <=, >=
+rovnost ==, !=
+bitové AND/OR
+logické AND
+logické OR
+ternární operátor
+přiřazení
+
+- úprava priorit přes závorky

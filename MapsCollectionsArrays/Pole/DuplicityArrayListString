@@ -1,0 +1,26 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+
+public class E21First {
+    public static void main(String[] args) {
+
+        String[] strColors = {"red", "blue", "green", "red", "yellow", "green"};
+
+        // vytvoreni noveho ArrayList
+        ArrayList<String> aListColors = new ArrayList<String>();
+
+        // Smycka skrz pole a pridavani hodnot do ArrayList, pokud nebyly pridane drive
+        for (int i = 0; i < strColors.length; i++) {
+            if (!aListColors.contains(strColors[i])) {
+                aListColors.add(strColors[i]);
+            }
+        }
+
+        // konvertovani ArrayList zpet na pole
+        strColors = aListColors.toArray(new String[aListColors.size()]);
+
+        System.out.println("Array after removing duplicates: " + Arrays.toString(strColors));
+
+    }    
+
+}

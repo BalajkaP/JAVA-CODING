@@ -1,0 +1,62 @@
+DRY
+- Don't Repeat Yourself 
+- vyhybat se duplicite kodu
+
+KISS
+- Keep It Simple Stupid 
+- zbytecne nevytvaret komplikovane struktury, kdyz lze vec resit jednodussi cestou
+
+YAGNI 
+- You Aren't Gonna Need It 
+- kod vytvaret tak jak je pozadovano nyni
+- nesnazit se delat kod tak, ze by se na nej mohli v budoucnu implementovat dalsi vylepseni
+
+Law of Demeter
+- nemluvit s cizinci, ale pouze s kamarady
+- každá jednotka by měla mít pouze omezené znalosti o ostatních jednotkách
+- pouze jednotky "úzce" související s aktuální jednotkou
+
+Fluent Interface 
+- vyuziti specifickeho jazyka pro to, aby bylo API citelnejsi
+- moc se nevyuziva
+
+SOLID
+- 5 principu objektove orientovaneho programovani
+    - S - Třída by měla mít pouze jednu odpovědnost a jeden důvod ke změně, což znamená, že třída by měla mít pouze jednu úlohu. 
+    - O - Objekty nebo entity by měly být otevřené pro rozšíření, ale uzavřené pro modifikaci
+    - L - Každá podtřída nebo odvozená třída by měla být nahraditelná svou základní nebo rodičovskou třídou. 
+    - I - Klient by nikdy neměl být nucen implementovat rozhraní, které nepoužívá, ani by neměl být nucen záviset na metodách, které nepoužívá. 
+    - D - Entity musí záviset na abstrakcích, nikoli na konkretizacích. 
+
+    SRP
+        - Single-reponsibility principle 
+        - kazda metoda ma svou vlastni funkci (u vypisu nedelat rovnou metodu pro zvyseni hodnoty ...)
+
+    OCP 
+        - Open-closed principle 
+        - snazit se neupravovat tridy, ale rozsirovat
+
+    LSP 
+        - Liskov substitution principle 
+        - pokud je trida B podtridou tridy A, tak by melo byt mozne ji nahradit rodicovskou tridou A 
+
+    ISP 
+        - Interface segregation principle 
+        - rozdeleni uloh na vice mensich
+
+    DIP 
+        - Dependency inversion principle 
+        
+
+Clean countrycode
+
+Zásady: 
+- Žádná magická čísla 
+- Vyhněte se vnořování, pokud je to možné 
+- Pouze smysluplné komentáře 
+- Žádné velké funkce/metody 
+- Žádné opakování kódu 
+- Názvy proměnných musí dávat smysl, žádné jednopísmenné názvy proměnných 
+- Preferujte delší názvy proměnných, pokud je k tomu důvod 
+- Konzistentní pojmenování v rámci kódové základny 
+- Psaní velkých písmen u konstantních hodnot 

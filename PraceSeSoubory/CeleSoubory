@@ -1,0 +1,399 @@
+Java NIO - operace se soubory
+Java NIO představila mnoho zjednodušených mechanismů pro manipulaci se soubory. 
+Tyto mechanismy byly umístěny do balíčku java.nio.file a výchozím bodem pro jejich implementaci je třída Files.
+
+
+
+Filesystem a vice platforem
+- JAVA vytvorena s pristupem pro psani a spousteni stejneho kodu na vice platformach
+- na windows je kazda slozka oznacena pismenem a slozky jsou oddelene zpetnym lomitkem
+- zakladni atributy jsou sdilene pro vsechny uzivatele stejne a prava k souborum je mozne nastavit relativne komplikovane (minamlne na NTFS)
+
+C:\Users\Abc\file.txt
+
+- na linuxu je jenom jeden koren / a vsechno je namapovane jako adresar
+- prava se nastavuji ve 3 skupinach (vlastnik, skupina, vsichni) a je mozne nastavit 3 druhy prav nezavisle (cteni, zapis, spusteni)
+
+/home/abc/file.txt
+
+
+------------------------------------Path------------------------------------
+
+Rozhraní Path představuje cestu k souboru. Zahrnuje metody, které lze mimo jiné použít:
+- získání informací o cestě
+- přístup k položkám cesty
+- extrahování prvků cesty
+
+Aboslutni cesta
+- cesta k souboru od vychoziho mista filesystemu
+
+    C:\Users\Abc\text.txt
+
+Relativni cesta
+- cesta k souboru os nejake jine cesty ve filesystemu 
+
+    A: C:\Users\Abc\ B: C:\Users\Abc\Xyz\file.txt
+    A -> B.\Xyz\file.txt B -> A ...\
+
+
+------------------Vytvoreni------------------
+
+- k vytvoreni instance Path zavolame metodu get na pomocne tride Paths
+
+Path p1 = Paths.get("/tmp/foo");
+Path p2 = Paths.get(args[0]);
+Path p3 = Paths.get(URL.create("file://Users/joe/FileTest.java"));
+Path p4 = FileSystems.getDefault().getPath("/users/sally");
+Path p5 = Paths.get(System.getProperty("user.home"), "logs", "foo.log");
+
+
+------------------Normalizace------------------
+
+- cestu muzeme definovat pomoci .(aktualni adresar) a ..(nadrazeny adresar)
+- casto se, ale hodi vypocitat cestu, ktera reprezentuje nejjednodussi cestu k danemu mistu
+- toho docilime zavolanim metody normalize()
+
+C:\Users\Abc...\Abc\file.txt ->
+C:\Users\Abc\file.txt
+
+
+------------------Kontrola existence------------------
+
+- instanci Path jde vytvorit nezavisle jestli dany soubour existuje nebo ne
+- ne vzdy je, ale potreba vytvorit novy soubor
+- moznych opreraci se soubory je cela rada
+- napr metoda exists(Path, LinkOption ...) nebo notExists(Path, LinkOption...)
+- pri kontrole cesty muze nastat jedna ze 3 situaci:
+    - soubor existuje a podarilo se overit existenci
+    - podarilo se verifikovat, ze soubor existuje
+    - aplikace nemohla zjisit stav souboru
+
+
+------------------Kontrola prav------------------
+
+File.isReadable(Path)   // kontrola jestli palikace ma prava ke cteni na dane ceste
+File.isWritable(Path)   // kontrola jestli ma aplikace prava k zapisu na dane ceste
+File.isExecutable       // kontrola jestli aplikace ma prava ke spusteni na dane ceste
+
+
+------------------Smazani------------------
+
+V rámci třídy Files je možné mazat soubory pomocí následujících metod:
+- Files.delete (Path) – smaze danou cestu / soubor / prazdnou slozku, ale pokud cesta neexistuje, tak vyhodi vyjimku NoSuchFileException
+- Files.deleteIfExists (Path) - metoda smaže soubor, pokud existuje, jinak neprovede žádnou operaci
+
+Files.deleteIfExists(Path)
+try {
+    Files.delete(Path)
+} catch (NoSuchFileException x) {
+    System.err.format("%s: no such" + "file or directory%n", path);
+} catch (DirectoryNotEmptyException x) {
+    System.err.format("%s not empty %n", path);
+} catch (IOException x) {
+    // file permission problems are caught here
+}
+
+
+------------------Kopirovani------------------
+
+Třída Files poskytuje mechanismus pro kopírování souborů nebo adresářů pomocí metody:
+- Files.copy(Path, Path, CopyOption...)
+
+CopyOption může být jedna z následujících:
+- REPLACE_EXISTING - vynutí zkopírování souboru, i když soubor již v zadaném umístění existuje
+- COPY_ATTRIBUTES – zahrnuje kopírování atributů souboru
+- NOFOLLOW_LINKS – omezuje kopírování na symbolické odkazy
+
+
+------------------Presun------------------
+
+Metoda Files.move(Path, Path, CopyOption...) 
+- umožňuje přesouvat soubory, které budou mít za následek výjimku, dokud není nastaven příznak REPLACE_EXISTING.
+
+REPLACE_EXISTING        // nahradi prazdnou slozku
+ATOMIC_MOVE             // umozni ostatnim precist soubor na novem miste az v momente, kdy bude presunuty kompletni obsah
+
+
+------------------Vypis souboru ve slozce------------------
+
+Path dir = ...;
+try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+    for (Path file: stream) {
+        System.out.println(file.getFileName());
+    }
+} catch (IOException | DirectoryIteratorException x) {
+    // IOException can never be thrown by the iteration
+    // In this snippet, it can only be thrown by new DirectoryStream
+    System.err.println(x);
+}
+
+
+------------------Vytvoreni noveho souboru------------------
+
+Metoda Files.createFile (cesta, FileAttribute <?>) 
+- je zodpovědná za vytváření souborů s různými oprávněními
+- pokud soubor, který chceme vytvořit, již existuje, bude vyvolána výjimka.
+
+------------------Vytvoreni nove slozky------------------
+
+Path dir = ...;
+Files.createDirectory(Path);
+
+
+------------------Cteni ze souboru------------------
+
+- nejjednodussi zpusob pomoci pomocne tridy Files
+
+Čtení ze souboru se provádí pomocí:
+- Files.readAllBytes (cesta)
+- Files.readAllLines (cesta, znaková sada)
+
+Path file = ...;
+byte[] fileByteArray = Files.readAllBytes(file);
+Path file = ...;
+Charset charset = StandardCharsets.UTF-8;
+List <String> fileLines = Files.readAllLines(file, charset);
+
+
+------------------Zapis do souboru------------------
+
+- nejjednodussi zpusob pomoci pomocne tridy Files
+
+Do souboru je možné zapisovat pomocí následujících metod:
+- write(Cesta, byte [], OpenOption...) - zápis bajtů
+- write(Path, Iterable <extends CharSequence>, Charset, OpenOption...) - zápis více řádků, např. všechny hodnoty ze seznamu <String>
+
+Path file = ...;
+byte[] fileByteArray = Files.readAllBytes(file);
+Path file = ...;
+Charset charset = StandardCharsets.UTF-8;
+Iterable <extends CharSequence> fileLines = ...;
+Write (file, fileLines, charet);
+
+
+- při specifikaci OpenOption používáme implementaci, jako je StandardOpenOption
+- umožňuje ovládat chování při ukládání, např. definovat, zda před uložením dat do souboru nejprve smazat jeho obsah nebo přidat do stávajícího
+
+
+
+------------------Příklad, jak funguje třída Files------------------
+
+public class FilesExample {
+
+    public static void main(String[] args) throws IOException {
+        Path path = Paths.get("data.txt");
+        Path pathToCopy = Paths.get("data_copy.txt");
+
+        Files.delete(path);
+        Files.createFile(path);
+
+        Files.write(path, "test data\n".getBytes(), StandardOpenOption.WRITE);
+        Files.write(path, "first line\n".getBytes(), StandardOpenOption.APPEND); // APPEND dodaje tekst do istniejącej zawartości
+        Files.write(path, "second line\n".getBytes(), StandardOpenOption.APPEND);
+
+        for (String line : Files.readAllLines(path)){
+            System.out.println(line);
+        }
+
+        Files.copy(path, pathToCopy);
+        Files.delete(pathToCopy);
+    }
+}
+
+
+
+
+
+------------------------------------Serialization and Deserialization------------------------------------------------------
+
+Serializace - mechanismus, který převádí stav objektu na proud bajtů
+    - Steps to Serialize
+        - 1. implementace Serializable interface
+        - 2. import java.io.Serializable;
+        - 3. FileOutputStream fileOut = new FileOutputStream(file path)
+        - 4. ObjectOutputStream out = new ObjectOutputStream(fileOut);
+        - 5. out.writeObject(objectName)
+        - 6. out.close(); fileOut.close();
+
+Deserializace - inverzní proces, který umožňuje obnovit stav objektu v paměti z proudu bajtů
+    - Steps to Deserialize
+        - 1. implementace Serializable interface
+        - 2. import java.io.Serializable;
+        - 3. FileInputStream fileIn = new FileInputStream(file path);
+        - 4. ObjectInputStream in = new ObjectInputStream(fileIn);
+        - 5. objectNam = (Class) in.readObject();
+        - 6. in.close(); fileIn.close();
+
+Výsledný byte stream je nezávislý na platformě, takže objekt serializovaný na jedné platformě lze úspěšně deserializovat na jiné platformě.
+
+
+--------------------Serializable--------------------
+
+- rozhraní umožňující serializaci a deserializaci objektů pomocí
+- včetně tříd ObjectInputStream a ObjectOutputStream, které obsahují vysokoúrovňové API pro serializaci a deserializaci objektů
+
+- bez implementace rozhraní java.io.Serializable nebudou třídy schopny správně serializovat a deserializovat objekty, 
+    což bude mít za následek výjimku java.io.NotSerializableException
+- serializovatelné rozhraní od nás nevyžaduje implementaci žádné metody.
+
+Důležité poznámky	
+- 1. Dceřiné třídy rodičovské třídy, která implementuje Serializable, ji budou implementovat také.
+- 2. statická pole se neserializují (patří třídě, ne jednotlivému objektu).
+- 3. Pole deklarovaná jako "přechodná" nejsou serializována, jsou ignorována
+- 4. samotná definice třídy ("soubor třídy") se nezaznamenává, obsazuje se jako typ objektu
+- 5. serialVersionUID je jedinečné ID verze 
+	   
+SerialVersionUID
+- serialVersionUID je jedinečné ID, které funguje jako verze #
+- ověřuje, že odesílatel a příjemce serializovaného objektu, mají načtené třídy pro tento objekt, které jsou kompatibilní
+- zajišťuje, že objekt bude kompatibilní mezi počítači
+- číslo se musí shodovat. jinak to způsobí výjimku InvalidClassException
+- SerialVersionUID se vypočítá na základě vlastností třídy, členů atd.
+- Serializovatelná třída může explicitně deklarovat vlastní SerialVersionUID (doporučeno)
+
+
+    import java.io.Serializable;
+
+    public class Movie implements Serializable {
+        private int id;
+        private String title;
+        private String type;
+
+        public Movie(int id, String title, String type) {
+            this.id = id;
+            this.title = title;
+            this.type = type;
+        }
+
+        //getters and setters
+    }
+
+
+--------------------ObjectInputStream--------------------
+
+Třída ObjectInputStream obsahuje metodu, která umožňuje serializaci objektu a jeho zápis do streamu:
+
+    public final void writeObject(Object x) throws IOException
+
+
+Ukázková serializace vypadá takto:
+
+        try {
+            Movie movieToSerialize = new Movie(1123, "Star Wars", "Start Wars IX");
+            FileOutputStream fileOutputStream = new FileOutputStream("movies.txt");
+            ObjectOutputStream out = new ObjectOutputStream(fileOutputStream);
+            out.writeObject(movieToSerialize);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+
+
+--------------------ObjectOutputStream--------------------
+
+Třída ObjectOutputStream obsahuje metodu, která vám umožňuje deserializovat objekt a číst jej ze streamu:
+
+    public final Object readObject() throws IOException, ClassNotFoundException
+
+
+Příklad deserializace vypadá takto:
+
+        try {
+            FileInputStream fileIn = new FileInputStream("movies.txt");
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            Movie movieToDeserialize = (Movie) in.readObject();
+            in.close();
+            fileIn.close();
+            System.out.println(movieToDeserialize);
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+
+
+----------------------------------
+
+3 Třídy (SerializeDemo, User implements Serializable, Deserialize)
+
+import java.io.*;
+
+public class SerializeDemo {
+
+   public static void main(String [] args) {
+	   
+      User user = new User();
+      
+      user.name = "Bro";
+      user.password = "I<3Pizza";
+      
+      try {
+         FileOutputStream fileOut = new FileOutputStream("C:\\Users\\Cakow\\eclipse-workspace\\SerializeDemo\\employee.ser");
+         ObjectOutputStream out = new ObjectOutputStream(fileOut);
+         out.writeObject(user);
+         
+         out.close();
+         fileOut.close();
+         System.out.println("Object saved!");
+      } catch (IOException i) {
+         i.printStackTrace();
+      }
+      
+      long serialVersionUID = ObjectStreamClass.lookup(user.getClass()).getSerialVersionUID();
+      System.out.println("serialVersionUID: "+serialVersionUID);
+   }
+}
+
+----------------------------------
+
+import java.io.Serializable;
+
+public class User implements Serializable {
+ 
+	private static final long serialVersionUID = 123;
+	
+	String name;
+	transient String password; //transient values are ignored
+   
+	public void hello() {
+		System.out.println("Welcome "+name);
+	}
+}
+
+----------------------------------
+
+import java.io.*;
+public class Deserialize {
+
+   public static void main(String [] args) {
+	   
+      User user = null;
+          
+      FileInputStream fileIn;
+		try {
+			fileIn = new FileInputStream("C:\\Users\\Cakow\\eclipse-workspace\\SerializeDemo\\employee.ser");
+	         ObjectInputStream in = new ObjectInputStream(fileIn);
+	         user = (User) in.readObject();
+	         in.close();
+	         fileIn.close();
+	      
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	  long serialVersionUID = ObjectStreamClass.lookup(user.getClass()).getSerialVersionUID();
+	  System.out.println("serialVersionUID: "+serialVersionUID);
+	      
+      System.out.println("name: " + user.name);
+      System.out.println("password: " + user.password);
+
+      user.hello();
+      
+   }
+}

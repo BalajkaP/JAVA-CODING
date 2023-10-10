@@ -1,0 +1,914 @@
+Thread
+- Každé vlákno má prioritu a vlákna s vyšší prioritou běží před vlákny s nižší prioritou
+- zajistuji soubezne zpracovani vice uloh
+- schopnost prerusit bezici program, vyporadat se s jinou ulohou a potom se vratit k prerusenemu procesu
+- uzamceni pameti (napr. u tiskarny) pro vyhradni pouziti jedineho procesu - klicove slovo synchronized
+- nedoporučuje se dědit z vlákna - pokud chceme vytvořit nové vlákno, použijeme rozhraní Runnable.
+
+- Když se spustí JVM, obvykle se spustí hlavní vlákno, které volá metodu main
+- Poté můžeme spustit další vlákna z hlavního vlákna
+- musi to byt posledni vlakno, ktere dokonci provadeni
+- kdyz se hlavni vlakno zastavi, program se ukonci
+- ackoli je hlavni vlakno vytovreno automaticky pri spusteni programu, lze jej ovladat pomoci objektu vlakna
+- Tato vlákna běží, dokud nenastane jedna z následujících situací:
+	- vlákna dokončí svou práci
+	- vlákno vyvolá výjimku
+	- bude volána metoda System.exit () (z libovolného vlákna).
+
+
+
+- Vytvorim vlakno a zavolam metodu start(), ktera vnitrne zavola run() a vlakno bezi
+- sleep(), wait() - vlakno pozastavi cinnost 
+- notify(), notifyAll() - posune vlakno zpet do Running
+- kdyz dobehne metoda run() vlakno je mrtve, uz nejde spustit a musi se vytvorit nova instance 
+- join() - pocka nez dojede vlakno
+
+
+-------------------------------------------Zivotni cyklus vlaken-------------------------------------------
+
+Nove, Pripravene, Bezici, Cekajici, Ukoncene
+
+-------------------------------------------Vytvoreni/Startovani vlaken-------------------------------------------
+
+- vlakna se startuji pomoci metody start()
+- lepsi implementace Runnable, protoze muzu implementoivat mnoho rozhrani, ale dedit muzu jen z 1 tridy
+
+-----------------1) pomoci tridy rozsirujici tridu Thread-----------------
+
+public class DemoThread extends Thread {
+	public void run() {
+		...
+	}
+}
+DemoThread demoThread = new DemoThread();
+demoThread.start();
+
+
+-----------------2) pomoci tridy implementujici rozhrani Runnable-----------------
+
+public class DemoThread implements Runnable {
+	public void run() {
+		...
+	}
+}
+Thread thread = new Thread(new DemoThread());
+thread.start();
+
+
+-----------------3) pomoci anonymni implementace rozhrani Runnable-----------------
+
+Runnable demoRunnable = new Runnable() {
+	public void run() {
+		...
+	}
+};
+Thread thread = new Thread(demoRunnable);
+thread.start();
+
+
+-----------------4) pomoci implementace rozhrani Runnable pouzitim Lambda-----------------
+
+Runnable demoRunnable = () -> {
+	...
+};
+Thread thread = new Thread(demoRunnable);
+thread.start();
+
+-------------------------------------------Klicove slovo volatile-------------------------------------------
+
+- proměnnou čte nebo upravuje více vláken, a chci zajistit, aby byly její hodnoty konzistentní a okamzite viditelné pro všechna vlákna. 
+- každé čtení nebo zápis hodnoty proměnné je provedeno přímo v paměti, aniž by se ukládaly do mezipaměti nebo optimalizovaly instrukce
+
+
+class Procesor extends Thread {
+	
+	private volatile boolean bezici = true;
+	
+	@Override
+	public void run() {
+		while (bezici) {
+			System.out.println("Ahoj");
+			try {
+				Thread.sleep(1200);
+			} catch (InterruptedException e) {
+				e.printStactTrace();
+			}
+		}
+	}
+
+	public void vypnout() {
+		bezici = false;
+	}
+
+}
+
+public class Aplikace {
+
+	public static void main(String[] args) {
+
+		Procesor p1 = new Procesor();
+		p1.start();
+
+		System.out.println("Zmackni ciselny enter a program se stopne");
+		Scanner sc = new Scanner(System.in);
+		sc.nextLine()
+
+		p1.vypnout();
+	}
+}
+
+
+-------------------------------------------Přerušení vlákna-------------------------------------------
+
+- pomoci metody interrupt() můžeme poslat požadavek na zastavení vlákna a programátor v kódu samostatného vlákna rozhodne, jak s touto skutečností naloží
+- třída Thread poskytuje také metodu stop(), kterou bychom však neměli používat
+
+- V závislosti na stavu vlákna jsou možné dvě situace:
+	- vlákno na základě signálu vyhodí výjimku InterruptedException
+	- vlákno může pomocí metody zkontrolovat, zda obdrželo signál (požadavek na přerušení):
+		- isInterrupted(), při jejímž volání se informace o požadavku na zastavení nevymaže.
+		- interrupted(), která kromě informace, zda byl odeslán signál stop, také vynuluje stav.
+
+
+Následující příklady ukazují, jak můžeme tyto metody použít:
+
+public class ThreadsExample {
+
+  	public static void main(String[] args) {
+
+    	final Thread sleepingThread = new Thread(new SleepingThread());
+    	sleepingThread.start();
+
+		// odeslání požadavku na zastavení
+    	sleepingThread.interrupt(); 
+  	}
+}
+
+class SleepingThread implements Runnable {
+
+  	@Override
+  	public void run() {
+    	System.out.println("I will go to sleep");
+    	try {
+      	Thread.sleep(3000L);
+		// zachycení výjimky InterruptedException, pokud byl během provádění metody sleep vyslán signál přerušení
+    	} catch (InterruptedException e) { 
+      		System.out.println("I was interrupted during sleep");
+    	}
+    	System.out.println("I am exiting");
+  	}
+}
+
+Možný (a nejpravděpodobnější) výstup výše uvedeného programu je:
+
+I will go to sleep
+I was interrupted during sleep
+I am exiting
+
+---------------------------
+
+Další příklad vytvoří samostatné vlákno, které během svého provádění kontroluje, zda mezitím nebyl odeslán požadavek na zastavení:
+
+public class ThreadsExample {
+
+  	public static void main(String[] args) {
+
+    	final Thread sleepingThread = new Thread(new SleepingThread());
+    	sleepingThread.start();
+    	sleepingThread.interrupt();
+  	}	
+}
+
+class SleepingThread implements Runnable {
+
+  	@Override
+  	public void run() {
+    	final List<Integer> ints = new ArrayList<>();
+    	for (int idx = 0; idx < 1000; idx++) {
+      		ints.add(new Random().nextInt());
+    	}
+    	if (Thread.currentThread().isInterrupted()) { // nebo resetování stavu Thread.interrupted()
+      		System.out.println("I was interrupted...");
+      		return;
+    	}
+    	final int sum = ints.stream().mapToInt(value -> value).sum();
+    	System.out.println("Sum is " + sum);
+  }
+}
+
+- Výše uvedený příklad vypíše součet vygenerovaných čísel na obrazovku, pouze pokud je metoda interrupt() 
+zavolána po kontrole signálu vláknem reprezentovaným třídou SleepingThread.
+
+
+
+-------------------------------------------Synchronized(zamek)-------------------------------------------
+
+- aby k objektu přistupovalo ve stejnou chvili jedno vlákno, můžeme použít mechanismus synchronized
+- pokud je zamek odemceny, muze ho jedno vlakno uzamknout
+- pokud je zamek zamceny a nejake vlakno ho potrebuje, tak to vlakno musi cekat, az bude odemceny
+- zamceny zamek po dokonceni sve cinnosti odemyka zase to vlakno, ktere ho zamklo
+- zajišťuje take atomickost operací uvnitř synchronizovaného bloku
+- to znamená, že všechny operace v rámci bloku jsou prováděny jako jedna nedělitelná akce
+- to je užitečné například při inkrementaci nebo dekrementaci hodnoty, která je sdílena mezi vlákny
+
+- Java zavádí dva základní způsoby synchronizace pomocí klíčového slova synchronized:
+	- synchronizace metod
+	- synchronizace bloku kódu
+- k metode ci bloku kodu s timto klicovym slovek bude mit v jednu chvili pristup vzdy jen 1 vlakno
+
+
+- static synchronizovaná metoda 
+	- patri tride nikoliv instanci tridy (objektu), tudiz ovlivnuji vsechny instance teto tridy
+	- v jeden moment ji vzdy muze provadet jen 1 vlakno
+	- k metode mohou pristupovat vlakna bez ohledu, na kterou instanci tridy se odkazuji
+
+- nestatická synchronizovaná metoda 
+	- patri konkretni instanci tridy (objektu), nikoli třídě samotné, takze neovlivnuje vsechny instance tridy
+	- v jeden moment ji vzdy muze provadet jen konkretni instance
+	- vytvorim-li si 2 instance tridy, tak u kazde instance muze tuto metodu provadet jen 1 vlakno 
+	- ostatní vlákna musí čekat, až se dané vlákno dokončí.
+	- často v situacích, kdy mám sdílený objekt mezi více vlákny a chci zajistit, aby se kód metody prováděl atomicky pro danou instanci objektu
+	- tím se minimalizuje riziko nekonzistence dat a vzájemného překrývání operací.
+
+
+
+----Problém synchronizace je vidět na následujícím úryvku kódu----
+
+- Vytvoříme v něm dvě vlákna, která modifikují stejnou instanci třídy Pair
+- Na konci každého vlákna vypíšeme na obrazovku konečné hodnoty proměnných left a right
+- Přestože jsme program zahájili s hodnotami 0, a obě vlákna je 100krát inkrementovala, s největší pravděpodobností nedostaneme u těchto polí hodnotu 200
+
+
+	public class ThreadsExample {
+
+  		public static void main(String[] args) {
+
+    		final Pair pair = new Pair(0, 0);
+    		new Thread(new DummyPairIncrementer(pair)).start();
+    		new Thread(new DummyPairIncrementer(pair)).start();
+  		}
+	}
+
+--------
+
+	class Pair {
+  		private Integer left;
+  		private Integer right;
+
+  		public Pair(final Integer left, final Integer right) {
+    		this.left = left;
+    		this.right = right;
+  		}
+
+  		public void incrementLeft() {
+    		left++;
+  		}
+
+  		public void incrementRight() {
+    		right++;
+  		}
+
+  		public Integer getLeft() {
+    		return left;
+  		}
+
+  		public Integer getRight() {
+    		return right;
+  		}
+	}
+
+--------
+
+	class DummyPairIncrementer implements Runnable {
+  		private final Pair pair;
+
+  		public DummyPairIncrementer(final Pair pair) {
+    		this.pair = pair;
+  		}
+
+  		@Override
+  		public void run() {
+    		for (int i = 0; i < 100; i++) {
+      			pair.incrementLeft();
+      			pair.incrementRight();
+    		}
+    		System.out.println(pair.getLeft() + " " + pair.getRight());
+  		}
+	}
+
+- inkrementace je v kontextu kódu, jedna instrukce, ale pro procesor jsou to ve skutečnosti tři instrukce
+	- (1) načtení aktuální hodnoty z paměti.
+	- (2) přičtení jedničky k načtené hodnotě
+	- (3) uložení zvýšené hodnoty do paměti.
+
+- Pokud jedno vlákno provede operaci (1), ale ještě neprovede operaci (3), a během této doby stihne druhé vlákno provést operaci (1), 
+	výsledkem dvou inkrementací bude zvýšení hodnoty o 1, nikoliv o 2.
+
+
+-------------------------Synchronizace metody-------------------------
+
+- Je-li metoda synchronizována, má k ní volající vlákno výhradní přístup, dokud není dokončena. 
+
+
+- Abychom odstranili problém z předchozího příkladu, musíme synchronizovat následující metody:
+
+  	public synchronized void incrementLeft() {
+    	left++;
+  	}
+
+  	public synchronized void incrementRight() {
+    	right++;
+  	}
+
+- Díky tomuto řešení je programátor schopen řídit přístup k objektu, který je tak předvídatelnější a sekvenčnější napříč více vlákny.
+
+
+-------------------------Bloková synchronizace-------------------------
+
+- může omezit rozsah synchronizace dat pouze na jednotlivé instrukce týkající se např. proměnné třídy 
+- pro implementaci blokové synchronizace se mezi () vkládá objekt, ke kterému chceme v souběhu přistupovat sekvenčním způsobem
+
+
+- Bloková synchronizace kódu v synchronizovaných metodách z předchozího příkladu:
+
+  	public void incrementLeft() {
+    	synchronized(this) {
+      		left++;
+    	}
+  	}
+
+  	public void incrementRight() {
+    	synchronized(this) {
+      		right++;
+    	}
+ 	}
+
+
+-------------------------Join()-------------------------
+
+- V aplikacích často používáme další vlákna pro výpočet určitých dat, která pak zpracováváme např. v hlavním vlákně. 
+- Než můžeme začít se zpracováním, jsme nuceni počkat, až všechna vlákna, která data počítají, skončí. 
+- Abychom mohli počkat na ukončení vlákna, musíme použít metodu join(). 
+- join() - čekání na ukončení vlákna
+- join(s argumenty) - můžeme zadat maximální dobu čekání na ukončení vlákna (milisekundy / nanosekundy)
+
+
+Použití metody join:
+
+	public class ThreadsExample {
+
+  		public static void main(String[] args) throws InterruptedException {
+
+    		final List<Integer> ints = new ArrayList<>();
+			
+    		final Thread threadA = new Thread(new SimpleThread(ints));
+    		final Thread threadB = new Thread(new SimpleThread(ints));
+
+    		threadA.start();
+    		threadB.start();
+
+    		threadA.join(1000L);
+    		threadB.join(1000L);;
+    		System.out.println(ints.size());
+  		}
+	}
+
+	class SimpleThread implements Runnable {
+
+  		private final List<Integer> ints;
+
+  		SimpleThread(final List<Integer> ints) {
+    		this.ints = ints;
+  		}
+
+  		@Override
+  		public void run() {
+    		synchronized (this.ints) {
+      			ints.add(new Random().nextInt());
+    		}
+  		}
+	}
+
+
+-------------------------Deadlock-------------------------
+
+- V situaci, kdy se několik vláken navzájem donekonečna blokuje, se jedná o tzv. deadlock
+- Lze jej popsat tak, že A čeká na B, protože B čeká na A.
+- muze nastat pokud jsou splneny 4 podminky a kdyz nastane, tak se program "zasekne"
+- teto situaci se predchazi tim, ze se zajisti, ze aspon 1 ze 4 podminek pro DeadLock nenastane
+
+Nutne podminky - Preruseni podminky:
+
+Vzajemne vylouceni
+- ke konkretnimu prostredku muze v konkretni chvili pristupovat jen jedno vlakno
+- umozneni pristupovat k 1 prostredku vice vlaknum najednou
+
+Hold and wait
+- vlakna se mohou snazit ziskat prostredky, i kdyz uz nejake maji
+- vlakna si musi o vsechny prostredky, ktere budou potrebovat, zazadat najednou a bud obdrzi vsechny, nebo zadne
+
+Neodnimatelnost
+- vlaknum nelze jednou pridelene prostredky odejmout, aby byly opet k dispozici, tak je musi uvolnit samo vlakno
+- pridani moznosti odejmout prostredky
+
+Cyklicke cekani
+- z procesu a prostredku na ktere tyto procesy cekaji, jde uzavrit cyklus (proces 1 ma prostredek 1 a ceka naprostredek 2,
+proces 2 ma prostredek 2 a ceka na prostredek 1)
+- vzniku cyklu muzeme predejit tim, ze bude existovat predem definovane poradi, v jakem se prostredky ziskavaji
+
+
+Deadlock je uveden v následujícím příkladu:
+
+	public class DeadLockExample {
+
+  		public static void main(String[] args) throws InterruptedException {
+
+    		final String r1 = "r1";
+    		final String r2 = "r2";
+
+    	Thread t1 = new Thread() {
+      		public void run() {
+        		synchronized (r1) {
+          			System.out.println("Thread 1: Locked r1");
+          			try {
+            			Thread.sleep(100);
+          			} catch (InterruptedException ignored) {
+          			}
+          			synchronized (r2) {
+            			System.out.println("Thread 1: Locked r2");
+          			}
+        		}
+      		}
+    	};
+    
+		Thread t2 = new Thread() {
+      		public void run() {
+        		synchronized (r2) {
+          			System.out.println("Thread 2: Locked r1");
+          			try {
+            			Thread.sleep(100);
+          			} catch (InterruptedException ignored) {
+          			}
+          			synchronized (r1) {
+            			System.out.println("Thread 2: Locked r2");
+          			}
+        		}
+      		}
+    	};
+
+    	t1.start();
+    	t2.start();
+
+    	t1.join();
+    	t2.join();
+    	System.out.println("Exiting? No I will never reach this line of code because threads will NOT join");
+  	}
+}
+
+Výstup:
+Thread 1: Locked r1
+Thread 2: Locked r1
+
+Ve výše uvedeném případě:
+- Vlákno t1 blokuje přístup ke zdroji resourcer1 a pak se pokusí vynutit přístup ke zdroji r2.
+- Vlákno t2 blokuje přístup k resourcer2, poté se pokusí vynutit přístup k prostředku r1.
+
+- Protože ani vlákno t1 neuvolní přístup k resourcer1, ani vlákno t2 neuvolní přístup k tor2, dochází k tzv. deadlocku.
+
+
+
+
+-------------------------------------------implementace ReentrantLock-------------------------------------------
+
+- robustnejsi alternativa k synchronized
+- umoznuje vicenasobne zamykani jednim stejnym vlaknem, coz se muze hodit, kdyz mame vice metod, kdy kazda ma osetreno, ze potrebuje stejny zdroj
+- v pripade vicenasobneho zamceni musi to vlakno, ktere ho zamklo, zase stejny pocetkrat odemcit
+- pri pouziti zamku v kombinaci s kodem, ktery muze vyhodit vyjimku, je dobre umistit odemykani do finally bloku, 
+	aby doslo k jeho uvolneni i tehdy, kdyz nastane nejaka vyjimka
+
+Vlastnictví vlákna: 
+- ReentrantLock umožňuje vláknům získat vlastnictví zámku pomocí lock() a udržovat jej. 
+- Vlákno, které získá zámek, může vstoupit do kritické sekce kódu, která je uzamčena tímto zámkem.
+
+	lock.lock()
+	try {
+		// kod, ktery muze vyhodit vyjimku
+	} catch() {
+		// osetreni vyjimky
+	} finally {
+		lock.unlock();
+	}
+
+Reentrantní vlastnosti: 
+- Jedno vlákno může získat zámek vícekrát. 
+- Pokud vlákno již vlastní zámek, může ho opakovaně získat, aniž by se blokovalo. 
+- Tato vlastnost je užitečná v případech, kdy metoda volá jinou metodu, která také vyžaduje zámek, a zajišťuje tak správné zanoření a uvolňování zámků.
+
+Fairness (spravedlivost): 
+- Může být vytvořen s nastavením fairness na true nebo false. 
+- Pokud je fairness nastavena na true, zámek se přiděluje vláknům v pořadí jejich požadavků. 
+- To zajišťuje spravedlivé rozdělení zdrojů mezi vlákna, ale může vyústit v mírně nižší výkon. 
+- Pokud je fairness nastavena na false (výchozí hodnota), zámek se přiděluje vláknům bez ohledu na jejich pořadí.
+
+Podmíněné proměnné: 
+- Poskytuje také podporu pro podmíněné proměnné pomocí metod newCondition(), await(), signal() a signalAll(). 
+- Tyto metody umožňují vláknům čekat na určité události a koordinovat jejich činnost.
+
+Výjimková podpora: 
+- Poskytuje robustní podporu pro práci s výjimkami.
+- Vlákna mohou zámek uvolnit v bloku finally, což zajišťuje, že zámek bude vždy správně uvolněn, i když dojde k výjimce.
+
+
+
+-------------------------------------------Koordinace vláken-------------------------------------------
+
+- Klíčové slovo synchronized není dostatečným opatřením k zajištění spolupráce vláken. 
+- Často se může stát, že je potřeba neprovádět určitou operaci, dokud není splněna určitá podmínka.
+
+	- wait() 							// uspani cekajiciho vlakna
+	- notify()							// probrani vlakna z uspani
+	- notifyAll()						// probrani vsech vlaken
+
+
+----------------wait()----------------
+
+- Vlákno volá metodu wait() na daném objektu, když očekává, že se něco stane (obvykle v kontextu tohoto objektu), 
+	např. změna stavu objektu, kterou má provést jiné vlákno a která je realizována např. změnou hodnoty některé proměnné - pole objektu. 
+- Volání wait() metody blokuje vlákno a metoda, na které je operace volána, musí být synchronizována. 
+- Jiné vlákno může změnit stav objektu a oznámit to čekajícímu vláknu (pomocí metody notify() nebo notifyAll()).
+
+	Queue<Runnable> runnableQueue = new LinkedList<>();
+	while (runnableQueue.isEmpty()) {
+  		try {
+    		wait();
+  		} catch (InterruptedException e) {
+    		System.err.println("Oops");
+  		}
+	}
+	runnableQueue.poll().run();
+
+
+----------------notify() and notifyAll()----------------
+
+Objekt je odblokován, když jiné vlákno zavolá metodu notify() nebo notifyAll() pro stejný objekt, na který vlákno čeká:
+- Volání notify() odblokuje jedno z čekajících vláken, kterým může být kterékoli z nich.
+- Metoda notifyAll() odblokuje všechna vlákna čekající na objekt.
+- Volání notify nebonotifyAll() musí být v synchronizovaném bloku/metodě.
+
+
+Schéma koordinace vláken:
+
+	public class ThreadsExample {
+
+  		public static void main(String[] args) throws InterruptedException {
+
+    		final Customer customer = new Customer();
+    		final Thread withDrawThread = new Thread(new WithdrawThread(customer));
+    		final Thread depositThreadA = new Thread(new DepositThread(customer));
+    		final Thread depositThreadB = new Thread(new DepositThread(customer));
+
+    		withDrawThread.start();
+    		depositThreadA.start();
+    		depositThreadB.start();
+  		}
+	}
+
+--------------------
+
+	class Customer {
+  		private int availableAmount = 0;
+
+  		synchronized void withdraw(int amountToWithdraw) {
+
+    		System.out.println("Trying to withdraw " + amountToWithdraw + " PLN");
+
+    		while (availableAmount < amountToWithdraw) {
+      			System.out.println("Not enough money! Waiting for transfer!");
+      			try {
+        			wait();
+      			} catch (InterruptedException e) {
+        			System.err.println("Oops");
+      			}
+    		}
+    		System.out.println("Withdraw successful!");
+  		}
+
+  		synchronized void deposit(final int amountToDeposit) {
+    		System.out.println("Depositing " + amountToDeposit + " PLN");
+    		availableAmount += amountToDeposit;
+    		notify();
+  		}
+	}
+
+--------------------
+
+	class WithdrawThread implements Runnable {
+
+  		private final Customer customer;
+
+  		WithdrawThread(final Customer customer) {
+    		this.customer = customer;
+  		}
+
+
+  		@Override
+  		public void run() {
+    		customer.withdraw(1000);
+  		}
+	}
+
+--------------------
+
+	class DepositThread implements Runnable {
+  		private final Customer customer;
+
+  		DepositThread(final Customer customer) {
+    		this.customer = customer;
+  		}
+
+  		@Override
+  		public void run() {
+    		customer.deposit(500);
+  		}
+	}
+
+- Ve výše uvedeném příkladu je vlákno WithdrawThread pozastaveno (wait()), dokud nebudete mít na účtu dostatek prostředků. 
+- Každá platba spustí vlákno (notify()). Vlákno WithdrawThread nedokončí svůj běh, dokud daný Customer nebude mít požadované prostředky.
+
+
+
+
+
+
+
+
+-------------------------------------------ExecutorService-------------------------------------------
+
+- Při vytváření vícevláknových aplikací jen zřídka používáme nízkoúrovňové rozhraní API a spravujeme vlákna ručně. 
+- Kdykoli je to možné, měli bychom použít tzv. thread pool, což je skupina vláken spravovaná externím subjektem. 
+- Jedním z takových mechanismů v Javě je rozhraní ExecutorService, které zjednodušuje provádění úloh v asynchronním režimu, a využívá k tomu fond vláken. 
+
+----------------Vytvoření služby ExecutorService----------------
+
+- K vytvoření instance služby ExecutorService můžeme použít třídu Executors, která má několik užitečných statických metod. 
+
+	public class ExecutorsCreationExample {
+
+  		public static void main(String[] args) throws InterruptedException {
+
+			ExecutorService singleThreadES;
+			ExecutorService executorService;
+			ExecutorService cachedES;
+			ExecutorService scheduledExecutorService;
+
+    		final int cpus = Runtime.getRuntime().availableProcessors();
+
+    		singleThreadES = Executors.newSingleThreadExecutor(); // vrací ExecutorService bežící v jednom vlákně
+
+    		executorService = Executors.newFixedThreadPool(cpus); // vrací ExecutorService běžící na fondu vláken dané velikosti
+
+			// vytvoří službu ExecutorService, která v případě, že neexistuje vlákno, které by mohlo zpracovávat novou úlohu, přidá do fondu nové vlákno. 
+			// Vlákna jsou navíc z poolu odstraněna, pokud po dobu jedné minuty nezíská novou úlohu k provedení.
+    		cachedES = Executors.newCachedThreadPool();
+
+			// vytvoří službu ExecutorService, která spustí úlohu po určité době nebo v zadaných intervalech
+    		scheduledExecutorService = Executors.newScheduledThreadPool(cpus); 
+  		}
+	}
+
+
+----------------Uzavření služby ExecutorService----------------
+
+- Při vytváření služby ExecutorService nesmíme zapomenout na její ruční uzavření. 
+- shutdown() - fond vláken přestane přijímat nové úlohy, zahájené úlohy budou dokončeny a fond bude uzavřen.
+- shutdownNow() - služba přestane přijímat nové úlohy, navíc se pokusí zastavit všechny aktivní úlohy, 
+        			zastaví zpracování čekajících úloh a vrátí seznam úloh čekajících na provedení.
+
+
+----------------Plnění úkolů ExecutorService----------------
+
+-----------submit()-----------
+
+- provádí úkol Callable nebo Runnable:
+
+	public class CallableFutureExample {
+
+  		public static void main(String[] args) {
+
+			// creating an ExecutorService with a single-threaded pool
+    		ExecutorService executorService = Executors.newSingleThreadExecutor(); 
+
+			// Callable implementation using lambda
+    		Future<String> result = executorService.submit(() -> "I am result of callable!"); 
+    		try {
+      			System.out.println("Prinint result of the future: " + result.get());
+    		} catch (InterruptedException | ExecutionException e) {
+      			System.err.println("Oops");
+    		}
+    		executorService.shutdown(); // remember to close the ExecutorService manually
+  		}
+	}
+
+
+-----------invokeAny()-----------
+
+- ExecutorService ve svém fondu vláken začne provádět seznam vstupních úloh. 
+- Vrací výsledek spuštěných úloh, které byly úspěšně dokončeny, když byla úspěšně dokončena první z nich. 
+- Zbývající nedokončené úlohy budou zrušeny.
+
+Toto chování ilustruje další příklad:
+
+	public class HomeTasks {
+
+  		public static void main(String[] args) {
+
+    		ExecutorService executorService = Executors.newFixedThreadPool(2);
+    		
+			List<Callable<String>> tasks = Arrays.asList(
+        		() -> {
+          			System.out.println("Thread: " + Thread.currentThread().getName());
+          			System.out.println("I'm shopping");
+          			Thread.sleep(5000);
+          			System.out.println("Thread: " + Thread.currentThread().getName() + ". Shopping done!");
+          			return "Shopping done!";
+        		},
+        		() -> {
+          			System.out.println("Thread: " + Thread.currentThread().getName());
+          			System.out.println("Washing dishes");
+          			Thread.sleep(2000);
+          			System.out.println("Thread: " + Thread.currentThread().getName() + ". Dishes washed");
+          			return "dishes washed";
+        		},
+        		() -> {
+          			System.out.println("Thread: " + Thread.currentThread().getName());
+          			System.out.println("Cleaning the room");
+          			Thread.sleep(1000);
+          			System.out.println("Thread: " + Thread.currentThread().getName() + ". Room cleaned");
+          			return "Room cleaned";
+        		}
+    		);
+    
+			try {
+      			String firstResult = executorService.invokeAny(tasks);
+      			System.out.println("FIRST RESULT: " + firstResult);
+    		} catch (InterruptedException | ExecutionException e) {
+      			e.printStackTrace();
+    		}
+    		executorService.shutdown();
+  		}
+	}
+
+
+Možný výstup:
+
+Thread: pool-1-thread-2
+Washing dishes
+Thread: pool-1-thread-1
+I'm shopping
+Thread: pool-1-thread-2. Dishes washed
+Thread: pool-1-thread-2
+Cleaning the room
+PRVNÍ VÝSLEDEK: Dishes washed
+
+
+- na obrazovce se nezobrazuje zpráva "Room cleaned", protože výsledek první dokončené úlohy byl vrácen rychleji
+- Prvním výsledkem je "Dishes washed". 
+- Tato skutečnost je způsobena tím, že náš pool má méně vláken, než je počet úloh, které chceme spustit. 
+- navzdory tomu, že třetí Callable spí nejkratší dobu, začne se vykonávat teprve tehdy, až se uvolní jedno z vláken z poolu, (dokončí provádění aktivní úlohy)
+
+
+-----------invokeAll()-----------
+
+- provede všechny úlohy Callable a vrátí seznam výsledků typu List <Future <T>>.
+
+
+- Upravme kód z předchozího příkladu tak, aby místo metody invokeAny() provedl metodu invokeAll():
+
+	public class HomeTasks {
+
+  		public static void main(String[] args) {
+
+    		ExecutorService executorService = Executors.newFixedThreadPool(2);
+    
+			List<Callable<String>> tasks = Arrays.asList(
+        		() -> {
+          			System.out.println("Thread: " + Thread.currentThread().getName());
+          			System.out.println("I'm shopping");
+          			Thread.sleep(5000);
+          			System.out.println("Thread: " + Thread.currentThread().getName() + ". Shopping done!");
+          			return "Shopping done!";
+        		},
+        		() -> {
+          			System.out.println("Thread: " + Thread.currentThread().getName());
+          			System.out.println("Washing dishes");
+          			Thread.sleep(2000);
+          			System.out.println("Thread: " + Thread.currentThread().getName() + ". Dishes washed");
+          			return "Dishes washed";
+        		},
+        		() -> {
+          			System.out.println("Thread: " + Thread.currentThread().getName());
+          			System.out.println("Cleaning the room");
+          			Thread.sleep(1000);
+          			System.out.println("Thread: " + Thread.currentThread().getName() + ". Room cleaned");
+          			return "Room cleaned";
+        		}
+    		);
+    
+			try {
+      			List<Future<String>> futures = executorService.invokeAll(tasks);
+      			for (Future<String> future : futures) {
+        			System.out.println(future.get());
+      			}
+    		} catch (InterruptedException | ExecutionException e) {
+      			e.printStackTrace();
+    		}
+    		executorService.shutdown();
+  		}
+	}
+
+
+Example output:
+
+Thread: pool-1-thread-1
+I'm shopping
+Thread: pool-1-thread-2
+Washing dishes
+Thread: pool-1-thread-2. Dishes washed
+Thread: pool-1-thread-2
+Cleaning the room
+Thread: pool-1-thread-2. Room cleaned
+Thread: pool-1-thread-1. Shopping done!
+Shopping done!
+Dishes washed
+Room cleaned
+
+- všechny úkoly budou vždy dokončeny.
+
+
+----------------ScheduledExecutorService----------------
+
+- Tato implementace služby ExecutorService umožňuje naplánovat spuštění operace po určitém čase nebo intervalu. 
+- V rámci metod této implementace ExecutorService můžeme rozlišit následující metody:
+	- scheduleAtFixedRate()
+	- scheduleWithFixedDelay()
+
+- Každá z výše uvedených metod vrací speciální objekt ScheduleFuture
+- ten dědí chování z třídy Future a kromě možnosti zrušit úlohu umožňuje vrátit čas zbývající do provedení další operace.
+
+
+-----------scheduleAtFixedRate()-----------
+
+- Tato metoda umožňuje provést danou akci se zpožděním a poté cyklicky každý určitý časový úsek, např.
+
+	public class SchedulerExecutorDemo {
+
+  		public static void main(String[] args) throws InterruptedException {
+
+    		DateFormat df = new SimpleDateFormat("dd:MM:yy:HH:mm:ss");
+    		ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+    		executorService.scheduleAtFixedRate(() -> {
+      			System.out.println("Start coffee!: " + df.format(Calendar.getInstance().getTime()));
+      			try {
+        			Thread.sleep(5000);
+        			System.out.println("finish coffee!: " + df.format(Calendar.getInstance().getTime()));
+      			} catch (InterruptedException e) {
+        			e.printStackTrace();
+      			}
+    		}, 1, 6, TimeUnit.SECONDS);
+    		Thread.sleep(15000L);
+    		executorService.shutdown();
+  		}
+	}
+
+- Ve výše uvedeném příkladu se každá nová úloha začne provádět jednu sekundu po dokončení předchozí úlohy 
+- Úlohy přestanou běžet, když zavoláme metodu shutdown()
+
+
+-----------scheduleWithFixedDelay()-----------
+
+- podobně jako metodascheduleAtFixedRate(), umožňuje provést danou akci se zpožděním a poté cyklicky v určitém časovém intervalu. 
+- Rozdíl je pouze v tom, že časový interval se počítá od konce předchozí úlohy, nikoliv od začátku.
+
+	public class ScheduledWithFixedDelayDemo {
+
+  		public static void main(String[] args) throws InterruptedException {
+
+    		DateFormat df = new SimpleDateFormat("dd:MM:yy:HH:mm:ss");
+    		ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+    		executorService.scheduleWithFixedDelay(() -> {
+      			System.out.println("Start coffee!: " + df.format(Calendar.getInstance().getTime()));
+      			try {
+        			Thread.sleep(5000);
+        			System.out.println("finish coffee!: " + df.format(Calendar.getInstance().getTime()));
+      			} catch (InterruptedException e) {
+        			e.printStackTrace();
+      			}
+    		}, 1, 6, TimeUnit.SECONDS);
+    		Thread.sleep(15000L);
+    		executorService.shutdown();
+  		}
+	}
+
+- Ve výše uvedeném příkladu se každá nová úloha začne provádět 6 sekund po dokončení předchozí úlohy.
+
+

@@ -1,0 +1,8 @@
+- shromazdovani neplatnych objektu a dat neznamena jejich vymazani
+- objekty mohou trvale zustat v pameti a nemusi byt zachyceny sberacem
+- kolekce neplatnych objektu zavisi pouze na pameti
+- existence sberace je moznost obnoveni pameti
+- veskere aktivity spojene se sberacem a metodou finalize() musi byt zamereny na pamet a jeji uvolneni
+- metoda finalize() je vyzadovana ve specifickych pripadech, v nichz si muze objekt rezervovat urcite uloziste jinym zpusobem nez vytvorenim objektu
+- metoda finalize() by se nemela volat primo
+- metoda finalize() se take pouziva ke zjisteni objektu, jenz nebyl spravne vymazan

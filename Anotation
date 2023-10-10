@@ -1,0 +1,230 @@
+Komentare a anotace
+
+-------------------------------Komentare-------------------------------
+
+/** komentar tridy **/
+
+public class Test {
+    /** komentar promenne */
+    public int;
+
+    /** komentar metody */
+    public void f() {
+
+    }
+}
+
+- javadoc zpracuje pouze komentare dokumentu verejnych nebo chranenych clenu
+- pomoci private muzu zahrnout i soukromych clenu
+
+@see 
+- odkazy na ostatni tridy
+- vsechny 3 typy komentare (trid, promennych, metod) mohou obsahovat @see
+- vytvari odkazy na dokumentaci jinych trid
+    @see nazevTridy
+    @see plny-nazevTridy
+    @see plny-nazevTridy#nazevMetody
+- javadoc neoveruje platnost hypertextovych odkazu
+
+
+A) Znacky v dokumentaci tridy
+
+@version informace-o-verzi
+@author informace-o-autorovi
+    - muze obsahovat jmeno, email, ...
+    - muze byt vice @author po sobe
+@since                                      // verze kodu, ktery zacal vyuzivat tento konkretni rys
+
+
+B) Znacky dokumentace promennych
+- muze obsahovat jakekoli znacky jazyka HTML, nebo odkazy @see
+
+
+C) Znacky dokumentace metod
+- mimo HTML znacky a odkazy @see, take moznost pouzivani znacek pro argumenty, navratove hodnoty a vyjimky
+
+@param nazev_argumentu popis
+nazev_argumentu - identifikator seznamu argument
+popis - text, ktery muze pokracovat i na dalsich radcich
+
+- popis ukoncen dalsi znackou dokumentace
+
+@return popis
+popis - popis vyznamu navratove hodnoty muze byt na libovolnem poctu radku
+
+@throws plny-nazev-tridy popis
+plny-nazev-tridy - jedinecny nazev tridy vyjimky, ktery je nekde definovan 
+popis - sdeluje proc se muze tento typ vyskytnout prave v teto metode
+
+@deprecated
+- k oznaceni vlastnosti, ktere byly nahrazeny vylepsenymi vlastnostmi
+- naznak, ze bychom urcitou funkci ci vlastnost nemeli pouzivat
+- metoda oznacena @deprecated pri pouziti zobrazi varovnou zpravu
+
+
+
+-------------------------------Anotace-------------------------------
+
+Značka anotace začíná znakem "@", který kompilátoru říká, že má co do činění s anotací, a názvem, např.
+
+Anotace implementují 3 základní funkce:
+- poskytování informací pro překladač - překladač může anotaci použít k odhalení chyb nebo skrytí varování
+- zpracování informací pro generování kódu, souborů XML atd. během kompilace
+- anotace jsou k dispozici pro kontrolu za běhu programu
+
+
+Anotace mohou také přijímat argumenty.
+- Pokud je jediným argumentem předaným anotaci argument s názvem value, lze tento klíč vynechat. 
+- V případě použití více argumentů musíme vždy uvést všechna jejich jména. 
+
+@SuppressWarnings(value = "unchecked")                                            // use of value argument
+@SuppressWarnings("unchecked")                                                    // záznam odpovídající záznamu v řádku výše
+
+@SomeOtherAnnotation(value = "someValue", otherValue = "someOtherValue")          // případ, kdy NELZE vynechat klíč "value".
+
+POZNÁMKA: U jedné položky lze použít více anotací.
+
+
+------------------Použití------------------
+
+Anotace můžeme použít na mnoha místech našeho kódu.
+- definice tříd a rozhraní
+- pole třídy
+- konstruktory, metody a jejich argumenty
+
+Prvky, na které můžeme danou anotaci použít, závisí na tom, jak byla definována.
+
+POZNÁMKA: Na pořadí anotací použitých na daném prvku nezáleží.
+
+
+------------------Definování anotací------------------
+
+Anotace se definují podobně jako rozhraní, jediným rozdílem je přidání znaku @ před klíčové slovo.
+
+  public @interface ComponentInfo {
+   String name();
+   String date();
+   int currentRevision(); 
+  }
+
+- name (), date () a currentRevision () nejsou metodami, ale prvky anotace. 
+- jejich název se nejčastěji liší od názvů běžných metod. Nemá smysl v nich hledat slovesa (jako get,set nebo do). 
+- takto definované prvky se stávají argumenty takové anotace. 
+
+Příklad použití výše definované anotace může vypadat takto:
+
+  @ComponentInfo(name = "someName", date = "10-12-2021", currentRevision = 3)
+
+
+POZNÁMKA: Na pořadí, v jakém jsou hodnoty argumentů v anotaci definovány, nezáleží.
+
+
+
+------------------Omezení------------------
+
+Při definování anotace a jejích prvků ("metod") musíme mít na paměti některá omezení:
+
+- prvky mohou vracet pouze určité typy, včetně:
+    - jednoduché typy (např. int, float, double) a jejich objektově orientované protějšky (např. Integer, Double)
+    - Třída String
+    - enums
+    - další anotace
+    - pole výše uvedených typů
+    - tyto prvky nemohou přijímat žádné argumenty (tj. vypadají jako deklarace metod bez argumentů)
+    - Níže je uveden další platný příklad deklarace anotace, která ve své definici používá pole a enum Month:
+
+
+public @interface PersonInfo {
+   String[] names();
+   String[] dates();
+   Month month(); // java.time.Month is an enumerated type
+}
+
+// sample use
+@PersonInfo(names = {"Alice", "Andrew"}, dates = {}, month = Month.APRIL)
+
+
+výchozí:
+Definice anotací v předchozích příkladech vyžadovaly, abychom při jejich použití zadali hodnoty pro všechny položky. 
+Klíčové slovo default umožňuje definovat výchozí hodnoty prvků anotace, které se použijí na konci definovaného prvku anotace, např.
+
+public @interface InputArgs {
+  int intValue() default 2; // the default value of the intValue field if omitted is 2
+  double doubleValue();     // no default value, required field
+}
+
+
+Použití v příkladech:
+Anotace definované v předchozích příkladech lze použít na [dříve] (#use) místech aplikace, např.
+
+
+@PersonInfo(names = {}, dates = "12-12-2022", month = Month.AUGUST)
+public class AnnotationsExamples {
+
+  @ComponentInfo(name = "annotationsExamples", date = "12-10-2020", currentRevision = 2)
+  private String someField;
+
+
+  public AnnotationsExamples(@InputArgs(doubleValue = 7) final String someField) { //intValue is set to the default
+    this.someField = someField;
+  }
+}
+
+
+
+------------------Anotace zabudované do jazyka------------------
+
+V jazyce Java SE jsou definovány různé druhy anotací. Některé typy anotací používá překladač jazyka Java a některé mění chování jiných anotací. 
+Mezi základní a nejpoužívanější patří např:
+- @Deprecated - umožňuje označit metodu/třídu jako zastaralou, která by se již neměla používat.
+- @Override - říká překladači, že daný prvek má nahradit prvek deklarovaný v nadřazené třídě.
+- @SuppressWarnings - říká překladači, aby potlačil některá varování, která by jinak generoval.
+
+Existují také speciální anotace, které lze použít k určení dalších anotací, ty se nazývají metaanotace, např:
+
+- @Documented - pomocná anotace, která může např. zobrazit dokumentaci pomocí javadoc.
+- @Repeatable - anotace zavedená v Java SE 8, která označuje, že určitou anotaci lze použít více než jednou na stejný prvek (např. pole).
+- @Inherited - anotace označuje, že použité anotace jsou viditelné při dědění třídy.
+- @FunctionalInterface - anotace poukazující na rozhraní, které má jednu abstraktní metodu.
+
+Dosud definované anotace bychom mohli použít na prvcích [any] (#use). 
+Při definování anotace určené pro použití jinými programátory chceme uvést, kde a v jakém okamžiku bude taková anotace zpracována. 
+K tomu slouží dvě anotace:
+
+- @Retention - určuje dobu, po kterou je anotace viditelná.
+- @Target - která určuje seznam položek, na které lze anotaci použít.
+
+Pomocí anotace @Retention můžeme uvést následující hodnotu polevalue:
+- RetentionPolicy.SOURCE - určuje, že anotace je viditelná pouze na úrovni zdrojového kódu a překladač ji ignoruje.
+- RetentionPolicy.CLASS - určuje, že anotace je viditelná pro kompilátor v době kompilace, ale je ignorována JVM.
+- RetentionPolicy.RUNTIME - určuje, že anotace je uložena v JVM, aby ji bylo možné použít za běhu (tj. za běhu programu).
+
+
+Anotaci Target zase musíme předat hodnotu typu ElementType, která má mnoho možných hodnot, mj:
+
+hodnota                         prvky, na které lze anotaci aplikovat
+ElementType.CONSTRUCTOR	        constructors declarations
+ElementType.FIELD	            class fields
+ElementType.METHOD	            method declarations
+ElementType.TYPE	            class, interface, enum definitions
+ElementType.PARAMETER	        method parameter
+
+
+V příkladu níže deklarujeme anotaci, která je viditelná za běhu a kterou můžeme definovat na deklaraci třídy a polích třídy:
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.TYPE, ElementType.FIELD })
+public @interface NameFilter {
+}
+
+@NameFilter                       // correct use -> ElementType.TYPE
+public class NameFilterUsage {
+
+  @NameFilter                     // correct use -> ElementType.FIELD
+  private String field;
+
+  @NameFilter                     // INCORRECT use -> no ElementType.METHOD
+  public void setField(@NameFilter final String field) { // INCORRECT use -> no ElementType.PARAMETER
+    this.field = field;
+  }
+}

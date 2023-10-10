@@ -1,0 +1,42 @@
+/*
+Záměr vzoru 
+- Definuje kroky algoritmu, ale umožňuje podtřídám provádět tyto kroky různými způsoby. 
+
+Problém, který tento vzor řeší 
+- Opakování kódu kvůli velkému množství společného kódu 
+- Udržuje společné chování v základní třídě a umožňuje podtřídám implementovat jejich vlastní jedinečné chování
+
+
+- Hromadná výstavba domů, které jsou většinou stejné, ale v některých věcech se liší.
+
+
+Kdy chceme tento vzor použít? 
+- Pokud chceme změnit pouze některé kroky algoritmu, ale struktura je stejná. 
+- Pokud identifikujeme třídy s velkým množstvím opakujícího se kódu, který se liší pouze na určitých místech 
+
+----------------------------
+
+Důležité věci: 
+- šablonaMetoda() určuje pořadí kroků 
+- kroky mohou být abstraktní nebo je můžeme implementovat již v základní třídě 
+- Třída ConcreteClass může měnit způsob provádění kroků, ale nemůže měnit templateMethod
+
+----------------------------
+
+Výhody 
+- Opakující se kód můžeme vtáhnout do základní třídy 
+- Můžeme změnit pouze určité kroky algoritmu, aniž bychom narušili strukturu algoritmu 
+
+Nevýhody 
+- funkce templateMethod() omezuje možnosti 
+- Snadné porušení LSP 
+- Základní třída může být obtížně udržovatelná - změny v ní pravděpodobně rozbijí i podtřídy
+
+
+
+-------------------------------------Priklad-------------------------------------
+
+
+*/
+
+//------------------------Main------------------------

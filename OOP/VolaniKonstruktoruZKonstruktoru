@@ -1,0 +1,34 @@
+- pomoci this(parametry volaneho konstruktoru)
+
+
+public class Flower {
+    int pocetOkvetnichListku = 0;
+    String s = new String("null");
+
+    Flower (int okvetniListky) {
+        pocetOkvetnichListku = okvetniListky;
+        System.out.println("...");
+    
+    }
+
+    Flower (String ss) {
+        System.out.println("...");
+        s = ss;
+    }
+
+    Flower (String s, int okvetniListky) {
+        this (okvetniListky);                       // vola konstruktor Flower (int okvetniListky) {}
+        this.s = s;
+        System.out.println("...");
+    }
+
+    void print() {
+        System.out.println("...");
+    }
+
+    public static void main (String [] args) {
+
+        Flower x = new Flower();
+        x.print();
+    }
+}

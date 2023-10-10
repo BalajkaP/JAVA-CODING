@@ -1,0 +1,154 @@
+SWITCH:
+
+- výraz, který může mít více hodnot a pro každou chceme provést jinou akci
+- switch si lze představit jako několik basketbalových košů case zavěšených nad sebou
+- pokud trefím 1, balon propadne všemi, pokud ho někdo nevyrazí zpět přes break
+- pokud za case neuvedu break nebo return, kód na dalším návěstí case neskončí, ale pokračuje dál (provede se vše až do konce konstrukce switch)
+- nelze použit long/Long či typy s desetinnou čárkou
+
+
+
+-------------------------switch-------------------------
+
+int x = 2;
+switch (x) {
+	case 1:
+		System.out.println("1");
+		break;
+	case 1:
+		System.out.println("2");
+		break;
+	case 1:
+		System.out.println("3");
+		break;
+	default:
+		System.out.println("error");
+
+}
+
+-------------------------switch-------------------------
+
+public class Main {
+
+	public static void main(String[] args) {
+		
+		String day = "Friday";
+		
+		switch(day) {
+			case "Sunday": System.out.println("It is Sunday!");
+			break;
+			case "Monday": System.out.println("It is Monday!");
+			break;
+			case "Tuesday": System.out.println("It is Tuesday!");
+			break;
+			case "Wednesday": System.out.println("It is Wednesday!");
+			break;
+			case "Thursday": System.out.println("It is Thursday!");
+			break;
+			case "Friday": System.out.println("It is Friday!");
+			break;
+			case "Saturday": System.out.println("It is Saturday!");
+			break;
+			default: System.out.println("That is not a day!");
+		}
+				
+	}
+}
+
+-------------------------doporučení pro každý den-------------------------
+
+LocalDate = LocalDate.now();
+String result;
+switch (date.getDayOfWeek()) {
+	case FRIDAY: result = "Finish your job"; break;
+	case SATURDAY: result = "Tidy up your home"; break;
+	case SUNDAY: result = "Have a rest!"; break;
+	default: result = "Hurray! Programming";
+}
+
+
+-------------------------metoda pro zjištění textového popisu chyby podle chybového kódu-------------------------
+
+public String decodeError (int errorCode)
+	switch (errorCode) {
+		case 0: return = "OK";
+		case 1: return = "Error reading file";
+		case 2: return = "File empty!";
+		default: return = "Unknown error!";
+}
+
+- nepoužívám break, protože return vždy okamžitě ukončí provádění metody
+- jakmile překladač najde retur, nastaví návratovou hodnotu metody a metodu okamžitě ukončí
+
+-------------------------tipy na aktivitu pro aktualni mesic-------------------------
+
+int month = 3;
+String activity;
+switch (month);
+{
+        case1: activity = "Lyžuj"; 
+		break;
+        case2: activity = "Brusli"; 
+		break;
+        case3: activity = "Opaluj se"; 
+		break;
+}
+System.out.println(activity +"- a pak programuj");
+
+-------------------------switch přes enum-------------------------
+
+public enum Day { SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY; }
+
+int numLetters = 0;
+Day day = Day.WEDNESDAY;
+switch (day);
+{
+        case MONDAY:
+        case FRIDAY:
+        case SUNDAY:
+             numLetters = 6;
+             break;
+        case THUESDAY:
+             numLetters = 7;
+        case THURSDAY:
+        case SATURDAY:
+             numLetters = 8;
+             break;
+        case WEDNESDAY:
+             numLetters = 9;
+             break;
+        default:
+             throw new IllegalStateException("Invalid day"+ day);
+
+}
+System.out.println(numLetters);
+
+-------------------------klicove slovo yield-------------------------
+
+- chcemez vyrazu switch vratit hodnotu a tu ulozit do promenne
+
+Den den = Den.PATEK;
+String zprava = switch (den) {
+        case PATEK:
+               yield "Bude vikend";
+        default:
+               yield "Jiny den";
+};
+System.out.println(zprava);
+
+-------------------------switch expression-------------------------
+
+- zprehlednuje zapis
+- neni potreba psat break ani case, pokud se pouzije stejny blok kodu
+- nenitreba psat yield, pokud potrebujeme vratit jednoduchou hodnotu
+
+Day day = Day.WEDNESDAY;
+System.out.println(
+          switch (day) {
+                 case MONDAY, FRIDAY, SUNDAY -> 6;
+                 case TUESDAY                -> 7;
+                 case THURSDAY, SATURDAY     -> 8;
+                 case WEDNESDAY              -> 9; 
+                 default -> throw new IllegalStateException("Invalid day: " +day);
+}
+);

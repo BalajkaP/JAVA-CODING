@@ -1,0 +1,78 @@
+- tridy nebo interface definujici list trid, ktere mohou dedit z trid nebo implementovat rozhrani
+
+
+--------------------------Definovani--------------------------
+
+- pred class/interface klicove slovo sealed
+- pred listem trid permits
+
+
+    public sealed class BaseClass permits Impl1, Impl2, Impl3 {
+    }
+
+    public final class Impl1 extends BaseClass {
+    }
+
+    public final class Impl2 extends BaseClass {
+    }
+
+    public final class Impl3 extends BaseClass {
+    }
+
+
+- kazda trida rozsirujici BaseClass je final
+- bez final nelze zkompilovat
+- je mozne misto final pouzit sealed, coz rozsiruje dalsi uzavrenou tridu
+
+
+    public sealed class BaseClass permits Impl1, Impl2, Impl3 {
+    }
+
+    public final class Impl1 extends BaseClass {
+    }
+
+    public final class Impl2 extends BaseClass {
+    }
+
+    // chyba v kompilaci - extends musi byt pred permits
+    public sealed class Impl3 permits Impl4 extends BaseClass {}   
+
+    public sealed class Impl3 extends BaseClass permits Impl4 {
+    }
+
+    public final class Impl4 extends Impl3 {
+    }
+
+
+--------------------------Interface--------------------------
+
+- stejna pravidla jako u trid az na to, ze Record lze pouzit k implementaci rozhrani po pouziti sealed
+
+
+    public sealed interface BaseInterface permits InterfaceImpl1, BaseInterface2 {
+    }
+
+    public sealed interface BaseInterface2 extends BaseInterface permits BaseInterface2Impl {
+    }
+
+    public final class InterfaceImpl1 implements BaseInterface {
+    }
+
+    public final class BaseInterface2Impl implements BaseInterface2 {
+    }
+
+
+- jedním rozdílem je skutečnost, že Record lze použít k implementaci uzavřeného rozhraní:
+
+
+    public sealed interface BaseInterface permits InterfaceImpl1 {
+    }
+
+    public record InteraceImpl1() implements BaseInterface {
+    }
+
+
+- Record nemuze byt sealed, protoze nepodporuje dedeni
+
+
+

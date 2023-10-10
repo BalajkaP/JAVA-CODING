@@ -1,0 +1,121 @@
+BigDecimal - finanční částky
+double - desetinná čísla
+int, long, BigDecimal - celá čísla
+Integer, Double - kolekce, práce s databázemi
+
+------------------------------------------------------------------------------------------------------------------------
+
+Konstanty:
+
+public static final boolean DEFAULT_COMPANY = false;
+sout(Computer.DEFAULT_COMPANY);
+
+final double PI = 3.14159;					
+System.out.println(PI);
+		
+------------------------------------------------------------------------------------------------------------------------
+
+Primitivní:
+- ukládají hodnotu (např. mince, bankovky)
+
+-Celočíselné-
+int a = 1;
+long b = 2_147_483_648L;                                        // nezapomínat na L
+short c = 3;
+byte d = 4;
+
+-Desetinná čísla-
+float e = 10.5F;                                                // nezapomínat na F
+double f = 2.5D;                                                // nezapomínat na D
+
+-Znakové-
+char zero = 48;                                                 // 0 je v ASCII 48
+char capital = '64';                                            // A je v ASCII 64
+char rankOfK = 'K' - 'A' + 1;                                   // pořadí K získáme tak, že od K odečteme A a přičteme 1
+char  = capitalA++;                                             // kód zvýšen o 1, takže získáme 'B'
+
+-Logické-
+boolean isTrue = true;
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+Objektové:
+- ukládají odkaz na data (např. kreditka)
+
+-BigDecimal-
+BigDecimal increment = BigDecimal.valueOf(0.5);
+BigDecimal totalValue = BigDecimal.ZERO;
+BigDecimal minValue = BigDecimal.ONE;
+totalValue = totalValue.add(increment);                           //ke stávající hodnotě se přičte increment
+totalValue = totalValue.add(BigDecimal.valueOf(3.5));             //ke stávající hodnotě se přičte 3.5
+totalValue = totalValue.divide(BigDecimal.valueOf(2));            //stávající hodnotu vydělím 2 a výsledek bude v totalValue
+
+------------------------------------------------------------------------------------------------------------------------
+
+Objektové verze primitivních datových typů:
+
+byte x = 56; // sout(x) -> 56
+Byte y = new Byte(x); // sout(y) -> 56
+
+short x = 89; // sout(x) -> 89
+Short y = new Short(x);  // sout(y) -> 89
+
+------------------------------------------------------------------------------------------------------------------------
+
+Porovnání:
+
+- primitivní typy -> ==
+- objektové typy -> equals()
+- primitivní s objektovými -> equals()
+
+int x = 200;
+Integer y = 200;
+Integer z = new Ineteger(200);
+Integer o = new Ineteger(200);
+
+sout(x == y);
+sout(y.equals(z));
+sout(y.equals(o));
+sout(z.equals(o));
+
+------------------------------------------------------------------------------------------------------------------------
+
+Výměna hodnot mezi dvěma proměnnými:
+
+String x = "water";
+String y = "Kool-Aid";
+String temp;
+
+temp = x;
+x = y;
+y = temp;
+
+System.out.println("x: "+x);
+System.out.println("y: "+y);
+
+------------------------------------------------------------------------------------------------------------------------
+
+
+
+REVERSE
+
+import java.util.Scanner;
+
+class Main {
+  public static void main(String[] args) {
+    Scanner sc = new Scanner(System.in);
+    System.out.println("Enter an integer: ");
+    int number =Integer.parseInt(sc.nextLine());
+    int rev = 0;
+    
+    while(number!=0){
+      int digit = number%10;
+      rev = (rev*10)+digit;
+      number = number/10;
+      }
+    
+System.out.println(rev);
+    
+  }
+}

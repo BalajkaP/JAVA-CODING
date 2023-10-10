@@ -1,0 +1,55 @@
+Supplier<>:
+- obsahuje jedinou metodu get(), která není parametrizovaná a nebere žádné argumenty, přičemž generuje nebo dodává hodnotu, která je vrácena
+- Supplier se často používá v situacích, kdy je potřeba generovat hodnotu na vyžádání, například při inicializaci objektu, 
+    generování náhodných čísel, generování sekvence čísel, načítání hodnot z externího zdroje nebo vytváření složitějších objektů.
+
+------------------------------------
+
+Příklad použití Supplier:
+    Supplier<String> supplier = () -> "Hello, world!";
+
+    String result = supplier.get(); // Výsledek: "Hello, world!"
+
+V tomto příkladu Supplier generuje a dodává konstantní řetězcovou hodnotu "Hello, world!".
+
+------------------------------------
+
+Následující příklad používá lambda výraz pro implementaci rozhraní Supplier:
+
+    public class SupplierExample {
+        public static void main(String[] args) {
+
+            getValue(() -> "supplier test!");
+            
+        }
+
+        static void getValue(Supplier<String> supplier){
+            System.out.println(supplier.get());
+        }
+    }
+
+------------------------------------
+
+public class _Supplier {
+
+    public static void main (String [] args) {
+
+        // normal
+        System.out.printl(getDBConnectionUrl());
+
+        // Supplier
+        System.out.printl(getDBConnectionUrlSupplier.get());
+    }
+
+    // normal 
+    static Supplier<String> getDBConnectionUrl() {
+        return "jdbc://localhost:5432/users";
+    }
+
+    // Supplier
+    static Supplier<List<String>> getDBConnectionUrlSupplier = () ->
+        List.of(
+            "jdbc://localhost:5432/users"
+            "jdbc://localhost:5432/customer"
+        );
+}

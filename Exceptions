@@ -1,0 +1,502 @@
+Hlidane (checked)
+- potreba definovat chovani explicitne v programu a kompilator to kontroluje
+- dedi ze tridy Exception, nebo Error (trochu jiny typ), ktera dedi z Throwable (Každá výjimka dědí ze třídy Throwable)
+- do main metody dam throws, nebo predam v bloku catch nehlidane vyjimce, u ktere se nemusi psat do metody throws
+
+Nehlidane/Behove (unchecked)
+- dedi ze tridy RuntimeException, ktera dedi z Throwable (Každá výjimka dědí ze třídy Throwable)
+- tyto vyjimky neni treba definovat v programu
+- je mozne je odchytit, ale casto uz neni mozne ani zadouci v behu programu pokracovat (napr. java.lang.OutOfmemoryError)
+- nastane-li takova chyba, casto potreba zmenit nastaveni, nebo program presunout na system s vice pameti
+- u nehlidanych se nemusi do metod uvadet throws
+
+Error:
+Chybové výjimky jsou speciální typy výjimek. Neměli bychom se je pokoušet nijak ošetřovat 
+(tj. neměli bychom používat bloky try a catch nebo používat throws v signatuře metody). 
+Když taková výjimka nastane, nejsme schopni s ní z úrovně aplikace nic udělat. Jejich výskyt obvykle ukončí aplikaci. 
+Příkladem takové výjimky je OutOfMemoryError.
+
+- kdyz predam Checked vyjimky do Unchecked, tak nemusim davat throws do nazvu tridy.
+
+-------------------Zachytávání a zpracování výjimek-------------------
+
+Pokud volání metody vyhodí zaškrtnutou výjimku, můžeme vyjímku:
+- nezpracovávat a předat "nahoru"
+- zpracovat v rámci metody - klicove slovo throws, za kterym nasleduje seznam vyjimek
+	
+	public void sleepAndOpenFile(final String filePath) throws InterruptedException, FileNotFoundException { 		// (1)
+    	Thread.sleep(10);           																				// (2)
+    	new FileReader(filePath);   																				// (3)
+	}
+
+- volání metody na řádku (2) může vyhodit výjimku InterruptedException
+- konstruktor třídyFileReader může vyhodit výjimku FileNotFoundException. 
+- rozhodli jsme se tyto výjimky v metodě neošetřovat, a proto tuto informaci přidáme do signatury metody na řádku (1). 
+- to znamená, že programátor volající metodu sleepAndOpenFile se bude muset také rozhodnout, jestli výjimkami zpracuje nebo předá dál
+
+
+
+Blok kodu, ktery zalogovava vsechny nezachycene vyjimky:
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            public void uncaughtException(Thread thread, Throwable exception) {
+                // Zde můžete provést požadované akce pro zpracování nezachycené výjimky
+                System.out.println("Nezachycená výjimka: " + exception);
+            }
+        });
+
+
+
+
+
+
+
+Abychom mohli výjimku zpracovat, tj. něco s ní udělat, musíme použít určitá klíčová slova:
+
+------------------try-catch------------------
+
+- v bloku try definujeme kód, který může vyhazovat výjimky určitého typu, 
+- v bloku catch, který následuje bezprostředně za blokem try, pak definujeme kód, který se má provést, když nastane výjimka. 
+Typ výjimky a její instance jsou uvedeny v závorkách hned za klíčovým slovem catch, např. .:
+
+	try { 											// (1)
+  		Thread.sleep(100L); 						// (2)  - nejaka operace, kde muze nastat vyjimka            
+	} catch (InterruptedException e) { 				// (3)
+  		e.printStackTrace(); 						// (4)	- vypisuje pouze do konzole
+	}
+
+- na řádku (1) definujeme blok kódu try. 
+- na řádku (2) voláme metodu, která může vyhodit kontrolovanou výjimku (tj. dědí se ze třídyException). 
+- výjimku (InterruptedException) zpracováváme na řádku(4), přičemž na obrazovku vypíšeme aktuální zásobník volání. 
+- tento kód je definován v bloku catch na řádku (3).
+
+
+------------------Multi-catch blok------------------
+
+- definici vyjimek je mozne seskupit dohromady
+- každý z bloků catch může zpracovávat jiný typ výjimky, např:
+
+	try {
+  		Thread.sleep(100L);
+  		new RestTemplate().getForEntity("http://localhost:8080", Object.class);
+	} catch (RestClientException e) {
+  		System.err.println("Error occurred from RestTemplate object");
+	} catch (InterruptedException e) {
+  		e.printStackTrace();
+	}
+
+
+Při vytváření záchytných bloků musíme mít na paměti několik skutečností:
+- můžeme zachytit jakoukoli neověřenou výjimku
+- můžeme zachytit pouze kontrolované výjimky, které mohou být vyhozeny v rámci bloku try
+- pokud výjimka B dědí z třídy A, pak místo chytání typu B můžeme chytat typ A
+- můžeme chytat výjimky, které se navzájem dědí, ale bloky catch s konkrétnější výjimkou se musí objevit jako první, 
+tj. pokud třída B dědí z třídy A, pak se musí najít blok catch, který zpracovává typ B, před blokem catch, který zpracovává typ A.
+
+	public class CatchHierarchy {
+  		public static void main(String[] args) {
+    		try {
+      			final KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+      			final Cipher cipher = Cipher.getInstance("AES");
+    		} catch (NoSuchAlgorithmException e) {
+      			System.err.println("Incorrect algorithm name");
+    		} catch (NoSuchPaddingException e) {
+      			System.err.println("Oops");
+    		} catch (Exception e) {
+      			System.err.println("Generic exception occurred");
+    		}
+  		}
+	}
+
+- nejobecnější typ výjimky, tedy Exception, je zachycen až na samém konci. 
+- nahrazení typů, např. NoSuchAlgorithmException, typemException v příslušných blocích catch by vedlo k chybě při kompilaci.
+- když chceme zpracovávat mnoho typů výjimek stejným způsobem, stačí jeden blok catch a seznam výjimek, 
+které chceme ošetřit stejným kódem, oddělíme znakem |:
+
+	public class MultiExceptionsSingleCatch {
+  		public static void main(String[] args) {
+    		try {
+      			final KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+      			final Cipher cipher = Cipher.getInstance("AES");
+    		} catch (NoSuchPaddingException | NoSuchAlgorithmException e) {
+      			e.printStackTrace();
+    		}	
+  		}
+	}
+
+POZNÁMKA: Pomocí znaku | v bloku catch nemůžeme zadat dvě třídy z jedné hierarchie (tj. jedna z nich je odvozená od druhé). 
+Bude to mít za následek chybu při kompilaci, např. catch (Exception | RuntimeException e).
+
+
+
+------------------try-catch-finally------------------
+
+Finally
+- aplikace pracují s omezeným množstvím zdrojů (např. paměť, maximální počet souborů nebo databázových připojení). 
+- pokud byly některé prostředky otevřeny během provádění kódu a následně byla vyhozena výjimka, měli bychom je stejně vždy uzavřít. 
+- tento mechanismus zajišťuje blok finally, který je vyvolán vždy, když dojde k bloku try, bez ohledu na to, zda byla či nebyla vyhozena výjimka. 
+- blok finally je vždy na konci bloků try-catch.
+
+	public class FinallyExample {
+  		public static void main(String[] args) throws IOException {
+    		BufferedReader bufferedReader = null;
+    		try {
+      			bufferedReader = new BufferedReader(new FileReader("/tmp/sda.txt"));
+    		} catch (FileNotFoundException e) {
+      			System.exit(1);
+    		} finally {
+      			if (bufferedReader != null) {
+        		bufferedReader.close();
+      		}
+  		}
+	}
+
+POZNÁMKA: Blok try vyžaduje blok catch a nebo blok finally.
+POZNÁMKA: Blok finally se provede, i když metodu ukončím pomocí return v bloku try.
+
+
+
+
+------------------try-with-recources------------------
+
+- specialni konstrukce zjednodusuje praci s I/O 
+- umozni vytvorit instance objektu java.lang.AutoCloseable bez potreby definovat jejich uzavreni
+- prace se soubory je timto mnohem jednodussi a je mozne vyvarovat se chyb, kde soubory jsou programem uzamcene az do ukonceni behu programu
+- vice detailu viz prace s I/O 
+
+try (create-autocloseablr-resources-statements) {
+	statements-1
+} catch (someOtherException ex) {
+	statements-2
+}
+
+- bloku try je také možné předat seznam prostředků. 
+- použití bloku try tímto způsobem osvobozuje od ručního uzavírání zdrojů v bloku finally. 
+- takovým zdrojem může být jakýkoli objekt, který implementuje java.lang.AutoCloseable nebo který implementujejava.io.Closeable.
+
+
+Další příklad využívá toho, že třída BufferedReader implementuje rozhraníCloseable:
+
+	public String readFirstLineFromFile(String path) {
+  		try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+    		return br.readLine();
+  		} catch (IOException e) {
+    		return "FAILED";
+  		}
+	}
+
+
+------------------------------Vytváření vlastních výjimek------------------------------
+
+Kritéria pro tvorbu vlastní výjimky:
+- výjimka není reprezentována žádným dostupným typem výjimky
+- výjimka použitá v kódu by se měla lišit od výjimek jiných poskytovatelů.
+
+
+	public class SdaException extends RuntimeException {
+  		public SdaException(final String message, final Throwable cause) {
+   	 	super(message, cause);
+  		}
+	}
+
+	public class IllegalAddressException extends IllegalArgumentException {
+    	public IllegalAddressException(final String address) {
+        	super(String.format("Provided address %s is not valid!", address));
+    	}
+	}	
+
+------------------------
+
+	public class AgeException extends Exception {
+		AgeException(String message) {
+			super(message);
+		}
+	}
+
+	public class Main {
+		public static void main (String [] args) {
+			Scanner scan = new Scanner(System.in);
+			System.out.println("Enter your age:");
+			int age = scan.nextInt();
+
+			try {
+				checkAge(age)
+			} catch (Exceprion e) {
+				System.out.println("A problem occured: " +e);
+			}
+	
+		}
+		static void checkAge(int age) throws AgeException {
+			if (age < 18) {
+				throw new AgeException("v1" + "You must be 18+");
+			} else {
+				System.out.println("Everything is okay");
+			}
+		}
+	}
+
+
+extend Exception
+- trida zdedi vsechny vlastnosti tridy Exception a navic muzu pridat dalsi
+- dale musim vytvorit konstruktor, ktery dostane nejaky parametr
+
+super(message)
+- volam konstruktor rodicovske tridy Exception od, ktere jsem dedil
+
+
+------------------------------Throwing exceptions------------------------------
+
+
+- ve zdrojovém kódu je možné kromě zachycení již nahlášených výjimek také výjimky vyhodit. 
+- výjimka musí být odvozena od třídy Throwable. 
+- vetsinou se vytvari rovnou throw newException("some message");
+- k vyhazování výjimek používáme throw, např:
+
+	public void validateAddress(String address) {
+  		if (address == null || address.isEmpty()){
+    		throw new IllegalArgumentException("illegal address");   
+  		}
+  		// do some operations
+	}
+
+--------------------------
+
+klicove slovo throws:
+- pro checked (hlidane) vyjimky je potreba definovat u metod, ktery typ vyjimky muze nastat
+- to se dela pomoci klicoveho slova throws uvedeneho mezi definici metody a jejim telem
+
+	public void thisMethodThrowException() throws TypeOfTheExceptionThrown {
+		telo metody, kde muze vyjimka nastat
+	}
+
+--------------------------
+
+Volani vnorene vyjimky:
+1. vyvolani vyjimky
+2. odchyceni v catch bloku
+3. vyvolani runtime vyjimky (neosetrena)
+4. finally blok
+5. predani vyjimky dal - v tomto pripade pad programu a vypis stackTrace 
+
+	public class First {
+		void run() throws Exception {
+			System.out.println("First run");
+			throw new Exception("Error");
+		}
+	}
+
+	public class Second {
+		void run() {
+			First f = new First();
+			try {
+				f.run();
+			} catch (Exception e) {
+				System.out.println("Second catch");
+				throw new RuntimeException("Crash");
+			} finally {
+				System.out.println("Second finally");
+			}
+		}
+	}
+
+	public class Main {
+		public static void main (String [] args) {
+			Second s = new Second();
+			s.run();
+		}
+	}
+
+	Vysledek:
+	First run
+	Second catch
+	Second finallyException in thread "main" java.lang.RuntimeException : Crash
+		at Second.run(Main.java : 15)
+		at Main.main(Main.java : 25)
+
+--------------------------
+
+Dedicnost a throws:
+- je mozne definovat vlastni definice vyjimek, ktere se navzajem retezi a dedi od sebe 
+- takove retezeni ma svoje pravidla a prekladac kontroly, ze nejsou definovane nedosazitelne catch bloky
+	- vyjimka je zachycena nejblizsim vhodnym catch blokem
+	- specialnejsi vyjimka musi byt uvedena pred obecnejsi
+	- v kodu nejsou nedosazitelne bloky, kde jsou sepcialnejsi vyjimky uvedeny pozdeji
+
+	public class MyException1 extends Exception {}
+	public class MyException2 extends Exception1 {}
+
+	public class Main {
+		public static void main (String [] args) {
+			int x = 1;
+			try {
+				if (x == 1) {
+					throw new MyException1();
+				} else if (x == 2) {
+					throw new MyException2();
+				}
+				// obecnejsi vyjimka MyException1 ma prednost
+			} catch (MyException1 mv) {
+				// CHYBA:
+				// specialnejsi vyjimka MyException2 nikdy nebude zachycena, proto tuto cast prekladac nepovoli
+			} catch (MyException2 mv) {	
+
+			}
+		}
+	}
+
+--------------------------
+
+
+Hlavni vyhody pouziti vyjimek:
+- oddeleni programove logiky po osetreni chyb od hlavni logiky
+- retezeni vyjimek a programovani vyjimky v call stack na misto, kde je reseni nejefektivnejsi
+- moznost definovat a seskupit ruzne typy chyb dohromady
+- uzitecny reporting chyb
+
+
+------------------------------Prakticke pouziti------------------------------
+
+
+logovani chyb
+- e.printStackTrace() k vypsani chybove hlasky do konzole - jde o jednoduche a efektivni reseni, pokud ladime aplikaci na nasem PC
+- v pripade serverove aplikace tento pristup neni vhodny z nekolika duvodu
+	- logovani do System.out a System.err neni flexibilni
+	- chybi identifikace, kdy k chybe doslo
+	- kdyz uz jsme vyjimku zachytili, tak je obcas vhodne doplnit dalsi data
+	- chybi identifikace zavaznosti chyby 
+		- pro tento pripad existuje hned nekolik Frameworku, ktere zjednodusuji logovani 
+		(napr. Log4j, Log4j2, java.util.loggin nebo SLF4)
+		- lisi se v mnoha detailech a moznosti konfigurace, ale pri psani kodu vypadaji vsechny relativne podobne
+
+	
+	import.java.util.logging.*;
+
+	public class Main {
+		private static Logger logger = Logger.getLogger("com.test.logovani");
+
+		public static void main (String [] args) {
+			logger.fine("doing stuff");
+
+			try {
+				throw new Exception();
+			} catch (Exception ex) {
+				logger.log(Level.WARNING,"trouble" ex);
+			}
+			logger.fine("done");
+		}
+	}
+
+--------------------------
+
+	import java.util.InputMismatchException;
+	import java.util.Scanner;
+
+	public class Main {
+
+		public static void main(String[] args) {
+		
+			// exception = 	an event that occurs during the execution of a program that,
+			//				disrupts the normal flow of instructions
+
+			Scanner scanner = new Scanner(System.in);
+
+			try {
+
+				System.out.println("Enter a whole number to divide: ");
+				int x = scanner.nextInt();
+
+				System.out.println("Enter a whole number to divide by: ");
+				int y = scanner.nextInt();
+
+				int z = x/y;
+
+				System.out.println("result: " + z);
+			}
+			catch(ArithmeticException e) {
+				System.out.println("You can't divide by zero! IDIOT!");	
+			}
+			catch(InputMismatchException e) {
+				System.out.println("PLEASE ENTER A NUMBER OMFG!!!");
+			}
+			catch(Exception e) {
+				System.out.println("Something went wrong");
+			}
+			finally {
+				scanner.close();
+			}
+		}
+	}
+
+
+------------------------------Tridy vyjimek, na ktere lze bezne narazit------------------------------
+
+NullPointerException
+- programatorske chyby
+- pokus o volani metody objektu, ktery jsem zatim nevytvorili
+- napr. chybejici konfigurace, nezadana hodnota od uzivatele, spatne strukturovany kod, porovnani pomoci equals() nebo volani toString()
+
+NumberFormatException
+- konverze dat 
+- k vyjimkam tohoto typu dochazi pri nacitani textovych zapisu cisel
+- pokousim se řetězec prevest na číselný formát, který není platný.
+
+FileNotFoundException
+- prace se soubory
+- zadame jmeno souboru, ktery neexistuje
+- muze se, ale jednat i o situaci kdy:
+	- soubor nekdo presunul na jine misto
+	- zadali jsme absolutni cestu k souboru, ale projekt byl presunut 
+
+IOException
+- prace se soubory 
+- obecná výjimka pro vstupně-výstupní operace, která se vyhazuje, když dojde k chybě během čtení nebo zápisu do souboru
+- podrobnejsi vysvetleni potreba precist ze zpravy vlozene do vyjimky
+
+ArithmeticException
+- vyskytuje se pri deleni 0 a podobnych situacich
+
+...
+
+
+ArrayIndexOutOfBoundsException: Vyhazuje se, když dojde k přístupu mimo rozsah pole.
+
+IllegalArgumentException: Vyhazuje se, když je předán neplatný argument metodě.
+
+ClassNotFoundException: Vyhazuje se, když se snažíte načíst třídu, která neexistuje.
+
+InterruptedException: Vyhazuje se, když je probuzen vlákno, které je ve stavu spánku, přerušeno.
+
+SQLException: Vyhazuje se, když dojde k chybě při práci s databází.
+
+IndexOutOfBoundsException: Vyhazuje se, když dojde k přístupu mimo rozsah (index) seznamu, pole nebo řetězce.
+
+ConcurrentModificationException: Vyhazuje se, když je detekována změna v kolekci během iterace.
+
+UnsupportedOperationException: Vyhazuje se, když je volána nepodporovaná operace.
+
+ClassCastException: Vyhazuje se, když dochází k neplatnému přetypování objektů.
+
+IllegalStateException: Vyhazuje se, když objekt je ve stavu, ve kterém nemůže být provedena požadovaná operace.
+
+SecurityException: Vyhazuje se, když dojde k chybě zabezpečení, například přístupu ke zdrojům nebo souborům.
+
+NoSuchElementException: Vyhazuje se, když se snažíte získat prvek z kolekce nebo iteratoru, který již neexistuje.
+
+AssertionError: Vyhazuje se, když selže výroky assert.
+
+EnumConstantNotPresentException: Vyhazuje se, když je neplatná hodnota použita pro výčtovou konstantu.
+
+IllegalMonitorStateException: Vyhazuje se, když je provedena operace wait(), notify() nebo notifyAll() na objektu, který není vlastněn aktuálním vláknem.
+
+StringIndexOutOfBoundsException: Vyhazuje se, když dojde k přístupu mimo rozsah indexu řetězce.
+
+NegativeArraySizeException: Vyhazuje se, když je vytvářeno pole s negativní velikostí.
+
+NoClassDefFoundError: Vyhazuje se, když se požadovaná třída nemůže najít za běhu programu.
+
+IncompatibleClassChangeError: Vyhazuje se, když dojde k nekompatibilní změně v třídě během jejího načítání.
+
+StackOverflowError: Vyhazuje se, když je překročena maximální hloubka zásobníku.
+
+OutOfMemoryError: Vyhazuje se, když dojde k nedostatku paměti JVM.
+
+

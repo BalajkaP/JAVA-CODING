@@ -1,0 +1,533 @@
+Způsoby navázání spojení s databází:
+
+Třídy:
+DriverManager (obecne pripojeni)
+DataSource (pouze pro MySQL)
+
+----------------------------Pripojeni k databazi pomoci tridy DriverManager se static metodou getConnection()---------------------------
+
+Bez konfigurace:
+- Connection connection = Drivemanager.getConnection("jdbc:mysql://localhost:3306/sys", "root", "root");
+
+Pres konfiguraci (nejspravnejsi zpusob):
+
+-----application.properties----- 
+(soubor obsahujici informace o pripojeni)
+
+    db.connectstring = jdbc:mysql://localhost:3306/mydb
+    db.user = root
+    db.password = root
+
+-----konfigurace pripojeni-----
+
+  public class CfgClass {
+
+    private static PropertiesConfiguration config = null;
+
+    public static PropertiesConfiguration getConfig() throws ConfigurationException {
+      if(config==null){
+        config = new PropertiesConfiguration();
+        config.load("application.properties"); // nazev konfiguracniho souboru ve strukture
+      }
+      return config;
+    }
+  }
+
+-----pripojeni-----
+
+  public class DbConnection {
+
+    private static Connection connection = null;
+
+    public static Connection getConnection() throws Exception {
+      if(connection==null){
+        connection = DriverManager.getConnection(
+          CfgClass.getConfig().getString("db.connectstring"),
+          CfgClass.getConfig().getString("db.user"),
+          CfgClass.getConfig().getString("db.password"));
+        }
+        return connection;
+      }
+  }
+
+--------------------
+
+Adresa URL může vypadat například takto:
+- MySQL database: jdbc:mysql://localhost:3306/sys
+- H2 database: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1
+- Oracle database: jdbc:oracle:thin:@localhost:1521:xe
+
+
+Examples:
+- Při připojení k databázi získáme objekt java.sql.Connection. 
+- Takové spojení by mělo být ukončeno na konci práce s databází nebo při ukončení aplikace voláním metody close. 
+- V praxi to často k tomuto účelu používáme zkusit se zdrojem.
+
+  try (final Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/database-name", "my-username", "my-secret-pw")) {
+    // use Connection object here
+  } catch (SQLException exp) {
+    // exception handling
+  }
+
+
+-------------------------------------Pripojeni k databazi pomoci implementace rozhraní DataSource-------------------------------------
+
+  // import com.mysql.cj.jdbc.MysqlDataSource;
+
+  MysqlDataSource dataSource = new MysqlDataSource();
+  dataSource.setUrl("jdbc:mysql://localhost:3306/database-name");
+  dataSource.setUser("my-username");
+  dataSource.setPassword("my-secret-pw");
+
+  try (final Connection connection = dataSource.getConnection()) {
+    // use Connection object here
+  } catch (SQLException exp) {
+    // exception handling
+  }
+
+-------------------------------------Vytvoreni objektu Statement-------------------------------------
+
+- Interakce s databází probíhá pomocí objektu třídy Statement, který umožňuje odesílání SQL dotazů a vyřizování odpovědí. 
+- Kromě příkazu základní třídy Statement existují dvě odvozené třídy:
+  - Statement
+    - PreparedStatement
+    - CallableStatement
+
+----
+
+  Connection connection;
+  Statement statement = connection.createStatement();
+
+----
+
+- Musíme si pamatovat, že vytvoření objektu Statement vyžaduje jeho uzavření, 
+takže v praxi často voláme metodu createStatement() na objektu Connection pomocí try with resource.
+
+-------------------------------------Vyvolani dotazu na databazy-------------------------------------
+
+Pro vyvolání takového dotazu můžeme použít metodu přetížení:
+- execute() - tato metoda může provádět dotazy jako SELECT, UPDATE nebo UPDATE
+- executeUpdate() - se používá především pro dotazy UPDATE, DELETE a INSERT
+- executeQuery() - používá se k načtení dat z databáze (tj. nejčastěji se používá k vyvolání SELECT)
+
+- Dalším důležitým objektem reprezentujícím výsledkovou tabulku je instance ResultSet, 
+která také implementuje rozhraní AutoCloseable, ale automaticky se zavře při zavření instance Statement. 
+- Je založena na kurzoru, kterým můžeme pohybovat po výsledkové tabulce, např. další řádek voláním metody next(). 
+- Hodnotu sloupce lze získat pomocí vhodné metody getX, kde X je typ sloupce (např. String, Boolean nebo Byte). 
+- Důležité je, že první sloupec je indexován 1.
+
+----
+
+  ResultSet resultset = statement.executeQuery("SELECT * FROM testtb2");
+
+----
+
+Běžně používané metody na objektu typu ResultSet jsou:
+  - next() - přesune kurzor na další záznam
+  - previous() - přesune kurzor na předchozí záznam
+  - first() - přesune kurzor na první záznam
+  - last() - přesune kurzor na poslední záznam
+
+--------------------------------------------------------------------------------------------
+
+Example:
+Předpokládejme, že v databázi vytvoříme následující tabulku s daty:
+
+  CREATE TABLE Persons (
+    PersonID int,
+    LastName varchar(255),
+    FirstName varchar(255),
+    Address varchar(255),
+    City varchar(255)
+  );
+
+  INSERT INTO Persons VALUES (1, 'Andrewson', 'Andrew', 'Novak 1', 'Warsaw');
+  INSERT INTO Persons VALUES (1, 'Addams', 'Adam', 'Adamson 1', 'Adamville');
+
+----
+
+executeQuery()
+
+  public static void main(String[] args) throws SQLException {
+
+    try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/sda", "root", "my-secret-pw");
+        Statement statement = connection.createStatement()) {
+
+      final ResultSet resultSet = statement.executeQuery("SELECT * FROM Persons");
+      while (resultSet.next()) {
+        System.out.println("PersonID " + resultSet.getInt(1));
+        System.out.println("LastName " + resultSet.getString(1));
+        System.out.println("FirstName " + resultSet.getString(2));
+        System.out.println("Address " + resultSet.getString(3));
+        System.out.println("City " + resultSet.getString(4));
+      }
+    }
+  }
+
+----
+
+execute()
+
+  try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/sda", "root", "my-secret-pw");
+      Statement statement = connection.createStatement()) {
+    boolean isResultSetReturned = statement.execute("create table Book (Id INT PRIMARY KEY, Title VARCHAR(32) NOT NULL, Type VARCHAR(32), Description VARCHAR(50))");
+    System.out.println(isResultSetReturned); // false -> the first result is NOT a ResultSet
+  }
+
+----
+
+executeUpdate()
+
+  try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/sda", "root", "my-secret-pw");
+      Statement statement = connection.createStatement()) {
+
+    int rowCount = statement.executeUpdate("insert into Book values(1, 'Java beginner', 'Programming', 'Programming in Java from scratch')");
+    System.out.println(rowCount); // 1
+  }
+
+----
+
+Connection connection;
+Statement statement = connection.createStatement();
+ResultSet resultset = statement.executeQuery("SELECT * FROM testtb2");
+
+
+
+    public void selectSimple() throws Exception {
+
+        System.out.println("SIMPLE SELECT ****************************************************");
+        // získání výrazu z connection
+        Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+        // spusteni dotazu vyrazem ziskani sady vysledku
+        ResultSet resultset = statement.executeQuery("SELECT * FROM testtb2");
+
+        // skok na prvni radek sady vysledku (neni nutne pouzit)
+        //resultset.first();
+        //System.out.println(resultset.getString(2) + " - (" + resultset.getInt(1) + ")");
+        //
+        // prechod na dalsi radek sady vysledku
+        while(resultset.next()){
+            System.out.println(resultset.getString(2) + " - (" + resultset.getInt(1) + ")");
+        }
+        System.out.println("************************************************************************");
+    }
+
+
+
+-------------------------------------Prepared Statement-------------------------------------
+
+- PreparedStatement je reprezentace kostry SQL dotazu. 
+- Má tzv. zástupné symboly, tj. místa, která lze nahradit libovolnou hodnotou. 
+- V dotazu jsou reprezentovány znakem ? charakter. 
+- Hodnotu takového zástupného symbolu můžeme nahradit metodou vhodnou setX() v závislosti na použitém datovém typu, například setInt() nebosetString(). 
+- Při použití těchto metod musíme uvést index takového zástupného symbolu (první má index 1).
+
+Example:
+
+  public static void main(String[] args) throws SQLException {
+    try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/sda", "root", "my-secret-pw");
+        PreparedStatement statement = connection.prepareStatement("SELECT * FROM Persons WHERE FirstName = ? OR PersonId = ?")) {
+
+      statement.setString(1, "Andrew");
+      statement.setInt(2, 1);
+      final ResultSet resultSet = statement.executeQuery();
+      while (resultSet.next()) {
+        System.out.println("First name is " + resultSet.getString(2));
+      }
+    }
+  }
+
+POZNÁMKA: Použití PreparedStatement místo vytváření dotazu zřetězením objektu String nás chrání proti tzv. SQL injection.
+
+----
+
+  public class DbSelectPrepared {
+
+    private Connection connection;
+    private PreparedStatement prepareStatement;
+
+    public DbSelectPrepared(Connection aConnection){
+        connection = aConnection;
+        try {
+            prepareStatement = connection.prepareStatement("SELECT * FROM testtb2 WHERE id>? AND id<?");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void selectWhereParams(Integer id1, Integer id2) throws Exception {
+
+        System.out.println("PREPARED SELECT WHERE PARAM ****************************************************");
+
+        prepareStatement.setInt(1, id1);
+        prepareStatement.setInt(2, id2);
+        ResultSet resultset = prepareStatement.executeQuery();
+        while(resultset.next()){
+            System.out.println(resultset.getString(2) + " - (" + resultset.getInt(1) + ")");
+        }
+
+        System.out.println("************************************************************************");
+    }
+  }
+
+----
+
+  public void selectWhereParamBest(Integer id1, Integer id2) throws Exception {
+
+        System.out.println("PREPARED WHERE PARAM OK ****************************************************");
+        // získání výrazu z connection
+        PreparedStatement prepareStatement = connection.prepareStatement("SELECT * FROM testtb2 WHERE id>? AND id<?");
+        prepareStatement.setInt(1, id1);
+        prepareStatement.setInt(2, id2);
+
+        ResultSet resultset = prepareStatement.executeQuery();
+        // prechod na dalsi radek sady vysledku
+        while(resultset.next()){
+            System.out.println(resultset.getString(2) + " - (" + resultset.getInt(1) + ")");
+        }
+        System.out.println("************************************************************************");
+  }
+
+
+
+-------------------------------------Callable Statement-------------------------------------
+
+- CallableStatement je dalším typem objektu Statement, který se používá k provádění procedur. 
+- CallableStatement, jako PreparedStatement, umožňuje použití zástupných symbolů, např.:
+
+  public void calculateProductStatistics(Connection connection, String productName) throws SQLException {
+    CallableStatement calculateStatisticsStatement = connection.prepareCall("{call calculateStatistics(?)}");
+    calculateStatisticsStatement.setString(1, productName);
+    ResultSet result = calculateStatisticsStatement.executeQuery();
+  }
+
+
+
+-------------------------------------Metadata-------------------------------------
+
+- zobrazi datovy typ pole 
+- trida ResultSetMetaData a metoda getMetaData()
+
+----
+
+  ResultSetMetaData meta = resultset.getMetaData();
+
+----
+
+      public void selectSelectMetadata() throws Exception {
+
+        System.out.println("metadata SELECT ****************************************************");
+        Statement statement = connection.createStatement();
+        ResultSet resultset = statement.executeQuery("SELECT * FROM testtb2");
+        ResultSetMetaData meta = resultset.getMetaData();
+        for(int i = 1; i<=meta.getColumnCount(); i++){
+
+            Integer intType = meta.getColumnType(i);
+
+            System.out.print(meta.getColumnName(i) + " ");
+            System.out.print(" [" + intType + "] ");
+            System.out.print(meta.getColumnTypeName(i));
+
+            if(intType==4){
+                System.out.println(" [tento sloupec je INT] ");
+            }else{
+                System.out.println(" [tento sloupec neni INT] ");
+            }
+        }
+
+        System.out.println("************************************************************************");
+    }
+
+
+
+-------------------------------------INSERT-------------------------------------
+
+public class DbInsert {
+
+    private Connection connection;
+    private PreparedStatement prepareStatement;
+
+    public DbInsert(Connection aConnection){
+        connection = aConnection;
+        try {
+            prepareStatement = connection.prepareStatement("INSERT INTO mydb.testtb2 (id,name,cena,ciselnik_id,skupina) VALUES (?,?,?,?,?)");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void doInsert(Integer id, String name, Integer cena, Integer ciselnikId, Integer skupina) throws SQLException {
+        prepareStatement.setInt(1, id);
+        prepareStatement.setString(2, name);
+        prepareStatement.setInt(3, cena);
+        prepareStatement.setInt(4, ciselnikId);
+        prepareStatement.setInt(5, skupina);
+        Integer count = prepareStatement.executeUpdate();
+    }
+
+}
+
+-------------------------------------CREATE and DROP table-------------------------------------
+
+@AllArgsConstructor
+public class DbTable {
+
+    private Connection connection;
+
+    public void createTable() throws Exception {
+        Statement statement = connection.createStatement();
+        statement.executeUpdate("CREATE TABLE IF NOT EXISTS testtableX " +
+                "( id INT NOT NULL, name VARCHAR(45) NULL, PRIMARY KEY (id))");
+    }
+
+    public void dropTable() throws Exception {
+        Statement statement = connection.createStatement();
+        statement.executeUpdate("DROP TABLE IF EXISTS testtableX");
+    }
+
+}
+
+-------------------------------------DELETE-------------------------------------
+
+public class DbDelete {
+
+    private Connection connection;
+    private PreparedStatement prepareStatement;
+
+    public DbDelete(Connection aConnection){
+        connection = aConnection;
+        try {
+            prepareStatement = connection.prepareStatement("DELETE from mydb.testtb2 WHERE id=?");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void doDelete(Integer id) throws SQLException {
+        prepareStatement.setInt(1, id);
+        Integer count = prepareStatement.executeUpdate();
+    }
+}
+
+
+-------------------------------------UPDATE-------------------------------------
+
+public class DbUpdate {
+
+    private Connection connection;
+    private PreparedStatement prepareStatement;
+
+    public DbUpdate(Connection aConnection){
+        connection = aConnection;
+        try {
+            prepareStatement = connection.prepareStatement("UPDATE mydb.testtb2 SET name=?, cena=?, ciselnik_id=?, skupina=? WHERE id=?");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void doUpdate(Integer id, String name, Integer cena, Integer ciselnikId, Integer skupina) throws SQLException {
+        prepareStatement.setString(1, name);
+        prepareStatement.setInt(2, cena);
+        prepareStatement.setInt(3, ciselnikId);
+        prepareStatement.setInt(4, skupina);
+        prepareStatement.setInt(5, id);
+        Integer count = prepareStatement.executeUpdate();
+    }
+}
+
+
+-------------------------------------Procedury-------------------------------------
+
+public class DbProcedureTest {
+
+    public static void procTest(Connection connection) throws Exception{
+
+        // jen ukazka moznosti volani db procedur
+
+        CallableStatement calculateStatisticsStatement = connection.prepareCall("{call updatetesttable(?)}");
+        calculateStatisticsStatement.setInt(1, 101);
+        ResultSet rs = calculateStatisticsStatement.executeQuery();
+        while(rs.next()){
+            System.out.println(rs.getString(2) + " - (" + rs.getInt(1) + ")");
+        }
+    }
+}
+
+-------------------------------------Transakce-------------------------------------
+
+public class DbTransaction {
+
+    public static void testTransaction() throws Exception {
+
+        // vypnutí autocommitu = jsme v tansakčním rezimu
+        // zahájí transakci
+        DbConnection.getConnection().setAutoCommit(false);
+
+        DbInsertTrans ins = new DbInsertTrans(DbConnection.getConnection());
+        // vkladani radku 11 - 14
+        for(Integer i = 11; i<15; i++){
+            ins.doInsert(i, "Name-" + i.toString());
+        }
+        // ukonci trasakci a zahodi vsechny zmeny v db
+        // soucasne zahájí novou transakci
+        DbConnection.getConnection().rollback();
+
+        // vkladani radku 18 - 25
+        for(Integer i = 18; i<26; i++){
+            ins.doInsert(i, "Name-" + i.toString());
+        }
+        // ukonci trasakci potvrdi zmeny  v db
+        // soucasne zahájí novou transakci
+        DbConnection.getConnection().commit();
+    }
+
+    public static void trans() throws Exception {
+
+        DbConnection.getConnection().setAutoCommit(false);
+        // ------------------------------------------------
+        try{
+            // manipulaci s daty db
+
+
+            DbConnection.getConnection().commit();
+        }catch (Exception ex1){
+            DbConnection.getConnection().rollback();
+        }
+        // ------------------------------------------------
+        try{
+            // manipulaci s daty db
+
+
+            DbConnection.getConnection().commit();
+        }catch (Exception ex2){
+            DbConnection.getConnection().rollback();
+        }
+
+    }
+
+}
+
+----
+
+public class DbInsertTrans {
+
+    private Connection connection;
+    private PreparedStatement prepareStatement;
+
+    public DbInsertTrans(Connection aConnection){
+        connection = aConnection;
+        try {
+            prepareStatement = connection.prepareStatement("INSERT INTO mydb.testtablex (id,name) VALUES (?,?)");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void doInsert(Integer id, String name) throws SQLException {
+        prepareStatement.setInt(1, id);
+        prepareStatement.setString(2, name);
+        Integer count = prepareStatement.executeUpdate();
+    }
+
+}

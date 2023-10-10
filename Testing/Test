@@ -1,0 +1,59 @@
+TESTING:
+
+Typy testu:
+-Unit testy
+    - Ověřují výkonnost jednotlivých částí kódu (obvykle metody).
+    - Rychlé a snadno automatizovatelné.
+    - Obvykle se spouštějí při každé změně zdrojového kódu.
+-Integrační testy
+    - Ověřují výkon několika modulů aplikace najednou.
+    - Poměrně dlouhá doba provádění.
+    - Mnoho možných bodů selhání.
+
+Issue	                    Unit test	                                        Integration test
+_______________________________________________________________________________________________________________________________________________
+Závislosti	              Testuje se jednotlivý prvek kódu	                Testuje se mnoho závislostí
+Body selhání	            Jeden potenciální bod selhání (metoda)	          Mnoho potenciálních bodů selhání
+Rychlost	                Velmi vysoká                                      Potenciálně dlouhá doba provádění např. kvůli přístupu k databázi
+Konfigurace	              Žádná další konfigurace	                          Test může vyžadovat konfiguraci (např. připojení k databázi).
+
+
+Systemove testy:
+- Systémové testy se provádějí po integraci všech součástí systému.
+- V této fázi můžeme provést e2e (end to end) test - projít celý proces. 
+- Například funkce registrace účtu by měla uložit uživatele do databáze a odeslat e-mail s potvrzením registrace. 
+
+Přejímací zkoušky:
+Testy softwaru, jejichž hlavním cílem není hledání chyb, ale získání formálního potvrzení o vytvoření softwaru s odpovídající kvalitou. 
+(podle specifikace)
+
+Charakteristiky dobrých testů:
+
+
+FIRST rule:
+    
+    Fast 
+    - měly by být prováděny rychle, aby se neprodlužovala doba sestavení a nečekalo se dlouho na výsledky testů.
+    
+    Izolované/nezávislé 
+    - testy by neměly být na sobě závislé (měly by být izolované). 
+    - Provedení jednoho testu by nemělo mít vliv na na ostatní testy v sadě testů (jeden testovací balíček, např. testy v rámci jedné testovací třídy).
+    
+    Opakovatelné 
+    - měly by být opakovatelné v jakémkoli prostředí. To znamená, že by neměly být závislé na jiných systémech, např. na databázi. 
+    - Konfigurace jiných systémů by neměla mít vliv na opakovatelnost provádění testů na různých prostředích. 
+    - Pokud bude test proveden desetkrát, pak bychom měli desetkrát získat stejný výsledek. 
+    - Použití třídy Random v závislosti na pořadí prvků v neuspořádaných kolekcích nebo použití skutečných časových značek 
+    (např. pomocí LocalDateTime.now()) může způsobit problémy s konzistencí výsledků výsledků testů.
+    
+    Self-checking 
+    - konstatování, zda celý test prošel (bez ruční interpretace).
+    
+    Thorough - napsaný společně s produkčním kódem. 
+    - Měli bychom kontrolovat testovací případy tím, že uvedeme hodnoty dávající pozitivní výsledky, negativní výsledky a testování okrajových případů. 
+    - Díky tomu budou testy přesněji kontrolovat náš kód.
+
+Další osvědčené postupy:
+    - Jeden test kontroluje jednu funkci.
+    - Občané druhé třídy - testovací kód není kódem druhé kategorie. Měl by být udržován stejně dobře jako produkční kód.
+

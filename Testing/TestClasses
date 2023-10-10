@@ -1,0 +1,90 @@
+- ve slozce test
+- nazev stejny jako nazev tridy + Test (Polygon -> PolygonTest)
+- import nase trida a napriklad junit.jupiter, ...
+- do pom souboru maven pridat knihovnu junit.jupiter
+
+
+-------------------------------------------------------------------------------------------
+
+public class CalcDu {
+    private double a;
+    private double b;
+
+    public CalcDu(double a, double b) {
+        this.a = a;
+        this.b = b;
+    }
+
+    public double add(){
+        return a+b;
+    }
+    public double sub(){
+        return a-b;
+    }
+    public double mul(){
+        return a*b;
+    }
+}
+
+------------------------------------------------
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class CalcDuTest {
+
+    @Test
+    public void testAdd(){
+        CalcDu calcDu = new CalcDu(1, 1);
+        assertEquals(2,calcDu.add());
+    }
+
+    @Test
+    public void testSub(){
+        CalcDu calcDu = new CalcDu(1, 10);
+        assertEquals(-9,calcDu.sub());
+    }
+
+    @Test
+    public void testMul(){
+        CalcDu calcDu = new CalcDu(1, 12);
+        assertEquals(12,calcDu.mul());
+    }
+}
+
+-------------------------------------------------------------------------------------------
+
+public class Polygon {
+    private int[] e;
+
+    public Polygon(int... e) {
+        this.e = e;
+    }
+
+
+    public int circuit(){
+        int sum = 0;
+        for(int i : e){
+            sum+=i;
+        }
+        return sum;
+    }
+}
+
+------------------------------------------------
+
+public class PolygonTest {
+    @Test
+    public void testCircuit() {
+        Polygon polygon = new Polygon(3, 4, 5);
+        assertEquals(12,polygon.circuit());
+    }
+    @Test
+    public void testCircuit2() {
+        Polygon polygon = new Polygon();
+        assertEquals(0,polygon.circuit());
+    }
+}
+
+-------------------------------------------------------------------------------------------

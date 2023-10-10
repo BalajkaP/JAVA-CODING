@@ -1,0 +1,54 @@
+-------------------------------------------Atomic proměnné-------------------------------------------
+
+- Dříve jsme si řekli, že operace jako inkrementace je z pohledu Javy jediný výraz, ale pro procesor je to několik operací. 
+- Říkáme, že operace je atomická, pokud během jejího provádění, jiné vlákno nemůže číst nebo měnit hodnoty proměnných, které se mění. 
+- Balíček java.util.concurrent.atomic definuje třídy, které zpracovávají atomické operace nad jednotlivými proměnnými. 
+- Třídy skupiny Atomics poskytují sadu synchronizovaných operací a samotné objekty lze bezpečně sdílet mezi více vlákny. 
+- Atomické proměnné v Javě slouží k řízení přístupu ke sdíleným proměnným mezi více vlákny. 
+- Vlákna jsou jednotky paralelního zpracování, které mohou přistupovat ke stejným proměnným ve stejný čas. 
+- Pokud více vláken současně přistupuje k jedné proměnné a provádí na ní operace, může dojít ke konfliktům a nekonzistentním stavům.
+- Použití atomických proměnných umožňuje provádět operace na proměnných atomicky, což znamená, že se provádějí jako jediný nedělitelný krok. 
+- To zajišťuje, že všechny operace jsou vykonány správně a žádné vlákno nedostane nekonzistentní nebo nedokončenou hodnotu.
+- Některé z tříd poskytovaných balíčkem java.util.concurrent.atomic jsou AtomicInteger, AtomicLong, AtomicBoolean a AtomicReference. 
+- Tyto třídy poskytují různé metody pro provádění atomických operací, jako je získání a nastavení hodnoty proměnné, atomické zvýšení nebo snížení hodnoty, 
+	atomické porovnání a výměna hodnoty atd.
+- Použití atomických proměnných je užitečné v případech, kdy je potřeba synchronizovat přístup k proměnným mezi více vlákny, 
+	aniž bychom museli používat složitější konstrukce synchronizace, jako jsou zámky. 
+- Atomické proměnné představují jednoduchou a efektivní alternativu pro práci s vláknově sdílenými proměnnými v paralelním programování.
+
+
+
+Probírané typy jsou např:
+- AtomicInteger
+- AtomicLong
+- AtomicBoolean
+
+	public class AtomicsDemo {
+
+  		public static void main(String[] args) {
+
+    		final ExecutorService executorService = Executors.newFixedThreadPool(2);
+    		final AtomicInteger atomicInteger = new AtomicInteger(0);
+   			executorService.submit(new IncrementingThread(atomicInteger));
+    		executorService.submit(new IncrementingThread(atomicInteger));
+    		executorService.shutdown();
+  		}
+	}
+
+	class IncrementingThread implements Runnable {
+
+  		private final AtomicInteger value;
+
+  		IncrementingThread(final AtomicInteger value) {
+    		this.value = value;
+  		}
+
+  		@Override
+  		public void run() {
+    		for (int idx = 0; idx < 1000; idx++) {
+      			value.incrementAndGet();
+    		}
+    		System.out.println(value.get()); // the slower thread will always print 2000
+  		}
+	}
+

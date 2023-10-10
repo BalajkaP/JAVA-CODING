@@ -1,0 +1,70 @@
+Consumer<> + BiConsumer<>:
+- argumenty je genericky typ
+- Consumer přijímá 1 vstupní argument a provádí nad ním určitou akci, ale nevraci hodnotu (neco jako void metoda)
+- BiConsumer přijímá 2 vstupní argumenty a provádí nad ním určitou akci, ale nevraci hodnotu (neco jako void metoda)
+- Consumer se často používá pro jednoduché manipulace s objekty, jako je například tisk hodnoty na výstup, 
+    aktualizace stavu objektu nebo provádění vedlejších efektů. 
+- BiConsumer se často používá v situacích, kdy je potřeba provádět operace nad dvěma vstupními argumenty, jako je například zápis hodnoty do mapy, 
+    aktualizace stavu objektů nebo provedení vedlejších efektů nad dvěma argumenty.
+- ma metody accept() a andThen()
+
+
+
+- Metoda accept je zodpovědná za volání implementované metody, např:
+
+    public class ConsumerExample {
+        public static void main(String[] args) {
+            Consumer<String> stringTrim = (s) -> {
+                s = s.trim();
+                System.out.println(s);
+            }; // Consumer implementation using multi-line lambda
+
+            trimValue(stringTrim, "   text    ");
+        }
+
+        static void trimValue(Consumer<String> trimAction, String s) {
+            trimAction.accept(s);
+        }
+    }
+
+-------------------------------
+
+public class _Consumer {
+    public static void main (String [] args) {
+        // normal
+        greetCustomer(new Customer("Maria", "99999"));
+        greetCustomer(maria);
+        greetCustomerV2(maria, true);
+
+        // Functional 
+        greetCustomerconsumer.accept(maria);
+        greetCustomerconsumerV2.accept(maria, true);
+    }
+
+    // normal
+    static void greetCustomer(Customer customer) {
+        System.out.println("Hello " +customer.CUSTOMER_NAME+ ", thanks for registering phone number " + customer.customerPhoneNumber);
+    }
+    static void greetCustomerV2(Customer customer, boolean showPhonenumber) {
+        System.out.println("Hello " +customer.CUSTOMER_NAME+ ", thanks for registering phone number " 
+            + (showPhonenumber ? customer.CUSTOMER_PHONE_NUMBER : "***"));
+    }
+
+    // Functional 
+    static consumer<Customer> greetCustomerconsumer = Customer ->
+        System.out.println("Hello " +customer.CUSTOMER_NAME+ ", thanks for registering phone number " + customer.customerPhoneNumber);
+
+    static BiConsumer<Customer, Boolean> greetCustomerconsumerV2 = (customer, showPhonenumber) ->
+        System.out.println("Hello " +customer.CUSTOMER_NAME+ ", thanks for registering phone number " 
+            + (showPhonenumber ? customer.CUSTOMER_PHONE_NUMBER : "***"));
+
+    static class Customer {
+        private final String CUSTOMER_NAME;
+        private final String CUSTOMER_PHONE_NUMBER;
+
+        Customer(String CUSTOMER_NAME, String CUSTOMER_PHONE_NUMBER) {
+            this.CUSTOMER_NAME = CUSTOMER_NAME;
+            this.CUSTOMER_PHONE_NUMBER = CUSTOMER_PHONE_NUMBER;
+        }
+    }
+}

@@ -1,0 +1,414 @@
+Set (rozhrani):
+- nelze vlozit duplicitni hodnoty (obsahuje pouze unikatni)
+- muze obsahovat maximalne jednu null hodnotu (vyjimka TreeSet)
+- nezarucuje, ze budou uchovany v poradi
+- vsechny objekty ulozene do Set, musi definovat metodu equals(), jejiz pomoci lze urcit jedinecnost hodnoty
+- implementace Hashset, LinkedHashSet, TreeSet
+
+
+Volba implementace Set
+- vykon struktury HashSet je ve vsech operacich vyssi (zejmena pridavani a vyhledavani prvku)
+- TreeSet existuje do situaci, kdy potrebuji ziskat vystup v setridene podobe
+
+
+
+
+Set:
+java.util.Set je obecná datová struktura pro ukládání jedinečných prvků. Set používá pouze metody rozhraní Collection. 
+Navíc zavádí silné spojení mezi metodami: equals a hashCode. Existují tři základní implementace rozhraní Set:HashSet, TreeSet,LinkedHashSet.
+
+- HashSet:
+    - pořadí položek se nezachovává
+    - ukládá informace do hashovací tabulky
+
+- TreeSet:
+    - zachovává pořadí prvků podle tzv. přirozeného pořadí nebo podle nějakého komparátoru
+    - ukládá data do červeno-černého stromu
+
+- LinkedHashSet:
+    - ukládá informace o pořadí přidávání jednotlivých prvků
+    - implementace je založena na hashovací tabulce s podporou spojového seznamu
+
+
+
+
+Implementace TreeSet
+- setridena Collection typu Set pomoci stromove struktury
+- muzu z Collection Set ziskat setridenou souvislou radu prvku
+- rpzhrani stejne jako Collection
+
+
+
+Implementace HashSet
+- u Collection typu Set vyhledavani prvku dulezite
+- objekty musi navic definovat metodu hashCode()
+
+
+
+Rozhrani SortedSet
+- jedinym dostupnym kontejnerem tohoto typu je TreeSet
+- je zaruceno spravne setrideni prvku, a proto muze byt kontejner doplnen o dalsi funkce rozhrani SortedSet
+
+comparator()
+- Comparator
+- vrati objekt typu Comparator, pouzivany aktualni collection typu Set, nebo vrati hodnotu null, coz oznacuje prirozene trideni
+
+first()
+- Objekt
+- vraci nejmensi prvek
+
+last()
+- Objekt
+- vraci nejvetsi prvek
+
+subSet(fromElement, toElement)
+- SortedSet
+- vrati podmnozinu urcene mnoziny, prvkem fromElement pocinaje a prvkem toElement konci
+
+headSet(toElement)
+- SortedSet
+- vraci podmnozinu prvku mensich nez prvek toElement
+
+tailSet(fromElement)
+- SortedSet
+- vraci podmnozinu prvku vetsich nebo rovnych prvku fromElement
+
+
+
+
+
+
+Následující příklady ukazují použití všech tří implementací rozhraní Set:
+
+final Set<Integer> numbersSet = new HashSet<>(); // stworzenie instancji HashSet
+System.out.println(numbersSet.isEmpty()); // true, Set ndoes not contain elements
+numbersSet.add(1);
+numbersSet.add(17);
+numbersSet.add(3);
+numbersSet.add(2);
+numbersSet.add(1); // Adding an item with a value that already exists - the item is NOT added again
+numbersSet.forEach(System.out::println);
+
+/* example order in which items can be listed:
+ 1 17 2 3
+*/
+
+
+final Set<Integer> numbersSet = new TreeSet<>();
+numbersSet.add(1);
+numbersSet.add(3);
+numbersSet.add(2);
+numbersSet.add(1); // Adding an item with a value that already exists - the item is NOT added again
+numbersSet.forEach (System.out::println);
+/* The order of the items will ALWAYS be the same (sorted in natural order):
+ 1 2 3
+*/
+
+
+
+final Set<Integer> numbersSet = new LinkedHashSet<>();
+numbersSet.add(1);
+numbersSet.add(3);
+numbersSet.add(2);
+numbersSet.add(1); // Adding an item with a value that already exists - the item is NOT added again
+numbersSet.forEach (System.out::println);
+/* The order of items will ALWAYS be the same (in the order of adding items)
+ 1 3 2
+*/
+
+
+
+
+hashCode()
+- muze se stat, ze 2 objekty s odlisnym obsahem maji stejny hashCode() -> kolize
+- v takovem pripade musim prepsat metody hashCode() a equals()
+
+
+
+
+
+
+Set:
+add(E e)
+Přidá zadaný prvek do této sady, pokud ještě není přítomen (volitelná operace).
+
+addAll(Collection<? extends E> c)
+Přidá do této sady všechny prvky v zadané kolekci, pokud ještě nejsou přítomny (volitelná operace).
+
+clear()
+Odebere všechny prvky z této sady (volitelná operace).
+
+contains(Object o)
+Vrátí hodnotu true, pokud tato sada obsahuje zadaný prvek.
+
+containsAll(Collection<?> c)
+Vrátí hodnotu true, pokud tato sada obsahuje všechny prvky zadané kolekce.
+
+equals(Object o)
+Porovná zadaný objekt s touto množinou pro rovnost.
+
+hashCode()
+Vrátí hodnotu hash kódu pro tuto sadu.
+
+isEmpty()
+Vrátí hodnotu true, pokud tato sada neobsahuje žádné prvky.
+
+iterator()
+Vrátí iterátor nad prvky v této sadě.
+
+remove(Object o)
+Odebere zadaný prvek z této sady, pokud je přítomen (volitelná operace).
+
+removeAll(Collection<?> c)
+Odebere z této sady všechny její prvky, které jsou obsaženy v zadané kolekci (volitelná operace).
+
+Zachová pouze prvky v této sadě, které jsou obsaženy v zadané kolekci (volitelná operace).
+
+size()
+Vrátí počet prvků v této množině (její mohutnost).
+
+spliterator()
+Vytvoří Spliterator nad prvky v této sadě.
+
+toArray()
+Vrátí pole obsahující všechny prvky v této sadě.
+
+toArray(T[] a)
+Vrátí pole obsahující všechny prvky v této sadě; typ runtime vráceného pole je typ zadaného pole.
+
+
+Methods inherited from interface java.util.Collection
+parallelStream, removeIf, stream
+
+Methods inherited from interface java.lang.Iterable
+forEach
+
+
+
+
+
+SortedSet:
+comparator()
+Vrátí komparátor použitý k řazení prvků v této množině nebo hodnotu null, pokud tato množina používá přirozené uspořádání svých prvků.
+
+first()
+Vrátí první (nejnižší) prvek aktuálně v této sadě.
+
+headSet(E toElement)
+Vrátí pohled na část této sady, jejíž prvky jsou striktně menší než toElement.
+
+last()
+Vrátí poslední (nejvyšší) prvek aktuálně v této sadě.
+
+spliterator()
+Vytvoří Spliterator nad prvky v této tříděné sadě.
+
+subSet(E fromElement, E toElement)
+Vrátí pohled na část této sady, jejíž prvky jsou v rozsahu od prvku včetně až po prvek bez.
+
+tailSet(E fromElement)
+Vrátí pohled na část této sady, jejíž prvky jsou větší nebo rovné fromElement.
+
+
+Methods inherited from interface java.util.Set
+add, addAll, clear, contains, containsAll, equals, hashCode, isEmpty, iterator, remove, removeAll, retainAll, size, toArray, toArray
+
+Methods inherited from interface java.util.Collection
+parallelStream, removeIf, stream
+
+Methods inherited from interface java.lang.Iterable
+forEach
+
+
+
+
+
+
+TreeSet:
+add(E e)
+Přidá zadaný prvek do této sady, pokud ještě není přítomen.
+
+addAll(Collection<? extends E> c)
+Přidá do této sady všechny prvky v zadané kolekci.
+
+ceiling(E e)
+Vrátí nejmenší prvek v této sadě, který je větší nebo roven danému prvku, nebo null, pokud takový prvek neexistuje.
+
+clear()
+Odebere všechny prvky z této sady.
+
+clone()
+Vrátí mělkou kopii této instance TreeSet.
+
+comparator()
+Vrátí komparátor použitý k řazení prvků v této množině nebo hodnotu null, pokud tato množina používá přirozené uspořádání svých prvků.
+
+contains(Object o)
+Vrátí hodnotu true, pokud tato sada obsahuje zadaný prvek.
+
+descendingIterator()
+Vrátí iterátor nad prvky v této sadě v sestupném pořadí.
+
+descendingSet()
+Vrátí pohled v opačném pořadí na prvky obsažené v této sadě.
+
+first()
+Vrátí první (nejnižší) prvek aktuálně v této sadě.
+
+floor(E e)
+Vrátí největší prvek v této množině, který je menší nebo roven danému prvku, nebo null, pokud takový prvek neexistuje.
+
+headSet(E toElement)
+Vrátí pohled na část této sady, jejíž prvky jsou striktně menší než toElement.
+
+headSet(E toElement, boolean inclusive)
+Vrátí pohled na část této množiny, jejíž prvky jsou menší než (nebo se rovnají, pokud je zahrnuto pravdivé) toElement.
+
+higher(E e)
+Vrátí nejmenší prvek v této sadě přísně větší než daný prvek nebo hodnotu null, pokud takový prvek neexistuje.
+
+isEmpty()
+Vrátí hodnotu true, pokud tato sada neobsahuje žádné prvky.
+
+iterator()
+Vrátí iterátor nad prvky v této sadě ve vzestupném pořadí.
+
+last()
+Vrátí poslední (nejvyšší) prvek aktuálně v této sadě.
+
+lower(E e)
+Vrátí největší prvek v této množině přísně nižší než daný prvek nebo hodnotu null, pokud takový prvek neexistuje.
+
+pollFirst()
+Načte a odstraní první (nejnižší) prvek nebo vrátí hodnotu null, pokud je tato sada prázdná.
+
+pollLast()
+Načte a odstraní poslední (nejvyšší) prvek nebo vrátí hodnotu null, pokud je tato sada prázdná.
+
+remove(Object o)
+Odebere zadaný prvek z této sady, pokud je přítomen.
+
+size()
+Vrátí počet prvků v této množině (její mohutnost).
+
+spliterator()
+Vytvoří spliterator s pozdní vazbou a rychlým selháním nad prvky v této sadě.
+
+subSet(E fromElement, boolean fromInclusive, E toElement, boolean toInclusive)
+Vrátí pohled na část této sady, jejíž prvky se pohybují od fromElement do toElement.
+
+subSet(E fromElement, E toElement)
+Vrátí pohled na část této sady, jejíž prvky jsou v rozsahu od prvku včetně až po prvek bez.
+
+tailSet(E fromElement)
+Vrátí pohled na část této sady, jejíž prvky jsou větší nebo rovné fromElement.
+
+tailSet(E fromElement, boolean inclusive)
+Vrátí pohled na část této množiny, jejíž prvky jsou větší než (nebo se rovnají, pokud je zahrnuto pravdivé) fromElement.
+
+
+Methods inherited from class java.util.AbstractSet
+equals, hashCode, removeAll
+
+Methods inherited from class java.util.AbstractCollection
+containsAll, retainAll, toArray, toArray, toString
+
+Methods inherited from class java.lang.Object
+finalize, getClass, notify, notifyAll, wait, wait, wait
+
+Methods inherited from interface java.util.Set
+containsAll, equals, hashCode, removeAll, retainAll, toArray, toArray
+
+Methods inherited from interface java.util.Collection
+parallelStream, removeIf, stream
+
+Methods inherited from interface java.lang.Iterable
+forEach
+
+
+
+
+
+
+
+
+
+HashSet:
+add(E e)
+Přidá zadaný prvek do této sady, pokud ještě není přítomen.
+
+clear()
+Odebere všechny prvky z této sady.
+
+clone()
+Vrátí mělkou kopii této instance HashSet: samotné prvky nejsou klonovány.
+
+contains(Object o)
+Vrátí hodnotu true, pokud tato sada obsahuje zadaný prvek.
+
+isEmpty()
+Vrátí hodnotu true, pokud tato sada neobsahuje žádné prvky.
+
+iterator()
+Vrátí iterátor nad prvky v této sadě.
+
+remove(Object o)
+Odebere zadaný prvek z této sady, pokud je přítomen.
+
+size()
+Vrátí počet prvků v této množině (její mohutnost).
+
+spliterator()
+Vytvoří spliterator s pozdní vazbou a rychlým selháním nad prvky v této sadě.
+
+
+Methods inherited from class java.util.AbstractSet
+equals, hashCode, removeAll
+
+Methods inherited from class java.util.AbstractCollection
+addAll, containsAll, retainAll, toArray, toArray, toString
+
+Methods inherited from class java.lang.Object
+finalize, getClass, notify, notifyAll, wait, wait, wait
+
+Methods inherited from interface java.util.Set
+addAll, containsAll, equals, hashCode, removeAll, retainAll, toArray, toArray
+
+Methods inherited from interface java.util.Collection
+parallelStream, removeIf, stream
+
+Methods inherited from interface java.lang.Iterable
+forEach
+
+
+
+
+
+
+
+
+
+LinkedHashSet:
+spliterator()
+Vytvoří spliterator s pozdní vazbou a rychlým selháním nad prvky v této sadě.
+
+Methods inherited from class java.util.HashSet
+add, clear, clone, contains, isEmpty, iterator, remove, size
+Methods inherited from class java.util.AbstractSet
+equals, hashCode, removeAll
+
+Methods inherited from class java.util.AbstractCollection
+addAll, containsAll, retainAll, toArray, toArray, toString
+
+Methods inherited from class java.lang.Object
+finalize, getClass, notify, notifyAll, wait, wait, wait
+
+Methods inherited from interface java.util.Set
+add, addAll, clear, contains, containsAll, equals, hashCode, isEmpty, iterator, remove, removeAll, retainAll, size, toArray, toArray
+
+Methods inherited from interface java.util.Collection
+parallelStream, removeIf, stream
+
+Methods inherited from interface java.lang.Iterable
+forEach
+

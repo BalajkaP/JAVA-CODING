@@ -1,0 +1,153 @@
+Optionals:
+- hlavním cílem třídy Optional je zabránit vyhozeni vyjimky NullPointerException (NPE)
+- ta se může vyskytnout při práci s hodnotami null 
+- odkaz na objekt totiž může v jazyce java buď ukazovat na skutečný objekt, nebo může být null. 
+- Optional poskytuje metody pro zjištění, zda je hodnota přítomná nebo ne, a také pro bezpečné získání hodnoty, pokud je přítomná.
+
+
+--------------------------------Metody--------------------------------
+
+    - of() - Vytvoří novou instanci Optional s danou hodnotou. Pokud je hodnota null, vyvolá se NullPointerException.
+    - ofNullable() - Vytvoří novou instanci Optional s danou hodnotou. Může přijmout i hodnotu null.
+    - isEmpty() - Vrátí true, pokud je hodnota prázdná, jinak vrátí false.
+    - isPresent() - Vrátí true, pokud je hodnota přítomná, jinak vrátí false.
+    - ifPresent() - Prijima Consumer a pokud je Optional prazdny, nedela nic, pokud obsahuje hodnotu, vykona se co je v argumentu metody 
+    - orElse("Ahoj") - Vrátí hodnotu, pokud je přítomná, jinak vrátí danou alternativní hodnotu, kterou definuji pro orElse (v tomto pripade "Ahoj")
+    - orElseGet() - Vrátí hodnotu, pokud je přítomná, jinak vyvolá Supplier a vrátí jeho výsledek.
+    - orElseThrow() -  Vrátí hodnotu, pokud je přítomná, jinak vyvolá výjimku, která je vytvořena dodaným dodavatelem výjimky (exceptionSupplier).
+    - get() - Vrátí hodnotu, pokud je přítomná. Pokud hodnota není přítomná, vyvolá se NoSuchElementException.
+
+POZNÁMKA: Pokud chceme použít metodu get(), měli bychom nejprve ověřit dostupnost objektu pomocí metody isPresent().
+
+POZNÁMKA: Metoda orElseGet() vypočítá náhradní hodnotu na rozdíl od metody orElse() pouze v případě, že je Optional prázdná
+    - To znamená, že výkon metody orElseGet je lepší než výkon metody orElse
+
+------------------------------
+
+Optional<String> hello = Optional.of("pes");
+Optional<String> test = Optional.empty();
+
+
+Optional<String> ofNull = Optional.of(null);                // vyhodi se vyjimka NullPointerException
+Optional<String> ofNullable = Optional.ofNullable(null);    // vyjimka se nevyhodi, protoze muze prijimat hodnoty null
+
+System.out.println(hello.isEmpty());                        // false
+System.out.println(test.isEmpty());                         // true
+
+System.out.println(hello.isPresent());                      // true
+System.out.println(test.isPresent());                       // false
+
+System.out.println(hello.orElse("ahoj"));                   // pes
+System.out.println(test.orElse("ahoj"));                    // ahoj
+
+hello.ifPresent(word -> { System.out.println(word); });     // pes
+hello.ifPresentOrElse(word -> {                             // pes
+    System.out.println(word); 
+}, () -> {
+    System.out.println("world"); 
+});
+
+test.ifPresent(word -> { System.out.println(word); });      // world
+test.ifPresentOrElse(word -> {                              // world
+    System.out.println(word); 
+}, () -> {
+    System.out.println("world"); 
+});
+
+System.out.println(hello.orElseGet(() -> "default value")));                            // pes                      
+System.out.println(test.orElseGet(() -> "default value")));                             // default value
+
+System.out.println(hello.orElseThrow(() -> new IllegalStateException("exception")));    // pes
+System.out.println(test.orElseThrow(() -> new IllegalStateException("exception"));      // vyhodi vyjimku
+
+System.out.println(hello.get());                            // pes
+System.out.println(test.get());                             //
+
+------------------------------
+
+Metody lze kombinovat:
+
+String orElse = ofNullable
+    .map(String::toUpperCase)
+    .orElseGet(() -> { return "world"; })
+    .orElse("world)
+    .orElseThrow(IllegalStateException::new)
+    .ifPresent(System.out::println)
+    .ifPresentOfElse(System.out::println, () -> System.out.println("world"));
+
+----------------------------------------------------------------------
+
+public class Main {
+    public static void main(String[] args) {
+
+        // 1 Supplier
+        Object value = Optional.ofNullable("Hello").orElseGet(() -> "default value"));
+            // dam-li hodnotu ofNullable("Hello")               // Hello
+            // dam-li hodnotu ofNullable(null)                  // default value
+
+        // 2 Supplier
+        Object value = Optional.ofNullable("Hello").orElseThrow(() -> new IllegalStateException("exception"));
+            // dam-li hodnotu ofNullable("Hello")               // Hello
+            // dam-li hodnotu ofNullable(null)                  // vyhodi se vyjimka
+
+        // 3 Consumer
+        Optional.ofNullable("John@gmail.com").ifPresent(email -> System.out.println("Sending email to" +email));
+            // dam-li hodnotu ofNullable("John@gmail.com")      // John@gmail.com
+            // dam-li hodnotu ofNullable(null)                  // neprovede se nic
+
+        //4 Consumer
+        Optional.ofNullable(null).ifPresentOfElse(
+            email -> System.out.println("Sending email to " +email()), 
+            () -> {
+                System.out.println("Cannot send email");
+            });
+
+            // dam-li hodnotu ofNullable("John@gmail.com")      // John@gmail.com
+            // dam-li hodnotu ofNullable(null)                  // Cannot send email
+    }
+    System.out.printl(value);
+}
+
+
+----------------------------------------------------------------------
+
+
+public class Person {
+    private final String name;
+    private final String email;
+
+    Person(String name, String email) {
+        this.name = name;
+        this.email = email;
+    }
+    public String getName() {
+        return name;
+    }
+    Optional<String> getEmail() { return optional.ofNullable(email); }
+}
+
+-----------------------------------
+
+public class Main {
+    public static void main (String[] args) {
+
+        Person person = new Person ("James", null);
+        
+        // 1 functional optional
+        String email = person  
+            .getEmail()
+            .map(String::toLowerCase)
+            .orElse("email not provided");
+            
+        System.out.println(email);
+
+        // 2 imperative programming
+        if(person.getEmail().isPresent()) {
+            String email = person.getEmail().get();
+            System.out.println(email.toLowerCase());
+        } else {
+            System.out.println("email not provided");
+        }
+    }
+}
+

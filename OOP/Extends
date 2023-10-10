@@ -1,0 +1,84 @@
+Extends (Dedicnost)
+
+- má přístup k položkám s výchozím modifikátorem přístupu (package-private), pokud je bázová třída ve stejném balíku
+- pomoci super se odkazuji na predka
+
+Liskovy princip substituce
+- lze priradit instanci tridy potomka do promenne jejiz datovy typ je trida predka
+
+------------------Konstruktor predka a potomka------------------
+
+- v konstruktoru potomka je vzdy nutne zajistit volani konstruktoru predka pres klicove slovo super(parametry konstruktoru)
+- pritom plati:
+1) volani konstruktoru predka musi byt vzdy 1. operace v konstruktoru potomka
+2) pokud ma predek konstruktor bez parametru a my neuvedeme jiny, JAVA zavola konstruktor bez parametru za nas
+
+Jake situace mohou nastat?
+
+A) Predek ma vychozi konstruktor
+- pokud ma predek jen vychozi konstruktor, JAVA automaticky v konstruktoru potomka zavola tento vychozi konstruktor a my nic neresime
+- klicove slovo super nevyuzijeme
+
+B) Predek ma vice konstruktoru
+- vyberu si jaky chci
+- pokud je konstruktor bez parametru, tak nemusim vybrat zadny a pouzije se vychozi
+
+C) Predek ma pouze konstruktor s parametry
+- 1.operace - v konstruktoru potomka uvest volani konstruktoru predka
+
+
+--------------------------
+
+public class Car {
+
+    public void turnOnEngine(){
+        System.out.println("Turn on engine!");
+    }
+}
+
+public class SportCar extends Car { 
+
+    public void drive() {
+        turnOnEngine();
+        System.out.println("I'm driving!");
+    }
+}
+
+--------------------------
+
+public class Computer {
+    private String cpu;
+    private String ram;
+    private String gpu;
+
+    public Computer(String cpu, String ram, String gpu) {
+        this.cpu = cpu;
+        this.ram = ram;
+        this.gpu = gpu;
+    }
+
+    public void configure() {
+        System.out.println("Booting ... ");
+        System.out.println("Configure cpu: " + cpu);
+        System.out.println("Configure ram: " + ram);
+        System.out.println("Configure gpu: " + gpu);
+    }
+}
+
+public class Laptop extends Computer { 
+
+    private int battery;
+
+    public Laptop(String cpu, String ram, String gpu, int battery) {
+        // in the case of a derived class, calling the base class's default constructor is required
+        super(cpu, ram, gpu);
+        this.battery = battery;
+    }
+
+    @Override // (1)
+    public void configure() {
+        // we call functionality from the base class
+        super.configure();
+        System.out.println("Configure battery: " + battery);
+    }
+}

@@ -1,0 +1,61 @@
+Třída `FileReader` a `FileWriter` jsou často používané třídy pro čtení a zápis znaků ze souborů v mnoha programovacích jazycích.
+
+Rozsiruji Reader a Writer
+
+
+FileReader:
+
+read()
+- čte jeden znak ze vstupního souboru a vrací jeho číselnou hodnotu jako `int`. Pokud je dosaženo konce souboru, vrátí -1.
+
+read(char[] arr)
+- čte znaky ze vstupního souboru a ukládá je do předaného pole arr. Vrací počet skutečně přečtených znaků nebo -1, pokud byl dosažen konec souboru.
+
+close()
+- uzavře proud a uvolní všechny zdroje spojené s `FileReader`. Po zavolání této metody není možné číst ze souboru.
+
+read(char[] arr, int offset, int length)
+- čte ze vstupniho souboru pocet znaků az do delky length a ukládá je do předaného pole arr, začínaje na indexu `offset`. Vrací počet skutečně přečtených znaků nebo -1, pokud byl dosažen konec souboru.
+
+read(CharBuffer target)
+- čte znaky ze vstupního souboru a ukládá je do `CharBuffer` objektu `target`. Vrací počet skutečně přečtených znaků nebo -1, pokud byl dosažen konec souboru.
+
+
+
+
+
+FileWriter:
+
+write(int c)
+- zapíše jeden znak daný číselnou hodnotou `c` do výstupního souboru.
+
+write(char[] arr)
+- zapíše všechny znaky z pole arr do výstupního souboru.
+
+write(String str)
+- zapíše obsah řetězce `str` do výstupního souboru.
+
+flush()
+- vynutí vyprázdnění všech dat z bufferu do výstupního souboru.
+
+close()
+- uzavře proud a uvolní všechny zdroje spojené s `FileWriter`. Po zavolání této metody není možné zapisovat do souboru.
+
+
+
+Obě třídy `FileReader` a `FileWriter` dědí od abstraktní třídy `Reader` a `Writer` a poskytují metody pro práci se znakovými proudy ze souborů. Tyto metody umožňují číst a zapisovat textová data do souborů a usnadňují manipulaci se soubory ve formě znaků.
+
+write(char[] arr, int off, int length)
+- zapíše pocet znaků az do delky length z pole arr do výstupního souboru, začínaje na indexu `off`.
+
+write(String str, int off, int length)
+- zapíše pocet znaku až do delky length z řetězce `str` do výstupního souboru, začínaje na indexu `off`.
+
+append(CharSequence csq)
+- připojí řetězec `csq` na konec výstupního souboru a vrátí odkaz na aktuální objekt `FileWriter`.
+
+append(CharSequence csq, int start, int end)
+- připojí podřetězec `csq` od indexu `start` (včetně) do indexu `end` (bez něj) na konec výstupního souboru a vrátí odkaz na aktuální objekt `FileWriter`.
+
+append(char c)
+- připojí znak `c` na konec výstupního souboru a vrátí odkaz na aktuální objekt `FileWriter`.

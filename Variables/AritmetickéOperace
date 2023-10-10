@@ -1,0 +1,28 @@
+Aritmetické operace:
+
+int z = 5;
+z += 1;                                                           // z = z + 1;
+z *= 2;                                                           // z = z * 2;
+z /= 2;                                                           // z = z / 2;
+z -= 1;                                                           // z = z - 2;
+
+
+-Modulo-
+int test = 20;
+boolean isEven = test % 2 == 0;                                   //bude true, protoze po deleni 2 zbyde 0
+
+-Deleni-
+int div = 7 / 2;                                                  //3
+double div2 = 7 / 2;                                              //3.0
+double div3 = 7 / 2.0;                                            //3.5
+
+int aa = 7;
+int bb = 2;
+double div4 = aa / bb;                                            //3.0
+double div5 = (double)aa / bb;                                    //3.5
+
+
+-incrementalOperators-
+int ii = 5;
+ii++;                                                              //vypise se 5, protoze nejdrive vypise hodnotu a az pak se navysi na 6
+++ii;  

@@ -1,0 +1,408 @@
+Lambda:
+- slouží k vytváření a používání anonymních funkcí, tedy funkcí bez jména, ktere nepatri do zadne tridy
+- poskytují zkrácený a elegantní způsob zápisu kódu
+- lze použít všude tam, kde je vyžadováno funkční rozhraní 
+- nelze pouzit primitivni datove typy 
+- jako bych do promenne ulozil funkci
+
+Existuje několik důležitých použití:
+1.Implementace rozhraní SAM: 
+    - lambda výrazy umožňují snadné vytváření anonymních implementací rozhraní s jedinou abstraktní metodou (tzv. rozhraní SAM). 
+    - to zjednodušuje používání rozhraní jako Runnable, Comparator nebo ActionListener, kde je třeba definovat jednoduchou funkční logiku.
+2.Zpracování kolekcí: 
+    - lambda výrazy jsou často používány pro zpracování kolekcí pomocí Stream API 
+    - pomocí lambdových výrazů můžete definovat různé operace, jako jsou mapování, filtrování, třídění a sběr dat, na kolekcích s využitím funkcionálního přístupu.
+3.Asynchronní programování: 
+    - lambda výrazy jsou také užitečné při práci s asynchronním programováním
+    - například, když používáte rozhraní CompletableFuture, můžete definovat lambdové výrazy pro manipulaci s výsledky, 
+    zachycení výjimek nebo definici akcí, které se mají vykonat po dokončení asynchronní operace
+4.Callback funkce: 
+    - lambda výrazy mohou být předány jako callback funkce pro obsluhu událostí
+    - můžete je použít při definování reakcí na uživatelské vstupy, tlačítka nebo jiné události v grafickém rozhraní
+
+
+- podminka - rozhrani, ktere ma pouze jednu deklaraci metody, ktera nema zadne argumenty a navratova hodnota je void
+
+    Thread thread = new Thread(new Runnable() {
+        @Override
+        public void run() {
+            System.out.println("Implementation of the Runnable interface as an implementation of an anonymous class!");
+        }
+    });
+    thread.start();
+
+- lambda výrazy, které umožňují zacházet s anonymní třídou jako s normální funkcí, což výrazně zkracuje syntaxi samotného zápisu
+
+    Thread thread = new Thread(() -> {
+        System.out.println("Runnable example using lambda!");
+    });
+    thread.start();
+
+- výraz lambda nás osvobozuje od zápisu klíčového slova new a použití anotace Override.
+
+
+------------------------Syntaxe výrazu lambda------------------------
+
+Výraz lambda se skládá ze tří částí:
+    - 1) seznamu argumentů
+        - musí být v závorkách, pokud je počet argumentů jiný než 1
+        - může, ale nemusí uvádět typy argumentů
+    - 2) operátor ->
+    - 3) tělo implementované metody
+        - pokud se tělo skládá z jednoho výrazu, pak:
+            - toto tělo nemusí být uvnitř závorek {} -> i
+            - v případě, že tento výraz vrací nějaký objekt, můžeme klíčové slovo return vynechat
+            - prvni vyraz v tele implementovane metody je i zaroven return
+        - pokud se tělo skládá z více výrazů, pak:
+            - toto tělo musí být uvnitř závorek { i+y }
+
+POZNÁMKA: pokud je úkolem lambdy vyvolat výjimku, musí být provedena uvnitř závorek, i když se jedná o jediný výraz.
+POZNÁMKA: názvy argumentů se mohou lišit od názvů definovaných v rozhraní.
+POZNÁMKA: při definování lambdy nás zcela nezajímá název abstraktní metody v rozhraní.
+
+
+
+----------Příklad 1----------
+
+- Pro následující rozhraní:
+
+    public interface Action {
+        String execute(int x, int y);
+    }
+
+- Lambda výraz vypadá takto:
+    - seznam argumentů: (int x, int y)
+    - operátor ->
+    - tělo implementované metody: { return x + "-" + y; }
+
+    Action action = (int x, int y) -> {
+        return x + "-" + y;
+    };
+
+- ve výše uvedeném příkladu jsme se rozhodli přidat volitelné typy argumentů, deklarovat tělo lambdy uvnitř závorek a přidat slovo return
+- všechny tyto prvky můžeme vynechat a zkrátit zápis na jediný řádek:
+
+    Action action = (x, y) -> x + "-" + y;
+
+
+----------Příklad 2----------
+
+- Pro rozhraní Runnable:
+
+    @FunctionalInterface
+    public interface Runnable {
+        public abstract void run();
+    }
+
+- By mohl příklad implementace vypadat takto:
+
+    Runnable runnableExample = () -> {
+        System.out.println("Hello from runnable");
+        System.out.println("{ and } cannot be omitted");
+    };
+
+- Při absenci argumentů musíme použít ()
+- tělo výše uvedené lambdy se skládá ze dvou příkazů, takže musí být definováno uvnitř { }
+
+
+----------Příklad 3----------
+
+- Použití funkčního rozhraní FruitEater s následující definicí:
+
+    @FunctionalInterface
+    public interface FruitEater<T> {
+        void consume(T t);
+    }
+
+- Následující implementace má jeden vstupní argument, takže můžeme vynechat závorky uvedením seznamu argumentů:
+
+    FruitEater<String> fruitEater = fruit -> System.out.println(String.format("eating %s... omnomnom", fruit);
+
+
+
+
+------------------------Reference na metody------------------------
+
+- některé jednoduché lambda výrazy můžeme zapsat pomocí odkazu na metodu
+- místo zápisu volání metody můžeme uvést pouze její název
+- v tomto případě musí být název třídy a metody oddělen znaky '::'.
+
+Odkaz na metodu můžeme použít, pokud má lambda jeden argument a je splněna jedna z následujících podmínek:
+- vstupní argument lambdy je argumentem metody z nějaké třídy
+- na vstupním argumentu je volána metoda bez argumentu.
+
+Následující příklady ukazují možné použití odkazu na metodu:
+
+// use of lambda
+Consumer<String > consumerExample = someString -> System.out.println(someString); 
+// identical notation as in the line above, use of references
+Consumer<String > consumerExampleReference = System.out::println; 
+
+// using lambda in the map method
+List.of("someString").stream().map(str -> str.toUpperCase()); 
+// using a reference to a method, equivalent notation in the line of code above
+List.of("someString").stream().map(String::toUpperCase); 
+
+
+
+-------------------------------------------------
+
+@FunctionalInterface
+public interface Lambda {
+    void print();
+}
+
+public class HelloWorld {
+    public static void main (String[] args) {
+        Lambda printHello = () -> System.out.println("Hello world");
+}
+
+@FunctionalInterface
+interface Neco {
+    double cokoliv (int x, int y);
+}
+
+public class LambdaExample2 {
+    public static void main (String[] args) {
+        Neco neco = (int a, int b) -> {
+            if(b == 0) {
+                return 0;
+            }
+            return a/b;
+        };
+        double d = neco.cokoliv(10, 2);
+        System.out.printl(d);
+    }
+}
+
+
+-------------------------------------------------
+
+@FunctionalInterface
+public interface Lambda {
+    void print();
+}
+
+public class LambdaVnitrniTridy {
+    public static void main(String[] args) {
+        Lambda lambda = () -> System.out.println("Hello world from inner class");
+    }
+    printIt(lambda);
+
+    // lze i tento zapis
+    printIt(() -> System.out.println("Hello world from inner class lambda 2"));
+}
+public static void printIt(Lambda lambda) {
+    lambda.print();
+}
+
+
+public class LambdaExample3 {
+    public static void main (String[] args) {
+        Nasob nasobPeti = (a) -> a*5;
+        printNasob(a -> a*5);
+    }
+    @FunctionalInterface
+    Interface Nasob {
+        int nasob(int a);
+    }
+
+    public static void printNasob(Nasob nasob) {
+        System.out.println(nasob.nasob(10));
+    }
+}
+
+-------------------------------------------------
+
+Priklad bez a s Lambda pro porovnani:
+1) vytborit seznam mist
+2) setridit seznam 
+3) napsat metodu vypisujici vse ze seznamu
+4) napsat metodu vypisujici pouze jednoslovna mista
+
+Bez Lambda:
+
+public class LambdaExample4 {
+    public static void main (String[] args) {
+        1)
+        List<String> mista = Arrays.asList("Olomouc", "Valasske mezirici", "Praha", "Kladno", "Kutna Hora");
+
+        2) 
+        Collections.sort(mista, new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                return o1.compareTo(o2);
+            }
+        });
+
+        3)
+        printMiata(mista);
+
+        4) 
+        printWithFilter(mista, new Filter() {
+            @Override
+            public boolean odFiltruj(String s) {
+                return !s.contains(" ");
+            }
+        });
+        printWithFilter(mista, new Filter() {
+            @Override
+            public boolean odFiltruj(String s) {
+                return s.startsWith("P");
+            }
+        });
+
+    }
+    private static void printWithFilter (List<String> mista, Filter filter) {
+        for(String misto : mista) {
+            if (filter.odFiltruj(misto)) {
+                System.out.println(misto);
+            }
+        }
+    }
+    interface Filter {
+        boolean odFiltruj(String s);
+    }
+}
+
+
+
+S Lambda:
+
+public static void main(String [] args) {
+     1)
+     List<String> mista = new Arrays.asList("Olomouc", "Valasske mezirici", "Praha", "Kladno"", "Kutna Hora");
+
+     2) 
+     Collections.sort(mista, (o1, o2) -> o1.compareTo(o2));
+
+     3)
+     printWithFilter(mista, s-> true);
+
+     4)
+     printWithFilter(mista, s -> !s.contains(" "));
+
+     // vypise zacinajici na P 
+     printWithFilter(mista, s-> s.startsWith("P"));
+}
+private static void printWithFilter(List<String> mista, Filter filter) {
+    for(String misto : mista) {
+        if(filter.odFiltruj(misto) {
+            System.out.println(misto);
+        }
+    }
+}
+@FunctionalInterface
+interface Filter {
+    boolean odFiltruj(String s);
+}
+
+
+S Lambda (Predicate,Consumer)
+- predicate a consumer patri mezi functional interface 
+
+public class FunctionalInterface {
+    public static void main (String[] args) {
+
+        1)
+        List<String> mista = Arrays.asList("Olomouc", "Valasske mezirici", "Praha", "Kladno", "Kutna Hora");
+
+        2)
+        Collections.sort(mista, (o1, o2)) -> o1.compareTo(o2));
+
+        3)
+        printWithFilter(mista, s -> true, s -> System.out.println(s));
+
+        4)
+        printWithFilter(mista, s -> !s.contains(" "), s -> System.out.println(s));
+
+        // vypise zacinajici P 
+        printWithFilter(mista, s -> s.startsWith("P'), s -> System.out.println(s));
+    }
+
+    public static void printWithFilter(List<String> mista, Predicate<String> predicate, Consumer<String> consumer) {
+        for(String misto : mista) {
+            if(predicate.test(misto)) {
+                System.out.println(misto);
+            }
+        }
+    }
+    @FunctionalInterface
+    interface Filter {
+        boolean odFiltruj(String s);
+    }
+}
+
+
+
+
+
+
+
+@FunctionalInterface
+public interface MyInterface {
+
+	public void message(String name,char symbol);
+}
+
+-------Example 1-------
+public class Main {
+
+	public static void main(String[] args) {
+		
+		String name = "Bro";
+		char symbol = '!';
+		
+		MyInterface myInterface = (x,y) -> {
+			System.out.println("Heello World!");
+			System.out.println("It is a nice day "+x+y);
+		};
+			
+		MyInterface myInterface2 = (x,y) -> {
+			System.out.println("Hello "+x+y);
+		};
+			
+		myInterface.message(name,symbol);
+		myInterface2.message(name,symbol);
+			
+	}
+
+}
+
+-------Example 2-------
+public class Main {
+
+	public static void main(String[] args) {
+		
+		MyFrame myFrame = new MyFrame();
+	}
+}
+
+
+
+import java.awt.event.*;
+import javax.swing.*;
+
+public class MyFrame extends JFrame{
+
+	JButton myButton = new JButton("MY BUTTON 1");
+	JButton myButton2 = new JButton("MY BUTTON 2");
+
+	MyFrame(){
+
+		myButton2.setBounds(100, 200, 200, 100);
+		myButton2.addActionListener(
+			
+			(e) -> System.out.println("This is the second button")
+						
+		);
+
+		this.add(myButton);
+		this.add(myButton2);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setSize(420, 420);
+		this.setLayout(null);
+		this.setVisible(true);
+	}
+}
+

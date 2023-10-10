@@ -1,0 +1,553 @@
+List (rozhrani):
+- uklada prvky v urcitem poradi
+- muze obsahovat duplicity
+- muze obsahovat null hodnoty
+- rozsiruje rozhrani Collection o dalsi metody
+- vytvari objekt typu ListIterator, ktery lze pouzivat k prochazeni List v obou smerech (stejne jako ke vkladani a odstranovani jednotlivych prvku)
+- implementace ArrayList, LinkedList, Stack, Vector
+
+
+ArrayList a LinkedList - rozdíly:
+Kdy bychom měli použít ArrayList a kdyLinkedList? Abychom mohli odpovědět na tuto otázku, musíme si uvědomit, že:
+- získání položky na základě jejího indexu ze seznamu ArrayList je rychlejší (O (1)) než ze seznamuLinkedList (O (n))
+- přidání prvku pomocí metody add (E someELement) má stejnou výpočetní složitost pro obě implementace, ale pokud se vnitřní pole v ArrayListu přeteče, 
+je tato operace pomalejší (O (n)).
+- přidání prvku na konkrétní index, tj. pomocí metody add (int index, E someElement), je rychlejší u LinkedList.
+
+
+POZNÁMKA: Pokud si nejsme jisti, kterou implementaci zvolit, bude ArrayList ve většině případů optimální volbou.
+
+
+
+
+------------------------------------Implementace ArrayList------------------------------------
+
+- seznam implementovany pomoci pole
+- vynika pri primem pristupu k jednotlivym prvkum
+- umoznuje rychly a primy pristup k prvkum, ale pro vkladani a odstranovani prvku je pomaly a neefektivni
+- objekt ListIterator pouzivat pouze k prochazeni prvku List, nikoli vsak ke vkladani o odstranovani jednotlivych polozek, 
+protoze vyzaduji znacne mnozstvi systemovych prostredku
+- urcena pro uchovani vice objektu stejne tridy
+
+
+Operace:
+
+----------------Vytvoreni kolekce----------------
+
+ArrayList<Trida> nazevListu = new ArrayList<>
+
+- do seznamu nelze vlozit primitivni datove typy (int ...)
+List<Integer> integers = new ArrayList<>();
+List<Double> realNumbers = new ArrayList<>();
+
+----------------Ulozeni objektu do kolekce----------------
+
+add()
+
+nazevListu.add(Objekt);
+
+Racer racer1 = new Racer("Karel", 20);
+listOfRacers.add(racer1);
+listOfRacers.add(new Racer("Anna", 15));
+
+----------------Kopirovani prvku z jine kolekce----------------
+
+- chceme vytvorit kopii ArrayList, ktera bude obsahovat vsechny prvky stavajici
+- vyuzijeme konstruktor s parametrem
+
+Racer racer1 = new Racer("Karel", 20);
+listOfRacers.add(racer1);
+listOfRacers.add(new Racer("Anna", 15));
+Arraylist<Racer> copyOfList = new ArrayList <Racer> (listOfRacers);
+
+----------------Vyzvednuti objektu z kolekce----------------
+
+nazevListu.get(index)
+listOfRacers.add(racer1);
+listOfRacers.add(new Racer("Anna", 15));
+System.out.println(listOfRacers.get(1).getName()); 				// Anna
+System.out.println(listOfRacers.get(0).getName()); 				// Karel
+
+----------------Odstraneni objektu z kolekce----------------
+
+nazevListu.remove(index);
+nazevListu.remove(objekt);
+
+Racer racer1 = new Racer("Karel", 20);
+listOfRacers.add(racer1);
+listOfRacers.add(new Racer("Anna", 15));
+listOfRacers.remove(racer1);
+listOfRacers.remove(0);
+listOfRacers.clear();
+
+----------------Zjisteni poctu objektu v kolekci----------------
+
+nazevListu.size();
+listOfRacers.size();
+
+----------------Provedeni akce se vsemi prvky v kolekci----------------
+
+for (Trida pomocnaPromenna : nazevListu) { kod }
+
+for (Racer racer : listOfRacers) {
+	System.out.println(racer.getName());
+}
+
+// to same jako predchozi
+listOfRacers.forEach(System.out::println);
+
+----------------ArrayList pr1----------------
+
+import java.util.*;
+
+public class Main {
+
+	public static void main(String[] args) {
+		
+		ArrayList<ArrayList<String>> groceryList = new ArrayList();
+		
+		ArrayList<String> bakeryList = new ArrayList();
+		bakeryList.add("pasta");
+		bakeryList.add("garlic bread");
+		bakeryList.add("donuts");
+		
+		ArrayList<String> produceList = new ArrayList();
+		produceList.add("tomatoes");
+		produceList.add("zucchini");
+		produceList.add("peppers");
+		
+		ArrayList<String> drinksList = new ArrayList();
+		drinksList.add("soda");
+		drinksList.add("coffee");
+		
+		groceryList.add(bakeryList);
+		groceryList.add(produceList);
+		groceryList.add(drinksList);
+		
+		System.out.println(groceryList);
+		
+	}
+}
+
+----------------ArrayList pr2----------------
+
+import java.util.ArrayList;
+
+public class Main {
+
+	public static void main(String[] args) {
+			
+		// ArrayList = 	a resizable array. 
+		//				Elements can be added and removed after compilation phase
+		//				store reference data types
+		
+		ArrayList<String> food = new ArrayList<String>();
+		
+		food.add("pizza");
+		food.add("hamburger");
+		food.add("hotdog");
+		
+		//food.set(0, "sushi");
+		//food.remove(2);
+		//food.clear();
+		
+		for(int i=0; i<food.size(); i++) {
+			System.out.println(food.get(i));
+		}
+	}
+}
+
+----------------Konec----------------
+
+
+
+
+------------------------------------Implementace LinkedList------------------------------------
+
+- zretezeny seznam, ktery neni navrzen pro rychly primy pristup k prvkum, ale obsahuje obecnejsi skupinu metod
+- optimalizovany pristup pri nizkem zatizeni systemu pri ukladani a odstranovani prvku umistenych uprostred List
+- pri primem pristupu pomaly (lepsi ArrayList)
+- obsahuje navic metody addFirst(), addLast(), getFirst(), getLast(), removeFirst(), removeLast()
+
+LinkedList jako stack (zasobnik)
+- zastarale
+- LIFO (last-in, first-out)
+
+LinkedList jako Queue (fronta)
+- FIFO (first-in, first-out)
+- udrzuje prvky serazene podle poradi vlozeni
+- muze obsahovat duplicity
+- neumoznuje null hodnoty
+- pro LIFO nutne vyuzit Dequeue (oboustranna fronta) - lze polozky ukladat na oba konce a stejne tak vybirat
+- implementace ArrayDequeue, LinkedList, PriorityQueue
+
+PiorityQueue
+- FIFO
+- s vetsi prioritou pred temi s nizsi prioritou ((A, B, C, ...), (1, 2, 3, ...), (C, B, A), (3, 2, 1))
+metoda Collections.reverseOrder() meni poradi na (C, B, A), (3, 2, 1)
+
+Volba implementace List
+- tridu LinkedList bych mel volit v pripade, kdyz mam v umyslu tuto knihovnu vyuzivat k mnoha vkladanim a odstranovanim prvku ze stredu List
+- ve vsech ostatnich pripadech je lepsi ArrayList
+- pracuji-li se skupinou s pevnym poctem prvku pouzit pole
+
+
+
+
+
+
+
+List metody:
+add(E e)
+Připojí zadaný prvek na konec tohoto seznamu (volitelná operace).
+
+add(int index, E element)
+Vloží zadaný prvek na zadané místo v tomto seznamu (volitelná operace).
+
+addAll(Collection<? extends E> c)
+Připojí všechny prvky v zadané kolekci na konec tohoto seznamu v pořadí, v jakém je vrátí iterátor zadané kolekce (volitelná operace).
+
+addAll(int index, Collection<? extends E> c)
+Vloží všechny prvky v zadané kolekci do tohoto seznamu na zadanou pozici (volitelná operace).
+
+clear()
+Odebere všechny prvky z tohoto seznamu (volitelná operace).
+
+contains(Object o)
+Vrátí hodnotu true, pokud tento seznam obsahuje zadaný prvek.
+
+containsAll(Collection<?> c)
+Vrátí hodnotu true, pokud tento seznam obsahuje všechny prvky zadané kolekce.
+
+equals(Object o)
+Porovná zadaný objekt s tímto seznamem pro dosažení rovnosti.
+
+get(int index)
+Vrátí prvek na zadané pozici v tomto seznamu.
+
+hashCode()
+Vrátí hodnotu hash kódu pro tento seznam.
+
+indexOf(Object o)
+Vrátí index prvního výskytu zadaného prvku v tomto seznamu nebo -1, pokud tento seznam prvek neobsahuje.
+
+isEmpty()
+Vrátí hodnotu true, pokud tento seznam neobsahuje žádné prvky.
+
+iterator()
+Vrátí iterátor nad prvky v tomto seznamu ve správném pořadí.
+
+lastIndexOf(Object o)
+Vrátí index posledního výskytu zadaného prvku v tomto seznamu nebo -1, pokud tento seznam prvek neobsahuje.
+
+listIterator()
+Vrátí iterátor seznamu nad prvky v tomto seznamu (ve správném pořadí).
+
+listIterator(int index)
+Vrátí iterátor seznamu nad prvky v tomto seznamu (ve správném pořadí), počínaje zadanou pozicí v
+
+remove(int index)
+Odebere prvek na zadané pozici v tomto seznamu (volitelná operace).
+
+remove(Object o)
+Odebere první výskyt zadaného prvku z tohoto seznamu, pokud je přítomen (volitelná operace).
+
+removeAll(Collection<?> c)
+Odebere z tohoto seznamu všechny jeho prvky, které jsou obsaženy v zadané kolekci (volitelná operace).
+
+replaceAll(UnaryOperator<E> operator)
+Nahradí každý prvek tohoto seznamu výsledkem použití operátoru na tento prvek.
+
+retainAll(Collection<?> c)
+Zachová pouze prvky v tomto seznamu, které jsou obsaženy v zadané kolekci (volitelná operace).
+
+set(int index, E element)
+Nahradí prvek na zadané pozici v tomto seznamu zadaným prvkem (volitelná operace).
+
+size()
+Vrátí počet prvků v tomto seznamu.
+
+sort(Comparator<? super E> c)
+Seřadí tento seznam podle pořadí vyvolaného zadaným komparátorem.
+
+spliterator()
+Vytvoří Spliterator nad prvky v tomto seznamu.
+
+subList(int fromIndex, int toIndex)
+Vrátí pohled na část tohoto seznamu mezi zadaným fromIndex, včetně, a toIndex, bez.
+
+toArray()
+Vrátí pole obsahující všechny prvky v tomto seznamu ve správném pořadí (od prvního po poslední prvek).
+
+toArray(T[] a)
+Vrátí pole obsahující všechny prvky v tomto seznamu ve správném pořadí (od prvního po poslední prvek); typ runtime vráceného pole je typ zadaného pole
+
+
+Methods inherited from interface java.util.Collection
+parallelStream, removeIf, stream
+
+Methods inherited from interface java.lang.Iterable
+forEach
+
+
+
+
+ArrayList:
+add(E e)
+Připojí zadaný prvek na konec tohoto seznamu.
+
+add(int index, E element)
+Vloží zadaný prvek na zadané místo v tomto seznamu.
+
+addAll(Collection<? extends E> c)
+Připojí všechny prvky v zadané kolekci na konec tohoto seznamu v pořadí, v jakém jsou vráceny iterátorem zadané kolekce.
+
+addAll(int index, Collection<? extends E> c)
+Vloží všechny prvky v zadané kolekci do tohoto seznamu počínaje zadanou pozicí.
+
+clear()
+Odebere všechny prvky z tohoto seznamu.
+
+clone()
+Vrátí mělkou kopii této instance ArrayList.
+
+contains(Object o)
+Vrátí hodnotu true, pokud tento seznam obsahuje zadaný prvek.
+
+ensureCapacity(int minCapacity)
+V případě potřeby zvýší kapacitu této instance ArrayList, aby se zajistilo, že může obsahovat alespoň počet prvků určený argumentem minimální kapacity.
+
+forEach(Consumer<? super E> action)
+Provede danou akci pro každý prvek Iterable, dokud nejsou zpracovány všechny prvky nebo akce nevyvolá výjimku.
+
+get(int index)
+Vrátí prvek na zadané pozici v tomto seznamu.
+
+indexOf(Object o)
+Vrátí index prvního výskytu zadaného prvku v tomto seznamu nebo -1, pokud tento seznam prvek neobsahuje.
+
+isEmpty()
+Vrátí hodnotu true, pokud tento seznam neobsahuje žádné prvky.
+
+iterator()
+Vrátí iterátor nad prvky v tomto seznamu ve správném pořadí.
+
+lastIndexOf(Object o)
+Vrátí index posledního výskytu zadaného prvku v tomto seznamu nebo -1, pokud tento seznam prvek neobsahuje.
+
+listIterator()
+Vrátí iterátor seznamu nad prvky v tomto seznamu (ve správném pořadí).
+
+listIterator(int index)
+Vrátí iterátor seznamu nad prvky v tomto seznamu (ve správném pořadí), počínaje zadanou pozicí v seznamu.
+
+remove(int index)
+Odebere prvek na zadané pozici v tomto seznamu.
+
+remove(Object o)
+Odebere první výskyt zadaného prvku z tohoto seznamu, pokud je přítomen.
+
+removeAll(Collection<?> c)
+Odebere z tohoto seznamu všechny jeho prvky, které jsou obsaženy v zadané kolekci.
+
+removeIf(Predicate<? super E> filter)
+Odebere všechny prvky této kolekce, které splňují daný predikát.
+
+removeRange(int fromIndex, int toIndex)
+Odebere z tohoto seznamu všechny prvky, jejichž index je mezi fromIndex, včetně, a toIndex, bez.
+
+replaceAll(UnaryOperator<E> operator)
+Nahradí každý prvek tohoto seznamu výsledkem použití operátoru na tento prvek.
+
+retainAll(Collection<?> c)
+Zachová pouze prvky v tomto seznamu, které jsou obsaženy v zadané kolekci.
+
+set(int index, E element)
+Nahradí prvek na zadané pozici v tomto seznamu zadaným prvkem.
+
+size()
+Vrátí počet prvků v tomto seznamu.
+
+sort(Comparator<? super E> c)
+Seřadí tento seznam podle pořadí vyvolaného zadaným komparátorem.
+
+spliterator()
+Vytvoří rozbočovač s pozdní vazbou a rychlým selháním nad prvky v tomto seznamu.
+
+subList(int fromIndex, int toIndex)
+Vrátí pohled na část tohoto seznamu mezi zadaným fromIndex, včetně, a toIndex, bez.
+
+toArray()
+Vrátí pole obsahující všechny prvky v tomto seznamu ve správném pořadí (od prvního po poslední prvek).
+
+toArray(T[] a)
+Vrátí pole obsahující všechny prvky v tomto seznamu ve správném pořadí (od prvního po poslední prvek); typ runtime vráceného pole je typ zadaného pole.
+
+trimToSize()
+Zkrátí kapacitu této instance ArrayList na aktuální velikost seznamu.
+
+
+Methods inherited from class java.util.AbstractList
+equals, hashCode
+
+Methods inherited from class java.util.AbstractCollection
+containsAll, toString
+
+Methods inherited from class java.lang.Object
+finalize, getClass, notify, notifyAll, wait, wait, wait
+
+Methods inherited from interface java.util.List
+containsAll, equals, hashCode
+
+Methods inherited from interface java.util.Collection
+parallelStream, stream
+
+
+
+
+
+LinkedList:
+add(E e)
+Připojí zadaný prvek na konec tohoto seznamu.
+
+add(int index, E element)
+Vloží zadaný prvek na zadané místo v tomto seznamu.
+
+addAll(Collection<? extends E> c)
+Připojí všechny prvky v zadané kolekci na konec tohoto seznamu v pořadí, v jakém je vrátí iterátor zadané kolekce.
+
+addAll(int index, Collection<? extends E> c)
+Vloží všechny prvky v zadané kolekci do tohoto seznamu počínaje zadanou pozicí.
+
+addFirst(E e)
+Vloží zadaný prvek na začátek tohoto seznamu.
+
+addLast(E e)
+Připojí zadaný prvek na konec tohoto seznamu.
+
+clear()
+Odebere všechny prvky z tohoto seznamu.
+
+clone()
+Vrátí mělkou kopii tohoto LinkedList.
+
+contains(Object o)
+Vrátí hodnotu true, pokud tento seznam obsahuje zadaný prvek.
+
+descendingIterator()
+Vrátí iterátor nad prvky v tomto deque v obráceném pořadí.
+
+element()
+Načte, ale neodstraní hlavičku (první prvek) tohoto seznamu.
+
+get(int index)
+Vrátí prvek na zadané pozici v tomto seznamu.
+
+getFirst()
+Vrátí první prvek v tomto seznamu.
+
+getLast()
+Vrátí poslední prvek v tomto seznamu.
+
+indexOf(Object o)
+Vrátí index prvního výskytu zadaného prvku v tomto seznamu nebo -1, pokud tento seznam prvek neobsahuje.
+
+lastIndexOf(Object o)
+Vrátí index posledního výskytu zadaného prvku v tomto seznamu nebo -1, pokud tento seznam prvek neobsahuje.
+
+listIterator(int index)
+Vrátí iterátor seznamu prvků v tomto seznamu (ve správném pořadí), počínaje zadanou pozicí v seznamu.
+
+offer(E e)
+Přidá zadaný prvek jako konec (poslední prvek) tohoto seznamu.
+
+offerFirst(E e)
+Vloží určený prvek na začátek tohoto seznamu.
+
+offerLast(E e)
+Vloží určený prvek na konec tohoto seznamu.
+
+peek()
+Načte, ale neodstraní hlavičku (první prvek) tohoto seznamu.
+
+peekFirst()
+Načte, ale neodstraní první prvek tohoto seznamu, nebo vrátí hodnotu null, pokud je tento seznam prázdný.
+
+peekLast()
+Načte, ale neodstraní poslední prvek tohoto seznamu, nebo vrátí hodnotu null, pokud je tento seznam prázdný.
+
+poll()
+Načte a odstraní hlavičku (první prvek) tohoto seznamu.
+
+pollFirst()
+Načte a odstraní první prvek tohoto seznamu nebo vrátí hodnotu null, pokud je tento seznam prázdný.
+
+pollLast()
+Načte a odstraní poslední prvek tohoto seznamu nebo vrátí hodnotu null, pokud je tento seznam prázdný.
+
+pop()
+Vybere prvek ze zásobníku reprezentovaného tímto seznamem.
+
+push(E e)
+Vloží prvek do zásobníku reprezentovaného tímto seznamem.
+
+remove()
+Načte a odstraní hlavičku (první prvek) tohoto seznamu.
+
+remove(int index)
+Odebere prvek na zadané pozici v tomto seznamu.
+
+remove(Object o)
+Odebere první výskyt zadaného prvku z tohoto seznamu, pokud je přítomen.
+
+removeFirst()
+Odebere a vrátí první prvek z tohoto seznamu.
+
+removeFirstOccurrence(Object o)
+Odebere první výskyt zadaného prvku v tomto seznamu (při procházení seznamu od hlavy k patě).
+
+removeLast()
+Odebere a vrátí poslední prvek z tohoto seznamu.
+
+removeLastOccurrence(Object o)
+Odebere poslední výskyt zadaného prvku v tomto seznamu (při procházení seznamu od hlavy k patě).
+
+set(int index, E element)
+Nahradí prvek na zadané pozici v tomto seznamu zadaným prvkem.
+
+size()
+Vrátí počet prvků v tomto seznamu.
+
+spliterator()
+Vytvoří rozbočovač s pozdní vazbou a rychlým selháním nad prvky v tomto seznamu.
+
+toArray()
+Vrátí pole obsahující všechny prvky v tomto seznamu ve správném pořadí (od prvního po poslední prvek).
+
+toArray(T[] a)
+Vrátí pole obsahující všechny prvky v tomto seznamu ve správném pořadí (od prvního po poslední prvek); typ runtime vráceného pole je typ zadaného pole.
+
+
+Methods inherited from class java.util.AbstractSequentialList
+iterator
+
+Methods inherited from class java.util.AbstractList
+equals, hashCode, listIterator, removeRange, subList
+
+Methods inherited from class java.util.AbstractCollection
+containsAll, isEmpty, removeAll, retainAll, toString
+
+Methods inherited from class java.lang.Object
+finalize, getClass, notify, notifyAll, wait, wait, wait
+
+Methods inherited from interface java.util.List
+containsAll, equals, hashCode, isEmpty, iterator, listIterator, removeAll, replaceAll, retainAll, sort, subList
+
+Methods inherited from interface java.util.Deque
+iterator
+
+Methods inherited from interface java.util.Collection
+parallelStream, removeIf, stream
+
+Methods inherited from interface java.lang.Iterable
+forEach

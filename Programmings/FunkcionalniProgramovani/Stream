@@ -1,0 +1,258 @@
+Streamy:
+- Třídy, které přistupují k rozhraní Stream v balíčkujava.util.stream, umožňují funkční způsob zpracování dat. 
+- Streamy umožňují snadnou kombinaci různých operací jako filtr, mapování, řazení, redukce ... 
+- Tyto operace se provádějí nad proudem objektů a umožňují efektivní zpracování velkých množství dat s 
+    minimální potřebou procházení celé kolekce nebo sekvence.
+
+- operace se deli na 3 kategorie:
+    - vytvoreni streamu (napr z pole ci kolekce)
+    - dilci operace - vraci dalsi stream
+    - konecna operace - vraci objekt jednoznacneho typu 
+
+
+Streams a collections
+- Streamy jsou určitým druhem reprezentace kolekcí, ale jsou mezi nimi určité rozdíly:
+    - Stream není datová struktura, která ukládá prvky, pouze přenáší odkazy na prvky ze zdroje
+        - Zdroj může být:
+            - datová struktura
+            - deska
+            - kolekce
+            - metoda generátoru.
+    - Operace proudu vracejí výsledek, ale nemění zdroj proudu, např. filtrování proudu získaného z kolekce vytvoří nový proud bez filtrovaných prvků 
+        a z původní kolekce se neodstraní žádný prvek.
+    - Kolekce Mají konečnou velikost, proudy nemusí mít konečnou velikost. 
+        Operace jako limit(n) nebo findFirst() umožňují dokončit výpočet v proudech v konečném čase.
+    - Položky v tocích jsou během toku navštíveny pouze jednou. 
+        Stejně jako u Iteratoru je nutné pro opětovné navštívení stejných prvků zdroje, např. kolekce, vygenerovat nový proud.
+    - Streamy jsou zpracovávány líně, to znamená, že žádná z nepřímých metod není volána, dokud není zavolán některý z terminátorů.
+
+
+
+--------------------------------------------------Vytvoreni--------------------------------------------------
+
+Způsoby, jak získat Stream
+V Javě existuje mnoho způsobů, jak získat proudy na základě vybraných kolekcí, polí a objektů:
+- metoda stream() vrací proudy pro třídy dostupné v rozhraní API kolekcí
+- metoda Arrays.stream (Object[]) umožňuje vytvářet streamy z polí
+- statická metoda Stream.of(T ... values) umožňuje vytvářet streamy na základě polí, objektů
+- statická metoda Stream.generate() umožňuje vytvořit Stream prvků na základě vstupu Supplier
+- proudy souborů lze vrátit na základě třídy Files.
+
+Následující příklad ukazuje různé způsoby vytváření streamů:
+
+String[] arr = new String[] {"a", "b", "c"};
+List<String> list = new ArrayList<>();
+
+
+Stream<String> stream = list.stream();
+Stream<String> stream = Arrays.stream(arr);
+Stream<String> = Strem.of("a", "b", "c");
+Stream<Integer> streamOfInts = Arrays.asList(1, 2, 3).stream();
+Stream<String> streamOfStrings = Set.of("one", "two", "three").stream();
+Stream<Map.Entry<String, Integer>> stream = Map.of("someKeyA", 1, "someKeyB", 2).entrySet().stream();
+IntStream arraysStream = Arrays.stream(new int[]{1, 2, 3});
+Stream<Double> ofStream = Stream.of(1.1, 2.2, 3.3);
+Stream<Integer> generateStream = Stream.generate(() -> new Random().nextInt());
+Stream<String> fileLinesStream = Files.lines(Path.of("/tmp/1.txt"));
+
+
+
+--------------------------------------------------Metody--------------------------------------------------
+
+- Operace s proudy se dělí na dva typy:
+    - Lazy vyhodnocování: 
+        - Stream provádí operace na vyžádání, což znamená, že se hodnoty zpracovávají až ve chvíli, kdy jsou potřeba. 
+        - To umožňuje optimalizaci a snižuje nutnost procházet celou kolekci nebo sekvenci najednou.
+    - Paralelní zpracování: 
+        - Streamy mohou být zpracovávány paralelně, což umožňuje efektivní využití vícejádrových systémů a urychlení operací nad velkými datovými sadami.
+
+- Většina Stream operací očekává argument, který je obvykle funkčním rozhraním, tj. může být implementován pomocí lambda výrazu.
+
+
+Lazy vyhodnocování
+- filtr() - umožňuje z proudu odstranit ty prvky, které nesplňují určitou podmínku, která je vstupním argumentem metody
+- map() - čeká na vstup od objektu Function <T, R> a převádí prvek proudu na nový prvek, který může být navíc jiného typu
+- flatMap() - pokud má každý zpracovávaný prvek prvek, ze kterého jsme schopni vytvořit nový Stream, pak výsledkem bude nový samostatný Stream
+- peek()
+- distinct() - umožňuje vytvořit proud, ve kterém jsou všechny prvky jedinečné (zbavuje duplicit)
+- sorted() - seřadí položky v proudu (pokud chci prevracene poradi ci jinou logiku, tak musim pouzit Comparator)
+- limit()
+
+Post-operace jsou operace, které vracejí konečný výsledek. Jejich volání způsobí, že se provedou všechny předchozí mezilehlé funkce.
+- toMap() - vytvori mapu
+- toSet() - vytvori Set 
+- toAveragingDouble() - spocita prumer
+- toSumingDouble() - spocita prumer a nekolik dalsich moznosti
+- toList() - vytvori list
+- toArray() - vytvori pole
+- collect() - umožňuje shromažďovat položky proudu do určitého cíle (musíme použít rozhraní Collectors obsahující statické metody 
+    hromadící prvky streamu do struktury např. seznamu nebo množiny)
+- count()
+- reduce() - vyžaduje dva argumenty pomocí BiFunction <T, U, R> (počáteční hodnota a transformační metoda - informace o tom, 
+    jak změnit aktuální výsledek s další zpracovávanou položkou) a umožňuje získat jediný výsledek ze všech prvků proudu
+- forEach() - funkční verzi cyklu for. Volá libovolnou operaci implementovanou pomocí funkčního rozhraní Consumer na každém prvku proudu
+- forEachOrdered()
+- min()
+- max()
+- anyMatch() - chceme-li zjistit, jestli dany stream odpovida dane vyhledavaci podmince - plati alespon 1 podminka
+- allMatch() - chceme-li zjistit, jestli dany stream odpovida dane vyhledavaci podmince - podminka plati pokazde
+- noneMatch() - chceme-li zjistit, jestli dany stream odpovida dane vyhledavaci podmince - podminka nikdy neplati 
+- findAny() - vrací jeden prvek streamu (jako objekt zabalený do Optional), ale nevíme který, pokud je v něm více prvků
+- findFirst() - dokončí zpracování streamu a načte první dostupnou položku, kde návratový typ je volitelný, protože lze metodu volat na prázdném streamu
+- groupingBy() - Očekává Function, která se stane vlastností nějakého proudu a výsledkem je mapa, jejíž klíče jsou hodnoty výše uvedené vlastnosti a 
+    hodnota je seznam prvků, které tuto vlastnost splňují. 
+
+--------------------------------------------------Pouziti metod--------------------------------------------------
+
+public class Person {
+    private String name;
+    private int age;
+    private Gender gender;
+
+    Person(String name, Gender gender) {
+        this.name = name;
+        this.gender = gender;
+
+    gettery/settery ...
+}
+
+---------------------------------    
+    
+public enum Gender {
+    MALE, FEMALE, PREFER_NOT_TO_SAY
+}
+
+---------------------------------
+
+Public class Main {
+
+    public static void manin(String[] args) {
+
+-------------------filter(), collect(), forEach()-------------------
+        List<Person> females = people.stream()
+            .filter(person -> person.getGender().equals(Gender.FEMALE))
+            .collect(Collectors.toList());
+        
+        females.forEach(System.out::println)                // vsechny zeny z listu Person ulozi do kolekce feamels a tu vypise
+
+
+-------------------sorted(), collect(), forEach()-------------------
+        List<Person> sorted = people.stream()
+            .sorted(Comparator.comparing(Person::getAge))   // .reversed() - prohodi poradi
+            .collect(Collectors.toList());
+        
+        sorted.forEach(System.out::println)                 // vytvori kolekci sorted z Listu Person, seradi dle veku a vypise
+
+        
+-------------------allMatch()-------------------
+        boolean allMatch = people.stream()
+            .allMatch(person -> person.getAge() > 8)  
+        
+        System.out.println(allMatch)                        // false
+
+
+-------------------anyMatch()-------------------
+        boolean allMatch = people.stream()
+            .anyMatch(person -> person.getAge() > 8)        // dam-li 121, tak bude false
+        
+        System.out.println(anyMatch)                        // true
+
+
+-------------------noneMatch()-------------------
+        boolean noneMatch = people.stream()
+            .noneMatch(person -> person.getName().equals("Antonio"));  // dam-li James Bond, bude false
+        
+        System.out.println(noneMatch)                        // true
+
+
+-------------------max(), ifPresent()-------------------
+        Optional<Person> max = people.stream()
+            .max(Comparator.comparing(Person::getAge)) 
+            .ifPresent(System.out::println);
+        
+        System.out.println(max)                             //vypise Zeldu, protoze ma 121
+
+
+-------------------min(), ifPresent()-------------------
+        Optional<Person> max = people.stream()
+            .min(Comparator.comparing(Person::getAge)) 
+            .ifPresent(System.out::println);
+        
+        System.out.println(max)                             //vypise Annu, protoze ma 7
+
+
+-------------------groupingBy(), collect(), forEach()-------------------
+        Map<Gender, List<Person>> groupByGender = people.stream()
+            .collect(Collectors.groupingBy(Person::getGender)) 
+ 
+        groupByGender.forEach((gender, people1) -> {
+            System.out.println(gender);
+            people1.forEach(System.out::println);
+            System.out.println();
+        });                                                 // vytvori 2 kolekce pro MALE a FEMALE, nahaze do nich objekty a vypise       
+
+
+-------------------map(), mapToInt(), forEach()-------------------
+        people.stream()
+            .map(person -> person.name);
+            .mapToInt(String::length);
+            .forEach(System.out::println);                          // vypise delku Stringu u vsech polozek
+
+
+        //
+        Predicate<Person> personPredicate = person -> FEMALE.equals(person.gender);
+        boolean containsOnlyFemales = people.stream()
+            .allMatch(person -> FEMALE.equals(person.gender));
+        
+        System.out.printl(containsOnlyFemales);                     // false, protoze se v listu nachazi take MALE
+
+
+        //
+        boolean containsOnlyFemales = people.stream().allMatch(person -> FEMALE.equals(person.gender));   
+        System.out.printl(containsOnlyFemales);
+
+
+-------------------retezeni-------------------
+        Optional<String> oldestFemaleAge = people.stream()
+            .filter(person -> person.getGender().equals(Gender.FEMALE))
+            .max(Comparator.comparing(Person::getAge))
+            .map(Person::getName);
+        oldestFemaleAge.ifPresent(name -> System.out::println);     // vypise pouze jmeno nejstarsi osoby
+
+    }
+
+    private static List<Person> getPeople() {
+        return List.of(
+            new Person("James Bond", 20, Gender.MALE),
+            new Person("Alina Smith", 33, Gender.FEMALE),
+            new Person("Helen White", 57, Gender.FEMALE),
+            new Person("Alex Boz", 14, Gender.MALE),
+            new Person("Jamie Goa", 99, Gender.MALE),
+            new Person("Anna Cook", 7, Gender.FEMALE),
+            new Person("Zelda Brown", 120, Gender.FEMALE)
+        );
+    }
+} 
+
+
+
+
+-----------------------------Parallel Stream-----------------------------
+
+- pro plne vyuziti vykonu jader v procesoru je nutne navrhnout algoritmus tak, aby sel paralelizovat 
+- Speciální stream můžeme vytvořit například pomocí:
+    - volání metody parallelStream () na kolekci
+    - volání statické metody StreamSupport.stream () s uvedením true pro paralelní argument
+    - volání paralelního () na existující stream.
+
+
+Následující příklad ukazuje proud, který paralelně zpracovává prvky:
+
+final List<String> result = Arrays.asList("Alice has a cat named Catson".split(" ")).parallelStream()
+    .sorted()
+    .map(String::toUpperCase)
+    .collect(Collectors.toList());
+
+POZNÁMKA: Není žádný rozdíl mezi paralelním zpracováním proudu a jeho sekvenční formou, není žádný rozdíl na úrovni volání mezilehlé a ukončovací metody.
+POZNÁMKA: Pomocí metody sequential() můžete „přecházet“ z paralelního proudu na sekvenční proud.
+

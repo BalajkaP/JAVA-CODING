@@ -1,0 +1,119 @@
+Combinator Pattern:
+- návrhový vzor, který se používá k validaci a kompozici různých pravidel a podmínek
+- technika, která umožňuje skládat a kombinovat jednoduché pravidla do složitějších validačních logik
+
+- Hlavním cílem je umožnit snadnou kompozici různých podmínek nebo validátorů, které mohou být aplikovány na různé objekty nebo datové struktury.
+
+- Základními stavebními kameny Combinator Pattern jsou funkcionální rozhraní s jednou metodou, 
+    které přijímají vstupní objekt a vracejí boolean hodnotu, která vyjadřuje, zda je podmínka splněna nebo ne. 
+
+- Tyto funkcionální rozhraní jsou někdy nazývány jako validátory.
+
+--------------------------------------------------------------------
+
+public class Customer {
+
+    private final String NAME;
+    private final String EMAIL;
+    private final String PHONE_NUMBER;
+    private final LocalDate dob;
+
+    public Customer(String NAME, String EMAIL, String PHONE_NUMBER, LocalDate dob) {
+        this.NAME = NAME;
+        this.EMAIL = EMAIL;
+        this.PHONE_NUMBER = PHONE_NUMBER;
+        this.dob = dob;
+    }
+    public String getName() {
+        return NAME;
+    }
+
+    public String getEmail() {
+        return EMAIL;
+    }
+
+    ....
+}
+
+----------------Normal validator----------------
+
+public class CustomerValidatorService {
+
+    private boolean isEmailValid(String EMAIL) {
+        return EMAIL.contains("@");
+    }
+
+    private boolean isPhoneNumberValid(String PHONE_NUMBER) {
+        return PHONE_NUMBER.startsWith("+0");
+    }
+
+    private boolean isAdult(LocalDate dob) {
+        return Period.between(dob, LocalDate.now()).getYears() > 16;
+    }
+
+    public boolean isValid(Customer customer) {
+        return isValid(customer.getEmail()) && isPhoneNumberValid(customer.getPhoneNumber()) && isAdult(customer.getDob());
+    }
+}
+
+----------------Combinator pattern validator----------------
+
+public interface CustomerRegistrationValidator extends Function<Customer, ValidationResult> {
+
+    static CustomerRegistrationValidator isEmailValid() {
+        return customer -> customer.getEmail().contains("@") ? ValidationResult.SUCCES : ValidationResult.EMAIL_NOT_VALID;
+    }
+
+    static CustomerRegistrationValidator is PhoneNumberValid() {
+        return customer -> customer.getPhoneNumber().startsWith("+0") ? ValidationResult.SUCCES : ValidationResult.PHONE_NUMBER_NOT_VALID;
+    }
+
+    static CustomerRegistrationValidator isAdult() {
+        return customer -> Period.between(customer.getDob(), LocalDate.now()).getYears() > 16 ? ValidationResult.SUCCES : ValidationResult.IS_NOT_AN_ADULT;
+    }
+
+    default CustomerRegistrationValidator and(CustomerRegistrationValidator other) {
+        return customer -> {
+            ValidationResult result = this.apply(customer);
+            return result.equals(ValidationResult.SUCCES) ? other.apply(customer) : result;
+        };
+    }
+}
+
+-----------------------------
+
+public class Main {
+    public static void main (String[] args) {
+
+        Customer customer = new Customer(
+            "Alice",
+            "alice@gmail.com",
+            "+0898787879878",
+            LocalDate.of(2000, 1, 1)
+        );
+
+        // 1 
+        System.out.println(new CustomerValidatorService().isValid(customer));
+
+        // 2 Combinator Pattern
+        Validation result apply = isEmailValid()
+            .and(isPhoneNumberValid())
+            .and(isAdult())
+            .apply(customer);
+
+        System.out.println(apply);
+
+        if(apply != ValidationResult.SUCCES) {
+            throw new IllegalStateException(apply.name());
+        }
+    }
+}
+
+-----------------------------
+
+enum ValidationResult {
+    SUCCES;
+    PHONE_NUMBER;
+    EMAIL_NOT_VALID;
+    IS_NOT_AN_ADULT;
+}

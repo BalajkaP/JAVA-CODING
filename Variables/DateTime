@@ -1,0 +1,92 @@
+----------------LocalDate---------------- 
+
+- pro vytvoreni bud konstruktor nebo now() a of() 
+
+LocalDate today = LocalDate.now();
+LocalDate may24th2020 = LocalDate.of(2020, 5, 24);
+
+-Prevod data na text a zpet-
+- muze se hodit vytvoreni instance LocalDate z textoveho zapisu data, coz zaridi metoda parse() (potreba dodrzet format YYYY-MM-DD)
+
+LocalDate may24th2020no2 = LocalDate.parse("2020-05-24");
+
+-naopak do textove podoby muzeme datum prevest metodou format, ktera jako parametr dostane instanci tridy DateTimeFormater
+
+System.out.println("may24th2020.format(DateTimeFormatter.ofPattern("YYYY-MM-dd")));
+
+- pozor na dodrzeni formatu - d (den v mesici) znamena neco jineho nez D (den v roce)
+
+
+Metody:
+date1.isBefore(date2);              
+date1.isAfter(date2);               
+date.getYear();                     
+date.getMonth();                    
+date.getDayOfMonth();               
+date.lengthOfMonth();               
+date.minusDays(number);             
+date.getDayOfYear();                
+date.getDayOfWeek();               
+
+today.isBefore(may24th2020);            // false
+today.isAfter(may24th2020);             // true
+may24th2020.getYear();                  // 2020
+may24th2020.lengthOfMonth();            // 31
+may24th2020.getMonth();                 // 5
+
+
+
+----------------LocalDateTime---------------- 
+
+- chci v jednom objektu uchovat datum i cas
+
+LocalDateTime now = LocalDateTime.now();
+LocalDateTime may24th2020noon = LocalDate.of(2020, 5, 24, 12, 00);
+
+
+
+----------------LocalDateTime---------------- 
+
+- čas bez časového pásma a data (ISO-8601)
+
+Metody:
+
+now()
+- současný čas ve formátu HH:mm:ss.mmm
+Local time = LocalTime.now();
+
+withHour(), withMinute(), withSecond(), withNano(),
+LocalTime time = LocalTime.withSecond(10);
+
+plusNano(), plusSeconds(), plusMuinutes(), plusHours(), minusNano(), minusSeconds(), minusMuinutes(), minusHours()
+now.plusMinutes(10).plusHours(1);
+
+getHour(), getMinutes(), getSecond()
+String x = now.getHour() + ":" + now.getMinute() + ":" now.getSecond()
+
+
+
+
+----------------Instant---------------- 
+
+- specifikuje bod v case s presnosti na sekundy
+
+LocalDateTime a = LocalDateTime.ofInstant(Instant, ZoneId.systemDefault());
+System.out.println(a);                  // 2020-04-19T18:33:29.116691800
+
+LocalTime b = LocalTime.ofInstant(Instant, ZoneId.of("CET));
+System.out.println(b);                  // 18:33:29.116691800
+
+LocalDate c = LocalDate.ofInstant(Instant, ZoneIdOffSet("UTC", ZoneOffSet.ofHours(2));
+System.out.println(c);                  // 2020-04-19
+
+
+
+- tridy reprezentujici intervaly (cas mezi A a B)
+
+java.time.Duration (v sekundach, hodinach, ...)
+java.time.Period (mesic, rok, vek, tisicileti, ...)
+
+System.out.println(Duration.ofHours(10).toMinutes());                                                               // 10 hod v minutach - 600
+System.out.println(Duration.between(LocalDateTime.now(), LocalDateTime.now().plusDays(2)).toMinutes());             // 2880
+System.out.println(Period.between(LocalDate.now(), LocalDate.now().plusDays(100)).getMonths());                     // 3

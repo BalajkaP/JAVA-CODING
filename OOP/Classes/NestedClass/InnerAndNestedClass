@@ -1,0 +1,301 @@
+
+- vnitrni a vnejsi trida mohou existovat nezavisle na sobe (napr. SIM / telefon) - static
+- vnitrni a vnejsi trida nemuze existovat nezavisle na sobe - nestatic
+
+- vnitrni muze byt i Enum
+
+
+- Vnorena trida je static
+	- z objektu vnitrni tridy nemuzu pouzivat objekty tridy vnejsi
+	- nepotrebuji vytvaret spojeni mezi objekty vnitrni a vnejsi tridy
+	- nepotrebuji vnejsi objekt k tomu, abych byl schopen vytvorit objekt staticke vnitrni tridy
+	- tyto tridy mohou obsahovat staticka data i datove cleny vnitrni tridy
+
+
+- Vnitrni trida neni static
+ 	- slouzi jako potomek jine tridy, nebo implementuje rozhrani
+ 	- umoznuje skladat tridy patrici do 1 celku a ridit viditelnost uvnitr vlastnickych trid
+ 	- vnitrni tridu nelze prekryt
+ 	- lze odvozovat nove tridy od vnitrnich trid
+ 	- kazda vnitrni trida muze byt odvozena od implementace
+ 	- kod vnitrnich metod manipuluje s objektem vnejsi tridy
+ 	- ma neomezena pristupova prava k promennym a metodam vnejsi tridy, ale k jejim promennym a metodam nemaji pristup vnejsi tridy
+
+
+	public class Outer {
+
+    	static class NestedStatic {
+   	     	// class body
+    	}
+
+  	  	class Inner {
+	        // class body
+    	}
+	}
+
+
+ -------------------------------------Identifikatory vnitrni tridy-------------------------------------
+
+- kazda trida i vnitrni vytvari svuj soubor .class
+- nazvy: nazevObklopujiciTridy $ nazevVnitrniTridy (pr. InheritInner.class, WithInner $ Inner.class, WithInner.class)
+- jsou-li vnitrni tridy anonymni, misto nazvu ciselny Identifikatory
+- je-li vnitrni trida vnorena uvnitr jine vnitrni tridy je nazev kazde dalsi vnorene tridy pridan za nazev sve obklopujici tridy a symbol $
+
+
+ -------------------------------------Dedeni od vnitrnich trid-------------------------------------
+
+	public class OuterClass {
+
+  		private static int outerClassStaticField;
+  		private int outerClassField;
+
+		void outerClassMethod() {
+    		System.out.println("Metoda vnejsi tridy");
+  		}
+
+		protected static void outerClassStaticMethod() {
+			System.out.println("Static metoda vnejsi tridy");
+		}
+
+		// nestaticke vnitrni tridy mohou pouzivat promenne a metody private, static ... (vsechny)
+		public class InnerClass {
+    		void useOuterClassField() {
+      			System.out.println(outerClassStaticField); 		// static
+      			outerClassMethod();                        		// nestatic
+      			System.out.println(outerClassField);       		// nestatic
+    		}
+  		}
+
+		// static vnitrni tridy mohou pouzivat promenne a metody pouze static
+		static class InnerStaticClass {
+    		void useOuterClassField() {
+      			System.out.println(outerClassStaticField); 		// static
+      			outerClassStaticMethod();                       // static
+      			System.out.println(outerClassField);       		// nestatic - nelze
+				outerClassMethod();								// nestatic - nelze
+    		}
+  		}
+	}
+
+----------
+
+	public class DedeniInnerClass extends OuterClass.InnerClass {
+
+		DedeniInnerClass(DedeniInnerClass dic) {
+			// v konstruktoru odkaz na vnejsi tridu pres super
+			dic.super();
+		}
+
+		public static void main (String[] args) {
+			OuterClass dic = new OuterClass;
+			DedeniInnerClass y = new DedeniInnerClass(x);
+		}
+
+	}
+
+
+-------------------------------------Vytvoření instance vnitřních tříd-------------------------------------
+
+V dalších příkladech budeme vycházet z následujících tříd:
+
+	public class OuterClass {
+
+  		class InnerClass {
+  		}
+
+  		static class InnerStaticClass {
+  		}
+
+	}
+
+Chceme-li vytvořit instanci vnitřní nestatické třídy, musíme nejprve vytvořit instanci vnější třídy:
+
+	OuterClass outerClass = new OuterClass();
+	final OuterClass.InnerClass innerClass = outerClass.new InnerClass();
+
+
+Chceme-li vytvořit instanci vnitřní statické třídy, musíme k vnitřní třídě přistupovat pomocí:
+
+	OuterClass.InnerStaticClass innerStaticClass = new OuterClass.InnerStaticClass();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-------------------------------------Efekt dedeni ve vice implementacich-------------------------------------
+
+- vnitrni trida se muze vyskytovat ve vice instancich a kazda ma vlastni stanove informace nezavisle na informacich vlozenych ve vnejsim objektu
+- 1 vnejsi trida muze obsahovat nekolik vnitrnich
+- ty jsou odvozeny od stejneho rozhrani, nebo prebiraji charakteristiku stejne tridy, ale implementuji ji ruzne
+- vytvoreni objektu (new) vnitrni tridy neni vazano na vytvoreni objektu vnejsi tridy
+
+	public class C {}
+
+	abstract class D {}
+
+	public class Z extends C {
+		D vytvoriD() {
+			return new D() { };
+		}
+	}
+
+	public class MultiImplementation {
+
+		static void pouzijeC(C c) {}
+		static void pouzijeD(D d) {}
+
+		public static void main(String [] args) {
+			Z z = new Z();
+			pouzijeC(z);
+			pouzijeD(z.vytvoriD());
+		}
+	}
+
+
+-------------------------------------Vnitrni tridy implementujici rozhrani-------------------------------------
+
+- metoda implementujici rozhrani musi byt pristupna z vnejsku
+
+	public class Usecka {
+	
+		int delka;
+
+		Usecka(int delka) {
+			this delka = delka;
+		}
+
+		public Info informace() {
+			return new UseckaInfo();
+		}
+
+		public class UseckaInfo implements Info {
+			public void kdoJsem() {
+				System.out.println("Usecka " +delka);
+			}
+		}
+
+	}
+
+	public interface Info {
+		void kdoJsem();
+	}
+
+	public class Test {
+
+	public static void main (String [] args) {
+		Usecka u = new Usecka(5);
+		Info i = u.informace();
+		i.kdoJsem();
+	}
+
+
+-------------------------------------2 rozhrani, ktere je treba implementovat uvnitr 1 tridy-------------------------------------
+
+--------moznost s 2 tridami--------
+
+interface A {}
+
+interface B {}
+
+public class X implements A,B {}
+
+public class Y implements A {
+	B vytvoriB() {
+		//anonymni vnitrni trida
+		return new B() {}
+	}
+}
+
+--------moznost s 1 tridou--------
+
+public class MultiInterface {
+	static void pouzijeA(A a) {}
+	static void pouzijeB(B b) {}
+
+	public static void main (String [] args) {
+		X x = new X();
+		Y y = new Y();
+		pouzijeA(x);
+		pouzijeA(y);
+		pouzijeB(x);
+		pouzijeB(y.vytvoriB());
+	}
+}
+
+
+-------------------------------------Vnitrni trida je vytvorena dedenim-------------------------------------
+
+- pro zajisteni vicenasobne dedicnosti
+- napr. z 5ti hotovych metod chci ve vnitrni tride menit pouze 1 a nechci zbyvajici 4 zastinovat, coz by bylo potreba pri implementaci rozhrani
+
+	public class OuterClass {
+
+		int number = 6;
+		public void heyThere() {
+			System.out.println("Hey there");
+		}
+
+		public class InnerClass {
+			int InnerNumber = 8;
+			public void whatsUp() {
+				System.out.println("Whats up from the InnerClass");
+			}
+		}
+
+		public static inner class StaticInnerClass {
+			int staticInnerNumber = 10;
+			public void test() {
+				System.out.println("test");			
+			}
+		}
+	}
+
+	public class Main {
+		public static void main (String [] args) {
+			OuterClass outer = new OuterClass();
+			outer.heyThere();
+			OuterClass.InnerClass inner = outer.new InnerClass();
+			inner.whatsUp();
+
+			OuterClass.StaticInnerClass staticInner = new OuterClass.StaticInnerClass();
+			StaticInner.test();
+		}
+	}
+	
+
+-------------------------------------Vnitrni trida vytvorena uvnitr metody-------------------------------------
+
+- temer se nevyuziva
+
+	public class OuterClass {
+		int number = 6;
+		public void innerClassInMethod() {
+			System.out.println("Vnitrni trida uvnitr metody");
+
+			public class LocalInnerclass {
+				String localInnerclassVariable = "Hello"
+				public void printLocalInnerClassVariable() {
+					System.out.println(localInnerclassVariable);
+				}
+			}
+		}
+		LocalInnerclass lic = new LocalInnerclass();
+		lic.printLocalInnerClassVariable();
+	}
+	....
+

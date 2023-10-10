@@ -1,0 +1,643 @@
+Java poskytuje mnoho mechanismů pro zpracování vstupních/výstupních operací. Jsou to mimo jiné streamy a pokročilé mechanismy serializace:
+- streamování je zajištěno třídami Java IO, které jsou obsaženy v balíčku java.io,
+- mechanismy ukládání do mezipaměti jsou implementovány komponentami Java NIO v balíčku java.nio.
+
+
+----------------------Proudy a vyrovnávací paměti----------------------
+
+Java IO je orientována na zpracování streamů, které se skládá z:
+- přečte se určitý počet bajtů (jeden nebo více).
+- data se nikde neukládají do mezipaměti
+- programátor, využívající data ze streamu, se na něm nemůže "pohybovat", tj. není možné přečtená data přečíst
+
+Java NIO je zaměřena na ukládání do mezipaměti, což znamená, že:
+- data se nejprve načtou do vyrovnávací paměti určité velikosti
+- poté jsou dány k dispozici programátorovi, který se může "pohybovat" po vyrovnávací paměti
+
+
+----------------------Uzavirani zdroju (Closeables)----------------------
+
+- Garbage Collector nezvlada vse a pri praci se zdroji je nejrpve potreba uvolnit zdroje a az pak muze Garbage Collector uvolnit pamet
+
+Pri praci se zdroji treba si dat pozor na tyto bezne chyby:
+- zdroje I/O nejsou uvolnovany vubec
+- zdroje nejsou uvolneny pri chybe
+- neni pouzit blok try-with-resources tehdy, kdyz je to mozne
+- nastane vyjimka, ale zdroje nejsou uvolneny ve finally bloku
+- nejjednodussi zpusob jak alokovat I/O zdroje je try-with-recources
+- vsechny zdroje, ktere je treba uvolnovat, implementuji interface java.io.Closeable s metodou java close(), jejiz zavolani uvolni zdroje
+- v novych verzich existuje take java.lang.AutoCloseable, ktere zajisti pri vhodnem pouziti automaticke a bezpecne uvolneni zdroju v pripade, 
+    ze je definovan pomoci try-with-recources
+
+moznosti vyuziti AutoCloseable spolu s try-with-recources
+
+    File file = new File("input.txt");
+    try (/*definice zdroju*/) {
+        // prace se zdroji
+    } catch (IOException e) {
+        // osetreni yjimky
+    }
+
+- nemame zde zadny finally blok a ani zadne volani metody close(), protoze zdroje definujeme jako parametry try bloku, 
+a proto dojde k jejich automatickemu uvolneni 
+
+
+----------------------Blokování vláken----------------------
+Použití Java IO streamů způsobí zablokování právě běžícího vlákna, tj. pomocí metod read () nebo write () z tříd z balíku java.io 
+zablokujeme další provádění programu. Vlákno, na kterém byla taková metoda provedena, bude čekat, dokud nebudou připravena čtená data 
+nebo data pro zápis, která nejsou plně zapsána.
+
+Neblokující režim Java NIO umožňuje vláknu požádat o čtení dat z kanálu a získat pouze to, co je aktuálně dostupné, nebo vůbec, 
+pokud nejsou aktuálně dostupná žádná data. Místo toho, aby zůstalo blokováno, dokud nebudou data čitelná, může vlákno pokračovat 
+v práci s něčím jiným. Stejný mechanismus se používá pro záznam dat. Vlákno v Java NIO nyní může spravovat více kanálů pro čtení a zápis.
+
+
+----------------------Typy zdroju----------------------
+
+- Binarni
+- Znakove
+- Textove s jednoduchou strukturou
+- Textove s vnitrni hierarchii (JSON, XML ...)
+- Binarni soubory jednodcuhe (rekomprimovana media, spustitelne programy)
+- Binarni soubory s kompletni vnitrni strukturou (zip, doc, video ...)
+- Soubory ve filesystemu
+- Konzole
+- Sitova komunikace
+- Databaze
+
+
+--------------------------------------------I/O Streams--------------------------------------------
+
+- binarni - zpracovani binarnich dat
+    - všechny třídy jsou odvozeny od tříd InputStream a OutputStream
+    - pro cteni a zapis souboru
+        - java.io.FileInputStream
+        - java.io.FileOutputStream
+    - pro cteni po byte pouzijeme metodu int read()
+    - potreba pocitat i s hodnotou -1 v pripade, ze uz ve streamu dalsi data nejsou
+
+- znakove - zpracovani znakovych dat, vcetne automaticke konverze znakovych skladajici
+    - dnes naprosta vetsina kodovani pomoci UTF-8, coz je koncept kombinujici usporu mista s moznosti zapsat libovolne exoticke znaky Unicode
+    - všechny třídy znakového proudu jsou odvozeny od tříd Reader a Writer
+    - pro cteni a zapis souboru
+        - java.io.FileReader
+        - java.io.FileWriter
+    - dalsi znak ziskam zavolanim metody int read()    
+    - metoda vrati -1 nebo znak reprezentovany 1-4 bajty v zavislosti na znakove sade 
+
+- buffered - vyuziti vyrovnavaci pameti pro lepsi vyuziti HW
+    - cteni I/O po blocich
+    - v pripade souboru prirozeny oddelovac konec radku
+    - pro cteni a zapis souboru
+        - java.io.BufferedReader 
+        - java.io.BufferedWriter
+    - BufferedReader ma metodu String readLine() vracejici cely radek (bez znaku konce radku)
+    - pro zapis muzeme pouzit BufferedWriter a metodu write(String text)
+    - pro pridani konce radku metoda newLine()
+
+- data - tridy pro zpracovani primitivnich datovych typu
+    - podporuji I/O primitivnich datovych typu a Stringu
+    - implementuji bud interface DataInput nebo DataOutput
+    - nejpouzivanejsi implementace DataInputStream a DataOutputStream
+    - pro cteni a zapis souboru
+        - double
+            - java DataOutputStream.writeDouble();
+            - java DataInputStream.readDouble();
+        - int
+            - java DataOutputStream.writeInt();
+            - java DataInputStream.readInt();
+        - String
+            - java DataOutputStream.writeUTF();
+            - java DataInputStream.readUTF();
+    - metoda writeUTF() slouzi pro zapis znaku v UTF-8, ktera je optimalizovana pro zapis znaku v zapadnich abecedach,
+        a ktera dovede zapsat usporne na 1 bajt
+
+- objektove - zpracovani objektu pomoci streamu
+    - podporuji vstupne-vystupni operace objektu
+    - tridy, ktere podporuji tuto serializaci jdou poznat dle toho, ze implementuji interface Serializable
+    - tridy pro praci s objektovymi streamy ObjectInputStream a ObjectOutputStream
+    - tyto tridy implementuji interface ObjectInput a ObjectOutput 
+    - tyto rozhrani rozsiruji nam jiz zname DataInput a DataOutput, coz znamena, ze objektove streamy nabizi krom metod pro praci s objekty 
+        i vsechny metody pro praci s primitivnimi datovymi typy, ktere mely datove streamy
+    - zajimavou schopnosti objektovych streamu je take to, ze zvladaji praci i se zanorenymi objekty
+
+
+--------------------------------Binarni streamy--------------------------------
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+public class FileStreamExample {
+
+    public static void main(String [] args) throws IOException {
+        
+        try(
+            FileInputStream in = new FileInputStream("inputFile.txt");
+            FileOutputStream out = new FileOutputStream("outputFile.txt");
+        ) {
+            // tohle musi byt int a ne byte, protoze muze byt -1 nebo 0-255, byte je pouze -128 az 127
+            int c;
+            while ((c = in.read())!= -1) {
+                out.write(c);
+            }
+        }
+    }
+}    
+
+----------------------------------
+
+Použití proudů ke kopírování obsahu následujícího souboru do jiného souboru.
+
+Name: John
+Age: 34
+Email: john@oracle.com
+Phone: 1234567890
+
+
+public class ByteStream {
+
+    public static void main(String[] args) throws IOException {
+
+        FileInputStream in = null;
+        FileOutputStream out = null;
+
+        try {
+            in = new FileInputStream("user.txt");
+            out = new FileOutputStream("user_output.txt");
+            int c;
+
+            while ((c = in.read()) != -1) {
+                out.write(c);
+            }
+        } finally {
+            if (in != null) {
+                in.close();
+            }
+            if (out != null) {
+                out.close();
+            }
+        }
+    }
+}
+
+
+
+--------------------------------Znakove streamy--------------------------------
+
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class FileStreamExample {
+
+    public static void main(String [] args) throws IOException {
+        
+        try (
+            FileReader inputStream = new FileReader("inputFile.txt");
+            FileWriter outputStream = new FileWriter("outputFile.txt");
+        ) {
+            int c;
+            while ((c = inputStream.read())!= -1) {
+                outputStream.write(c);
+            }    
+        }
+    }
+}
+
+-------------------------
+
+public class CharacterStream {
+
+    public static void main(String[] args) throws IOException {
+
+        FileReader in = null;
+        FileWriter out = null;
+
+        try {
+            in = new FileReader("user.txt");
+            out = new FileWriter("user_output.txt");
+
+            int c;
+            int nextChar;
+            while ((nextChar = in.read()) != -1) {
+                out.append((char) nextChar);
+            }
+        } finally {
+            if (in != null) {
+                in.close();
+            }
+            if (out != null) {
+                out.close();
+            }
+        }
+    }
+}
+
+
+
+--------------------------------Buffered Streamy--------------------------------
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class Main {
+
+    public static void main(String [] args) {
+
+        try(
+            BufferedReader inputStream = new BufferedReader(new FileReader("inputFile.txt"));
+            BufferedWriter outputStream = new BufferedWriter(new FileWriter("outputFile.txt"));
+        ) {
+            String line;
+            while ((line = inputStream.readLine())!= null) {
+                outputStream.write(line);
+                outputStream.newLine();
+            }    
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }    
+}
+
+-------------------------
+
+import java.io.BufferedReader;
+import java.io.PrintWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class Main {
+
+    public static void main(String [] args) {
+
+        try(
+            BufferedReader inputStream = new BufferedReader(new FileReader("inputFile.txt"));
+            PrintWriter outputStream = new PrintWriter(new FileWriter("outputFile.txt"));
+        ) {
+            String line;
+            while ((line = inputStream.readLine())!= null) {
+                outputStream.print(line);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+--------------------------------Data Streamy--------------------------------
+
+static final String DATAFILE = "productData";
+static final double [] PRICES = {25.90, 23.90, 28.90, 12.90};
+static final int [] UNITS = {28, 14, 36, 4};
+static final String [] DECS = {"Apple juice", "Carrot juice", "Orange juice", "Tomato juice"};
+
+out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(DATAFILE)));
+
+for (int i = 0; i < PRICES.length; i++) {
+    out.writedouble(PRICES[i]);
+    out.writeInt(UNITS[i]);
+    out.writeUTF(DECS[i]);
+}
+
+int = new DataInputStream(new BufferedInputStream(new FileInputStream(DATAFILE)));
+
+double PRICE;
+int UNITS;
+String DECS;
+double total 0.0;
+
+try {
+    while (true) {
+        PRICE =
+        UNITS =
+        DECS =
+        System.out.println("Mame na sklade " + UNITS + "kusu " + DECS + "za " + PRICES + " Kc/ks");
+        total += UNITS * PRICE;
+    }
+} catch (EOException e) {
+
+}
+
+- na rozdil od predchozich zpusobu nacitani dat, data streamy neindikuji konec souboru navratem nevalidni hodnoty, ale vyhodi vyjimku EOException
+- pro kazdou metodu pro zapis existuje korespondujici metoda pro cteni
+- inputStream jsou pouze jednoducha binarni data a nejde z nich poznat, jakeho datoveho typu jednotlive hodnoty jsou
+
+
+
+--------------------------------Objektove Streamy--------------------------------
+
+
+chci zapsat instanci tridy zak, ktera by mohla vypadat nejak takto:
+
+public class Student implements Serializable {
+    private String name;
+    private String surname;
+    private Address address;
+}
+
+- objektovy stream dovede zapsat/nacist nejen studenta, ale i jeho adresu, ktera je opet objekt 
+
+
+
+
+--------------------------------Ukládání dat do mezipaměti--------------------------------
+
+Třídy založené na InputStream a OutputStream používají vstup/výstup bez vyrovnávací paměti. 
+To znamená, že jakýkoli požadavek na čtení nebo zápis je zpracován přímo základním operačním systémem. 
+To může snížit efektivitu programu, protože každý takový požadavek často umožňuje přístup na disk, síťovou aktivitu nebo jinou nákladnou operaci.
+
+Aby se snížila tato režie, platforma Java implementuje I/O streamy s vyrovnávací pamětí. 
+Vstupní toky s vyrovnávací pamětí čtou data z oblasti paměti známé jako vyrovnávací paměť.
+
+Program dokáže převést stream bez vyrovnávací paměti na stream s vyrovnávací pamětí pomocí tříd jako: 
+BufferedReader,BufferedWriter, které umožňují ukládání znakových proudů do mezipaměti. 
+Třídy jako BufferedInputStream a BufferedOutputStream mohou streamovat bajty.
+
+
+public class BufferedStream {
+    public static void main(String[] args) throws IOException {
+
+        BufferedReader in = null;
+        BufferedWriter out = null;
+
+        try {
+            in = new BufferedReader(new FileReader("user.txt"));
+            out = new BufferedWriter(new FileWriter("user_output.txt"));
+
+            String line;
+            while ((line = in.readLine()) != null) {
+                out.write(line);
+            }
+        } finally {
+            if (in != null) {
+                in.close();
+            }
+            if (out != null) {
+                out.close();
+            }
+        }
+    }
+}
+
+
+
+
+--------------------------------Buffers--------------------------------
+
+Vyrovnávací paměť je datový kontejner specifického primitivního typu. Vyrovnávací paměť je lineární, konečná posloupnost prvků určitého primitivního typu. 
+Kromě obsahu jsou základními vlastnostmi bufferu:
+- kapacita - počet prvků, které obsahuje. Kapacita vyrovnávací paměti není nikdy záporná a nikdy se nemění.
+- limit - je index prvního prvku, který se nemá číst ani zapisovat. Limit vyrovnávací paměti není nikdy záporný a nikdy není větší než jeho kapacita.
+- pozice - je index další položky čtení nebo zápisu. Vyrovnávací pozice není nikdy záporná a nikdy nepřekračuje svůj limit.
+
+Třída Buffer provádí následující operace:
+- clear() - připraví vyrovnávací paměť pro novou sekvenci operací čtení kanálu nebo operací relativního put.
+- flip() - připravuje vyrovnávací paměť pro novou sekvenci zápisu do kanálu nebo operaci relativního načítání.
+- rewind() - připraví vyrovnávací paměť pro opětovné načtení dat, která jsou v ní již obsažena.
+
+
+
+--------------------------------Kanály--------------------------------
+
+Kanál (z balíku java.nio.channels.Channel) představuje otevřené připojení k entitě, jako je hardwarové zařízení, soubor, 
+síťový soket nebo programová komponenta, která je schopna provádět jednu nebo více různých I/O operací, např. jako čtení nebo psaní.
+
+Kanál může být otevřený nebo uzavřený. Jakmile je kanál vytvořen, je otevřený a po uzavření zůstane uzavřený. 
+Po uzavření kanálu vyvolá jakýkoli pokus o provedení I/O operace na něm výjimku ClosedChannelException.
+
+Kanály jsou v zásadě zamýšleny jako bezpečné pro vícevláknový přístup, jak je popsáno ve specifikacích rozhraní a tříd, 
+které toto rozhraní rozšiřují a implementují.
+
+
+Mezi nejčastěji používané implementace patří:
+- FileChannel – umožňuje zapisovat a číst data ze souboru
+- DatagramChannel - umožňuje ukládání a čtení dat přes protokol UDP
+- SocketChannel - umožňuje zapisovat a číst data přes protokol TCP
+- ServerSocketChannel – umožňuje naslouchat příchozím TCP spojením
+
+
+public class NIOExample {
+
+    public static void main(String[] args) throws IOException {
+        RandomAccessFile file = new RandomAccessFile("user.txt", "r");
+        FileChannel fileChannel = file.getChannel();
+        ByteBuffer byteBuffer = ByteBuffer.allocate(512);
+        while (fileChannel.read(byteBuffer) > 0) {
+            byteBuffer.flip();
+            while (byteBuffer.hasRemaining()) {
+                System.out.print((char) byteBuffer.get());
+            }
+            byteBuffer.clear();
+        }
+        file.close();
+    }
+}
+
+
+--------------------------------Zpracování dat--------------------------------
+
+NIO umožňuje spravovat více kanálů (např. síťová připojení nebo soubory) pomocí určitého počtu vláken. 
+Analýza dat však může být o něco složitější než čtení dat z blokovacího proudu.
+
+
+Aby bylo možné postupně získávat data z bufferu, je nutné jej často dotazovat, aby se shromáždily informace o dostupnosti dat, 
+což může mít za následek snížení výkonu při čtení spojení.
+
+
+
+--------------------------------Scanner vs BufferedReader--------------------------------
+
+- cte text ze vstupu a uklada znaky do vyrovnavaci pameti
+- je synchronni
+- pouziti pokud pracujeme s vice vlakny
+- vetsi vyrovnavaci pamet nez Scanner 
+- o neco ryhlejsi nez Scanner, protoze scanner provadi analyzu vstupnich dat a BuffredReader cte sekvenci znaku 
+
+
+Scanner sc = new Scanner(System.in);        BuffredReader br = new BufferedReader(new InputStreamReader(System.in));
+System.out.println("Enter a integer");      System.out.println("Enter a integer");  
+int a = sc.nextInt();                       int a = Integer.parseInt(br.readLine());
+System.out.println("Enter a String");       System.out.println("Enter a String");  
+String b = sc.nextLine();                   String b = br.readLine();
+
+- pokud ve tride Scanner zavolame metodu nextLine() pro kazdou  ze 7 nextXXX(), pak nextLine() necte hodnoty z konzole 
+    a kurzor se do konzole nedostane, tento krok preskoci.
+- ve tride BufferedReader tento typ problemu neexistuje
+- k tomuto problemu dochazi pouze u tridy Scanner, protoze metody nextXXX() ignoruji znak noveho radku a nextLine()
+    cte pouze prvni znak noveho radku
+- pokud pouzijeme jeste jedno volani metody nextLine() mezi nextXXX() a nextLine(), pak tento problem nenastane,
+    protoze nextLine() spotrebuje znak noveho radku
+
+
+--------------------------------Scanner a Tokenizace--------------------------------
+
+- rozdeleni na jednotliva slova a spravna detekce jejich typu 
+- konstruktor tridy Scanner vyzaduje jako parametr zdroj dat (soubor, cestu k souboru, primo nejaky retezec atd.)
+    a trida nabizi metody pro nacitani dat a kontrolu, jestli jsou jeste ve zdroji nejaka data k nacteni 
+- k reprezentaci, ze ktere budeme data nacitat poslouzi trida File 
+- parametrem jejiho konstruktoru je cesta k tomuto souboru s daty
+- po vytvoreni pak tento objekt predame jako parametr konstruktoru prave tride Scanner
+
+File file = new File("cesta/k/souboru.txt");
+Scanner sc = new Scanner(file);
+
+import java.io.*
+import java.util.Scanner
+
+public class Main {
+    public static void main (String[] args) {
+        try (Scanner sc = new Scanner (new BufferedReader(new FileReader("inputFile.txt"))));
+            while (s.hasNext()) {
+                System.out.println(s.next());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+inputFile.txt:
+ abc    123     123,45      1235.67
+ ščř    235x
+
+Vysledek:
+ abc
+ 123
+ 123,45
+ 1235.67
+ ščř
+ 235x
+
+
+-------------------------
+
+
+import java.io.*
+import java.util.Scanner
+import java.util.Locale;
+
+public class Main {
+    public static void main (String[] args) {
+        
+        double sum = 0;
+        
+        try (Scanner sc = new Scanner (new BufferedReader(new FileReader("inputFile.txt"))));
+            s.useLocale(Locale.us);
+                while (s.hasNext()) {
+                    if (s.hasNextDouble()) {
+                        double v = s.nextDouble();
+                        sum += v;
+                        System.out.println("Double Value: "+v);
+                    } else {
+                        s.next();
+                    }
+                }   
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        system.out.println("Double Sum: "+sum);
+    }
+}
+
+inputFile.txt:
+ abc    123     1234.56      12346,78
+ xxx    333     ščř
+
+Vysledek:
+ Double Value: 123.0
+ Double Value: 1234.56
+ Double Value: 333.0
+ Double Sum: 1690.56
+
+
+ --------------------------------Nacitani strukturovanych souboru--------------------------------
+
+ - textova data v souboru, ktery ma pevne danou strukturu 
+ - napriklad vime, ze 1 radek vzdy predstavuje 1 zaznam se 3 polozkami oddelenymi carkou
+ - pro bezne pouzivane formaty souboru jako jsou CSV, XML ci JSON existuji  pripravene knihovny, ktere muzeme vyuzit
+ - pokud je nas format jiny, muzeme pouzit Scanner 
+
+ - Nacteni radku textu:
+    - Scanner.nextLine()
+    - Scanner.hasNextLine(); // vraci true/false podle toho jestli mame radek k nacteni 
+
+ 
+File nasSouborSDaty = new File("cesta/k/souboru.txt");
+
+Scanner sc = new Scanner(nasSouborSDaty);
+while (sc.hasNextLine()) {
+    String zaznamKRozparsovani = sc.nextLine();
+}
+
+
+--------------Parsovani dat--------------
+
+- metoda tridy String split()
+- protoze je nas vstupni retezec na instanci tridy String, tak tu metodu muzeme zavolat primo na nemame
+
+vstupniRetezec.split("\t);
+
+- metoda popisuje znak, dle ktereho bude retezec rozdelen a vraci pole retezcu, 
+    ktere vzniknou po rozdeleni toho retezce, na kterem tuto metodu zavolame
+- popis konstruktoru, ktere lze pouzit jako parametr (viz odkaz)
+
+-------------pr-------------
+
+String vstup = "Bruno, Alfonz, Tomas, Ulrich";
+String [] jmena = vstup.split(",");
+
+Vysledek: ["Bruno", "Alfonz", "Tomas", "Ulrich"]
+
+-------------pr-------------
+
+Jmeno osoby: vyska
+__________________
+Karel Dvorak: 180
+Jana Dankova: 167
+
+void rozparsujData (String data) {
+    String[] rozparsovanaData = data.split(":");
+    System.out.println("Jmeno: " +rozparsovanaData[0]);
+    System.out.println("Vyska: " +rozparsovanaData[1]);
+}
+
+
+
+- s daty chceme dal pracovat, musime vytvorit datovou strukturu 
+
+--------------Ulozeni dat--------------
+
+- vytvorime tridu do ktere pujde ulozit informaci o osobach a vyskach a tuto tridu pak budeme moci pouzit 
+jako navratovy typ nasi metody k parsovani dat 
+
+public class Person {
+    private String name;
+    private int height;
+
+    //pokracuje konstruktor a gettery/settery
+}
+
+// upravena metoda na parsovani 
+private Person rozparsuj data (String data) {
+    String[] rozparsovanaData = data.split(":");
+    Person result = new Person();
+    result.setName(rozparsovanaData[0]);
+    result.setHeight(Integer.parseInt(rozparsovanaData[1]));
+    // vysku musime prevest na cele cislo
+    return result;
+}
+
+- kdyz tuto metodu budeme voalt v nasem cyklu, tak si postupne vybudujeme List vsech osob
+
+List<Person> personList = new ArrayList<>();
+
+- v cyklu pak budeme do listu pridavat hodnoty 
+
+personList.add(rozparsujData(zaznamKRozparsovani));
+

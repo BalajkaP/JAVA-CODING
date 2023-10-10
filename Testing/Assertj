@@ -1,0 +1,224 @@
+Assertj:
+
+Schopnosti:
+- AssertJ **nenahrazuje" knihovnu JUnit, ale je jejím doplňkem.
+- AssertJ je knihovna (tzv. matcher library), která má zvýšit čitelnost a pomoci udržovat testy v Javě. 
+- Zvyšuje čitelnost a v mnoha případech dbá na stručnost kódu. 
+ 
+V tehdejší části testů místo asercí z knihovny JUnit použijeme ty z knihovny AssertJ.
+
+Závislost:
+- do projektu založeného na Mavenu musíme přidat následující závislost, a to v souboru pom.xml v sekci dependencies:
+
+
+<dependency>
+    <groupId>org.assertj</groupId>
+    <artifactId>assertj-core</artifactId>
+    <version>3.16.1</version>
+    <scope>test</scope>
+</dependency>
+
+
+Syntaxe:
+- Přístup k matcherům z knihovny AssertJ je povolen statickou metodou assertThat z balíčku org.assertj.core.api. 
+- V závislosti na typu objektu, který je do ní přenášen, získáme různou sadu matcherů, které můžeme použít.
+
+
+Pro následující statickou metodu:
+
+public class Calculator {
+  public static int add(int x, int y) {
+    return x + y;
+  }
+}
+
+můžeme napsat následující test, který ověřuje správnost sčítání dvou čísel:
+
+
+@Test
+void shouldAddTwoNumbers() {
+  int result = Calculator(1, 3);
+
+  assertThat(result).isEqualTo(4); 
+}
+
+
+Syntaxe řetězce:
+- AssertJ umožňuje řetězovou syntaxi, která nám pomáhá kontrolovat několik podmínek najednou pro jeden objekt. 
+- Tato syntaxe je obvykle čitelnější než použití několika assertions z knihovny JUnit. 
+- Chybová hlášení z matcheru jsou navíc obvykle podrobnější než hlášení z assertions vložených do JUnit.
+
+Následující příklad ukazuje použití této syntaxe:
+
+
+@Test
+void shouldCreateMalePerson() {
+final Person person = personFactory.createPerson(MALE_NAME, SURNAME);
+
+assertThat(person).isNotNull()
+    .extracting(Person::getPrefix)
+    .isNotNull()
+    .isEqualTo(MALE_PREFIX);
+}
+
+
+
+
+
+------------------------------------Example A------------------------------------
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Person {
+  private String prefix;
+  private String firstName;
+  private String lastName;
+}
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class PersonGrades {
+
+  private final Map<Person, List<Integer>> personToGrades = new HashMap<>();
+
+  public List<Integer> addGrade(final Person person, final Integer grade) {
+    if (personToGrades.containsKey(person)) {
+      return personToGrades.computeIfPresent(person, (existingPerson, grades) -> {
+        grades.add(grade);
+        return grades;
+      });
+    }
+    final List<Integer> grades = new ArrayList<>();
+    grades.add(grade);
+    personToGrades.put(person, grades);
+    return grades;
+  }
+
+  public Optional<List<Integer>> getPersonGrades(final Person person) {
+    if (personToGrades.containsKey(person)) {
+      return Optional.of(personToGrades.get(person));
+    }
+    return Optional.empty();
+  }
+
+  public Map<Person, List<Integer>> clearAllGrades() {
+    for (final var entry : personToGrades.entrySet()) {
+      entry.getValue().clear();
+    }
+    return personToGrades;
+  }
+}
+
+
+import org.junit.jupiter.api.Test;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import static org.assertj.core.api.Assertions.assertThat;
+
+class PersonGradesTest {
+
+  private static final Person PERSON_A = new Person("Mr", "Tom", "Hill");
+  private static final Person PERSON_B = new Person("Ms", "Elane", "Grant");
+
+
+  private final PersonGrades personGrades = new PersonGrades();
+
+  @Test
+  public void shouldCreateFirstForPerson() {
+    final int grade = 5;
+    List<Integer> grades = personGrades.addGrade(PERSON_A, grade);
+
+    assertThat(grades).containsExactly(grade);
+  }
+
+  @Test
+  public void shouldAddGradeForExistingPerson() {
+    final int gradeA = 5;
+    final int gradeB = 4;
+    personGrades.addGrade(PERSON_A, gradeA);
+
+    List<Integer> grades = personGrades.addGrade(PERSON_A, gradeB);
+
+    assertThat(grades)
+        .hasSize(2)
+        .contains(gradeA, gradeB);
+  }
+
+  @Test
+  public void shouldClearAllGrades() {
+    personGrades.addGrade(PERSON_A, 5);
+    personGrades.addGrade(PERSON_B, 3);
+
+    final Map<Person, List<Integer>> allGrades = personGrades.clearAllGrades();
+
+    assertThat(allGrades).hasSize(2)
+        .containsEntry(PERSON_A, List.of())
+        .containsEntry(PERSON_B, List.of());
+  }
+
+  @Test
+  public void shouldGetGradesForExistingPerson() {
+    final int grade = 5;
+    personGrades.addGrade(PERSON_A, grade);
+
+    final Optional<List<Integer>> grades = personGrades.getPersonGrades(PERSON_A);
+
+    assertThat(grades)
+        .isPresent()
+        .hasValue(List.of(grade));
+  }
+
+  @Test
+  void shouldNotGetGradesForNonExistingPerson() {
+    final Optional<List<Integer>> grades = this.personGrades.getPersonGrades(PERSON_B);
+
+    assertThat(grades).isNotPresent();
+  }
+}
+
+
+
+------------------------------------Example B------------------------------------
+
+
+import java.util.OptionalInt;
+
+public class Numbers {
+
+  public OptionalInt findFirstDigit(final String number) {
+    return number.chars()
+        .filter(Character::isDigit)
+        .map(Character::getNumericValue)
+        .findFirst();
+  }
+}
+
+
+import org.junit.jupiter.api.Test;
+import java.util.OptionalInt;
+import static org.assertj.core.api.Assertions.assertThat;
+
+class NumbersTest {
+
+  private Numbers numbers = new Numbers();
+
+  @Test
+  void shouldFindFirstDigitInString() {
+    final OptionalInt firstDigit = numbers.findFirstDigit("Hello!!112");
+
+    assertThat(firstDigit).isPresent()
+        .hasValue(1);
+  }
+
+  @Test
+  void shouldNotFindAnyDigitWhenThereAreNone() {
+    final OptionalInt firstDigit = numbers.findFirstDigit("SDA");
+
+    assertThat(firstDigit).isEmpty();
+  }
+}

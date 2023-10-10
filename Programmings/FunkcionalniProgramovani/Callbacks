@@ -1,0 +1,63 @@
+Callbacks:
+
+Callback (zpetne volani)
+- pomoci callback muzu jinemu objektu predat casti informaci, ktere mu umozni pozdeji volat puvodni objekt
+- V Javě samotné neexistuje přímo koncept "callbacks", ale je to obecný programovací koncept, který může být implementován prostřednictvím 
+    funkcionálních rozhraní (Runnable, Consumer, ActionListener ...), anonymních tříd nebo lambda výrazů
+- používá se k předání funkcionality nebo kódu jiné části programu, která bude provedena v určitém bodě programu nebo po určité události 
+- tím se umožňuje delegování a flexibilní řízení toku programu.
+- Typickým příkladem použití callbacku je událostní programování. 
+    - Například v grafickém rozhraní může být registrace události kliknutí na tlačítko provedena pomocí callbacku, 
+        který bude spuštěn, když je tlačítko kliknuto. Tím se odděluje logika ovládání od reakce na události.
+- Dalším příkladem je použití callbacku při zpracování asynchronních operací. 
+    - Callback je předán jako parametr asynchronní operaci a je spuštěn, když je operace dokončena. 
+    - Tím se umožňuje asynchronní chování a možnost vykonávat kód po dokončení operace.
+
+
+
+
+public class Main {
+    public static void main (String[] args) {
+        
+        // normal
+        hello("John", "Montana", null);
+        
+        // functional
+        1) hello1("John", null, value -> {
+            System.out.println("no last name provided for " +value);
+        });
+        
+        2) hello2("John", null, () -> { System.out.println("no last name provided for")); 
+        
+    }
+
+    // normal
+    function hello(firstName, lastName, callback) {
+        console.log(firstName);
+        if(lastName) {
+            console.log(lastName);
+        } else {
+            callback();
+        }
+    }
+
+    // functional
+    1) static void hello1(String firstName, String lastName, Consumer<String> callback) {
+        System.out.println(firstName);
+        if(lastName != null) {
+            System.out.println(lastName);
+        } else {
+            callback.accept(firstName);
+        }
+    }
+
+    2) static void hello2 (String firstName, String lastName, Runnable callback) {
+        System.out.println(firstName);
+        if(lastName != null) {
+            System.out.println(lastName);
+        } else {
+            callback.run();
+        }
+    }
+}
+

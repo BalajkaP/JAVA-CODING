@@ -1,0 +1,50 @@
+- funkcionalni interface musi byt bez tela, nicmene lze vyuzit defaultinich metod, ktere telo maji
+
+-----------
+
+public interface Eatable {
+    
+    String whoAmI();
+
+    // defualtni metoda vyuziva pretizenou metodu whoAmI()
+    default voind eat() {
+        System.out.println("whoAmI() + " eat");
+    }
+}
+
+-----------
+
+public class Elephant implements Eatable {
+
+    // musim pretizit pouze whoAmI(), protoze je bez tela
+    @Override
+    public String whoAmI() {
+        return "Elephant"
+    }
+}
+
+-----------
+
+public class Human implements Eatable {
+
+    // musim pretizit pouze whoAmI(), protoze je bez tela
+    @Override
+    public String whoAmI() {
+        return "Human"
+    }
+}
+
+-----------
+
+public class Default {
+
+    public static void main(String[] args) {
+
+        Eatable human = new Human();
+        human.eat();
+
+        // anonymni trida 
+        Eatable et = () -> "I am ET";
+        et.eat();
+    }
+}

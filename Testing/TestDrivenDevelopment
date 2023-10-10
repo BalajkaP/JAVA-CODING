@@ -1,0 +1,34 @@
+Test-driven development -TDD (Vývoj řízený testy):
+
+Při tvorbě softwaru pomocí TDD je třeba neustále opakovat tyto fáze tvorby softwaru:
+
+  - Red
+  - Green
+  - Refactor
+
+
+Red
+- V tomto kroku musí uživatel vytvořit test, který ověřuje určitou funkci. 
+- Bez kódu, který by se dal zkontrolovat, test selže. 
+- Hlavní kód neexistuje.
+
+Green
+- V tomto okamžiku by měl test napsaný v prvním kroku projít, ale hlavní kód bude obsahovat zbytkové chyby.
+
+Refactor
+- Poslední fází je refaktorace kódu, která vyčistí kód tak, aby splňoval určité standardy (např. SOLID a DRY).
+
+
+Výhody TDD:
+  - Nutí vás pokrýt kód testy.
+  - Případné koncepční chyby se zjistí při psaní testů.
+  - Úprava kódu je bezpečnější - vždy můžeme zkontrolovat, zda jsme něco neporušili, provedením exisitujících testů.
+  - Požadavky se také projeví při pohledu na samotné testy.
+  - Nedostatečné požadavky jsou identifikovány již v rané fázi tvorby aplikace.
+  - Projekt lze nakonec napsat mnohem rychleji než při klasických přístupech.
+
+
+Nevýhody používání TDD:
+  - Projekt musí mít dobře sepsané požadavky a dokumentaci (což ve většině případů chybí).
+  - Na začátku projektu se produkční kód vytváří poměrně pomalu.
+  - Jakákoli změna požadavků znamená velkou změnu zdrojového kódu.

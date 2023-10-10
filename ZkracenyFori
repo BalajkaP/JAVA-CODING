@@ -1,0 +1,2 @@
+Zkraceny zapis forEach
+IntStream.range(0,5).forEach(i -> System.out.println("A"));         // vypise 5x A

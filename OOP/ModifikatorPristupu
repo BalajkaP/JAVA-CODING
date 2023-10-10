@@ -1,0 +1,55 @@
+balicek = stejna slozka (package)
+c05.Cake.java - trida Cake ve slozce c05
+c05.Pie.java  - trida Pie ve slozce c05
+
+
+MODIFIKATOR         UVNITR TRIDY       UVNITR PACKAGE   MIMO PACKAGE (podtrida)     MIMO PACKAGE 
+Private             Y                  N                N                           N 
+Default             Y                  Y                N                           N     
+Protected           Y                  Y                Y                           N 
+Public              Y                  Y                Y                           Y
+
+Strom programu:
+
+< src
+    <com.engeto.lekce8.test
+        TestTrida
+        JinaTrida
+    TridaMimoPackage
+    podtrida
+
+
+
+public class TestTrida {
+    pubic String publicString;
+    String defalutString;
+    protected String protectedString;
+    private String privateString;
+}
+
+public class JinaTrida {
+    public JinaTrida(TestTrida testTrida) {
+        System.out.println(testTrida.publicString);             // lze
+        System.out.println(testTrida.defalutString);            // lze
+        System.out.println(testTrida.protectedString);          // lze
+        System.out.println(testTrida.privateString);            // nelze
+    }
+}
+
+public class TridaMimoPackage {
+    public TridaMimoPackage(TestTrida testTrida) {
+        System.out.println(testTrida.publicString);             // lze
+        System.out.println(testTrida.defalutString);            // nelze
+        System.out.println(testTrida.protectedString);          // nelze
+        System.out.println(testTrida.privateString);            // nelze
+    }
+}
+
+public class PodTrida extends TestTrida {
+    public PodTrida()
+        System.out.println(this.publicString);                  // lze
+        System.out.println(this.defalutString);                 // nelze
+        System.out.println(this.protectedString);               // lze
+        System.out.println(this.privateString);                 // nelze
+    }
+}

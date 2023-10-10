@@ -1,0 +1,27 @@
+Třídy `DataInputStream` a `DataOutputStream` jsou třídy, které poskytují metody pro čtení a zápis primitivních datových typů ze/z do binárních souborů nebo datových proudů. Tyto třídy umožňují uložit hodnoty proměnných do binární podoby a následně je obnovit.
+
+
+DataInputStream:
+-čte a vrátí další hodnotu typů viz níže ze vstupního proudu.
+
+readBoolean()
+readByte()
+readShort()
+readInt()
+readLong()
+readFloat()
+readDouble()
+readChar()
+readUTF()
+
+DataOutputStream
+-zapíše hodnotu typů viz níže do výstupního proudu.
+
+writeBoolean(boolean v)
+writeByte(int v)
+writeShort(int v)
+writeInt(int v)
+writeLong(long v)
+writeFloat(float v)
+writeDouble(double v)
+writeChar(int v)

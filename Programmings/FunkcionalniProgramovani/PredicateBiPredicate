@@ -1,0 +1,69 @@
+Predicate<> + BiPredicate<>:
+- argumenty je genericky typ
+- Predicate přijímá 1 vstupní argument a vrací logickou hodnotu na základě předaného parametru
+- BiPredicate přijímá 2 vstupní argumenty a vrací logickou hodnotu na základě předaného parametru
+- Predicate se často používá pro filtraci dat nebo pro zjištění, zda objekt splňuje určité kritérium např. k filtrování seznamu osob podle věku, 
+    hodnocení produktu podle určitého pravidla nebo ověření, zda řetězec obsahuje určitý vzor
+- BiPredicate umožňuje provádět podmínky a testy nad dvěma vstupními argumenty.
+- ma metody test(), and(), or(), negate()
+- metoda test() přijímá vstupní objekt a vrací true, pokud je podmínka splněna, nebo false, pokud není
+
+
+
+- Metoda Test je zodpovědná za vrácení logické hodnoty testu, např.
+
+    public class PredicateExample {
+        public static void main(String[] args) {
+            Predicate<Integer> predicate = (value) -> {
+                return value >= 0;
+            };
+            checkTest(predicate);
+        }
+
+        static void checkTest(Predicate<Integer> predicate) {
+            System.out.println(predicate.test(-1));
+        }
+    }
+
+
+
+-------------------------------------------
+
+public class _Predicate {
+
+    public static void main (String [] args) {
+
+        // normal
+        System.out.println(isPhoneNumberValid("070000000000"));
+        System.out.println(isPhoneNumberValid("070000000000"));
+        System.out.println(isPhoneNumberValid("090000077300"));
+
+        // Predicate
+        System.out.println(isPhoneNumberValidPredicate.test("070000000000"))
+        System.out.println(isPhoneNumberValidPredicate.test("070000000000"))
+        System.out.println(isPhoneNumberValidPredicate.test("090000077300"))
+
+        System.out.println(isPhoneNumberValidPredicate.and(containsNumber3).test("070000000000"));
+        System.out.println(isPhoneNumberValidPredicate.and(containsNumber3).test("070000000000"));
+        System.out.println(isPhoneNumberValidPredicate.and(containsNumber3).test("090000077300"));
+
+        System.out.println(isPhoneNumberValidPredicate.of(containsNumber3).test("070000000000"));
+        System.out.println(isPhoneNumberValidPredicate.of(containsNumber3).test("070000000000"));
+        System.out.println(isPhoneNumberValidPredicate.of(containsNumber3).test("090000077300"));
+
+        // BiPredicate
+        existuje, ale zde nebudu psat 
+    }
+
+    // normal
+    static boolean isPhoneNumberValid(String phoneNumber) {
+        return phoneNumber.startsWith("07") && phoneNumber.length() == 11;
+    }
+
+    // Predicate
+    static Predicate<String> isPhoneNumberValidPredicate = phoneNumber ->
+        phoneNumber.startsWith("07") && phoneNumber.length() == 11;
+
+    static Predicate<String> containsNumber3 = phoneNumber ->
+        phoneNumber.contains("3");
+}

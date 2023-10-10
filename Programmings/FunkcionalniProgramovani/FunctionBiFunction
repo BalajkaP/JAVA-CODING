@@ -1,0 +1,50 @@
+Function<> + BiFunction<>:
+- argumenty je genericky typ
+- Function přijímá 1 vstupní argument a vraci hodnotu
+- BiFunction přijímá 2 vstupní argumenty a vraci hodnotu
+- Function lze použít např. pro mapování hodnot, transformaci dat nebo aplikaci různých operací na vstupní argument
+- BiFunction se často používá, při potřebě provádět operace nad dvěma vstupními argumenty, jako je například sloučení dvou seznamů, 
+    kombinace dvou hodnot nebo aplikace různých operací na dva argumenty
+- ma metody apply(), andThen(), compose()
+
+
+
+public class _Function {
+
+    public static void main (String [] args) {
+        
+        // normal
+        int increment = increment(1);
+        System.out.println(increment);
+
+        // Function
+        int increment2 = incrementByOneFunction.apply(1);
+        System.out.println(increment2);
+
+        int multiply = multiplyBy10Function.apply(increment2);
+        System.out.println(multiply);
+
+        System.out.println(addBy1AndThenMultiplyBy10.apply(1));
+
+        // BiFunction 
+        System.out.println(incrementByOneAndMultiply(4, 100));
+
+        System.out.println(incrementByOneAndMultiplyBiFunction.apply(4, 100));
+    }
+    // normal
+    static int increment(int number) {
+        return number +1;
+    }
+
+    // Function
+    static Function<Integer, Integer> incrementByOneFunction = number -> number++;
+    static Function<Integer, Integer> multiplyBy10Function = number -> number * 10;
+    static Function<Integer, Integer> addBy1AndThenMultiplyBy10 = incrementByOneFunction.andThen(multiplyBy10Function);
+
+
+    // BiFunction
+    static int incrementByOneAndMultiply (int number, int numToMultiplyBy) {
+         return (number + 1) * numToMultiplyBy;
+    }
+    static BiFunction<Integer, Integer, Integer> incrementByOneAndMultiplyBiFunction = numberToIncrementByOne + 1) * numberToMultiplyBy;
+}

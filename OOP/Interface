@@ -1,0 +1,357 @@
+- musi implementovat vsechny metody
+- lze vlozit metody bez tela
+- nemuze deklarovat promenne, 
+- muze deklarovat pouze konstanty, statické metody, metody typu default, signatury metod
+- muze obsahovat pouze metody typu - abstract, default, static
+- rozhrani nemuze byt jako typ promenne
+
+
+Rozhraní mohou být:
+- implementována třídami (pomocí klíčového slova implements)
+- rozšířena jinými rozhraními (pomocí klíčového slova extends).
+
+
+Kromě toho musíme při definování rozhraní pamatovat na to, že některá klíčová slova jsou výchozí:
+- nestatické metody, u kterých jsme nedefinovali tělo, jsou standardně public abstract.
+- konstanty jsou standardně public static final 
+- statické metody jsou standardně public
+
+Níže uvedený příklad obsahuje všechny výše popsané prvky:
+
+	public interface MediaPlayer {
+
+		// ve výchozím nastavení obsahuje klíčová slova - public static final
+    	String TAG = "MediaPlayer";     
+
+		// metoda bez definovaného těla - ve výchozím nastavení abstract
+    	void stop();                    
+
+		// metoda s výchozím tělem, která může, ale nemusí být přepsána v implementaci rozhraní.
+    	default void next() {           
+        	throw new NoSuchMechanismException("not supported by default");
+    	}
+
+		// static metoda má ve výchozím nastavení modifikátor public
+    	static String getName() {       
+        	return "MediaPlayer Interface";
+   		}
+	}
+
+
+
+-------------------------------Rozdil mezi abstraktni tridou a rozhranim------------------------------
+
+Abstraktni trida                                            Rozhrani
+--------------------------------------------------------------------------------------------------------------
+extends (dedeni)                                            implements (implementace rozhrani)
+muze deklarovat promenne                                    nemuze deklarovat promenne
+muzu deklarovat abstraktni i neabstraktni metody            vsechny metody jsou abstraktni pokud neuvedu default
+nepodporuje vicenasobne dedeni                              podporuje vicenasobne dedeni
+muze rozsirit tridu a take implementovat rozhrani           muze rozsirit pouze dalsi rozhrani
+clenove mohou byt protected, private ...                    clenove pouze public
+promenne mohou byt static, nestaticke, final                promenne pouze static a final
+chceme sdílet určitý kód mezi mnoha příbuznými třídami      chceme pouze vytěžit nějakou abstrakci, kterou lze použít pro mnoho nesouvisejících tříd
+
+
+Abstraktní třída může implementovat rozhraní, aniž by deklarovala těla svých metod, nicméně bychom měli dát tělo všem abstraktním metodám 
+bez ohledu na to, zda patří rozhraní nebo abstraktní třídě.
+
+
+
+
+--------------------------------Implementace rozhraní--------------------------------
+
+v deklaraci třídy použiji klíčové slovo implements a implementuji všechny abstraktní metody rozhraní, např.:
+
+
+	// Deklarace rozhraní	
+		public interface SomeInterface {
+  			void someMethod();
+		}
+
+	// Deklarace 1. třídy implementující rozhraní SomeInterface
+		public class SomeInterfaceImpl1 implements SomeInterface {
+ 			@Override
+  			public void someMethod() {
+    			System.out.println("methodImplementation1");
+  			}
+		}
+		
+	// Deklarace 2. třídy implementující rozhraní SomeInterface
+		public class SomeInterfaceImpl2 implements SomeInterface {
+ 			@Override
+  			public void someMethod() {
+    			System.out.println("methodImplementation2");
+  			}
+		}
+
+	// Vytvoření instance třídy implementující Rozhraní
+
+		SomeInterface someInterface = new SomeInterfaceImpl1();
+		SomeInterface someInterface = new SomeInterfaceImpl2();
+
+
+- třída může implementovat více než jedno rozhraní (jejich názvy se oddělují čárkou):
+
+
+	// Deklarace prvního rozhraní
+		public interface SomeInterface {
+  			void someMethod();
+		}
+
+
+	// Deklarace druhého rozhraní bez abstraktní metody
+		public interface SomeOtherInterface {
+		}
+
+
+	// Deklarace třídy implementující obě rozhraní
+		public class ClassImplementingInterfaces implements SomeInterface, SomeOtherInterface {
+  			@Override
+  			public void someMethod() {
+    			System.out.println("I am interface method implementation");
+  			}
+		}
+
+
+- jedna třída může kromě implementace více rozhraní také rozšiřovat nejvýše jednu třídu, např.:
+
+	// Deklarace prvního rozhraní
+		public interface SomeInterface {
+  			void someMethod();
+		}
+
+	// Deklarace druhého rozhraní bez abstraktní metody
+		public interface SomeOtherInterface {
+		}
+
+	// Deklarace třídy rozšiřující třídu SomeClass a implementující obě rozhraní
+		public class ClassImplementingInterfacesAndExtendingClass extends SomeClass implements SomeInterface, SomeOtherInterface {
+ 			@Override
+  			public void someMethod() {
+    			System.out.println("I am interface method implementation");
+  			}
+		}
+
+
+----------------IGrafickyObjekt----------------
+
+public interface IGrafickyObjekt {
+	public void vykresliSe();
+}
+
+----------------IObjektInfo----------------
+
+public interface IObjektInfo {
+	public void kdoJsem();
+}
+
+----------------Dedeni od jineho rozhrani----------------
+
+
+public interface IObaDva extends IGrafickyObjekt, IObjektInfo {
+	- zde neni treba nic pridavat, ale muzu pridat metody navic
+}
+
+----------------Implementae rozhrani od zdedeneho rozhrani----------------
+
+public class Obdelnik implements IObaDva {
+
+	@Override
+	public void vykresliSe() {
+		System.out.println("Obdelnik se vykresluje");
+	}
+
+	@Override
+	public void kdoJsem() {
+		System.out.println("Jsem obdelnik");
+	}	
+}
+
+----------------2 tridy implementuji stejne rozhrani----------------
+
+public class Ctverec implements IGrafickyObjekt {
+
+	@Override
+	public void vykresliSe() {
+		System.out.println("Ctverec se vykresluje");
+	}
+}
+
+public class Usecka implements IGrafickyObjekt {
+
+	@Override
+	public void vykresliSe() {
+		System.out.println("Usecka se vykresluje");
+	}
+}
+
+----------------Implementace vice rozhrani----------------
+
+public class Trojuhelnik implements IGrafickyObjekt, IObjektInfo {
+
+	@Override
+	public void vykresliSe() {
+		System.out.println("Trojuhelnik se vykresluje");
+	}
+
+	@Override
+	public void kdoJsem() {
+		System.out.println("Jsem trojuhelnik");
+	}
+
+}
+
+----------------Dedeni pri rozhrani----------------
+
+public class Kruh extends Trojuhelnik {
+
+	@Override
+	public void vykresliSe() {
+		System.out.println("Kruh se vykresluje");
+	}
+
+	@Override
+	public void kdoJsem() {
+		System.out.println("Jsem kruh");
+	}	
+}
+
+public class Sestiuhelnik implements IGrafickyObjekt {
+
+	@Override
+	public void vykresliSe() {
+		System.out.println("Sestiuhelnik se vykresluje");
+	}
+
+}
+
+public class Primka extends Sestiuhelnik implements IObjektInfo {
+
+	@Override
+	public void vykresliSe() {
+		System.out.println("Primka se vykresluje");
+	}
+
+	@Override
+	public void kdoJsem() {
+		System.out.println("Jsem primka");
+	}	
+}
+
+
+--------------------------------Úprava rozhraní--------------------------------
+
+Jakákoli změna implementovaného rozhraní bude mít za následek chyby na úrovni kompilace z důvodu chybějící implementace nového (upraveného) rozhraní:
+
+	public interface NewsletterAPI {
+
+   	 	void subscribe();
+
+    	void unsubscribe();
+	}
+
+
+- provedou se úpravy:
+
+
+	public interface NewsletterAPI {
+
+    	void subscribe(String type);
+
+    	void unsubscribe();
+	}
+
+
+- dostaneme chybu kompilace související s následující implementací:
+
+
+	// Třída musí být deklarována jako abstraktní nebo musí implementovat abstraktní metodu error
+	public class ShopNewsletterAPI implements NewsletterAPI {
+    	@Override
+    	public void subscribe() {
+        	System.out.println("Subscribe to shop newsletter!");
+    	}
+
+    	@Override
+    	public void unsubscribe() {
+        	System.out.println("Unsubscribe from shop newsletter!");
+    	}
+	}
+
+POZNÁMKA: Při změně definice rozhraní musíme pamatovat na nutné změny ve všech jeho implementacích.
+POZNÁMKA: Podobným chybám při kompilaci lze předejít použitím možnosti refaktorizace v aplikaci IntelliJ IDEA pomocí klávesové zkratky Shift + F6.
+
+
+
+--------------------------------Výchozí metody--------------------------------
+
+- zavedeny v Javě 1.8
+- hlavním využitím je zavedení modifikací existujícího rozhraní, aniž by způsobily chyby kompilace související se změnou těla rozhraní 
+- přidávají do knihovních rozhraní nové funkce a zajišťují binární kompatibilitu s kódem napsaným pro starší verze těchto rozhraní 
+- pokud implementujete rozhraní s výchozími metodami, není třeba tyto metody přepisovat jako v příkladu níže. 
+
+
+	public interface Encoder {
+
+    	default String encode(String encodeText) {
+        	return encodeText;
+    	}
+
+    	default String decode(String decodeText) {
+       		return decodeText;
+    	}
+	}
+
+- následující implementace nezpůsobuje chyby při kompilaci a je plně funkční:
+
+
+	public class SampleEncoder implements Encoder { }
+
+
+
+
+------------------------------------Konflikty nazvu pri kombinovani rozhrani------------------------------------
+
+- pouzivani stejnych nazvu metod v ruznych rozhranich, ktere chci sloucit v jedne tride, zpusobi problemy
+- doslo ke smichani mechanismu prekryti implementace a pretezovani, pricemz pretizene funkce se od sebe nemohou lisit pouze typem navratove hodnoty
+
+interface I1 {
+	void f();
+}
+
+interface I2 {
+	int f(int i);
+}
+
+interface I3 {
+	int f();
+}
+
+public class C {
+	public int f() {
+		return 1;
+	}
+}
+
+
+public class C2 implements I1, I2 {
+	
+	public void f() {}
+	public int f(int i) { return 1; }					// pretizena
+}
+
+public class C3 extends C implements I2 {
+	public int f(int i) { return 1; }					// pretizena
+}
+
+public class C4 extends C implements I3 {				// je stejna, neni problem
+	public int f() { return 1; }
+}
+
+- metody se lisi typem navratove hodnoty
+public class C5 extends C implements I1 { }
+interface I4 extends I1, I3 { }
+
+
+

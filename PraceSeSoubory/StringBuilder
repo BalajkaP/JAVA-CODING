@@ -1,0 +1,161 @@
+append(boolean b)
+Appends the string representation of the boolean argument to the sequence.
+
+
+append(char c)
+Appends the string representation of the char argument to this sequence.
+
+append(char[] str)
+Appends the string representation of the char array argument to this sequence.
+
+append(char[] str, int offset, int len)
+Appends the string representation of a subarray of the char array argument to this sequence.
+
+append(CharSequence s)
+Appends the specified character sequence to this Appendable.
+
+append(CharSequence s, int start, int end)
+Appends a subsequence of the specified CharSequence to this sequence.
+
+append(double d)
+Appends the string representation of the double argument to this sequence.
+
+append(float f)
+Appends the string representation of the float argument to this sequence.
+
+append(int i)
+Appends the string representation of the int argument to this sequence.
+
+append(long lng)
+Appends the string representation of the long argument to this sequence.
+
+append(Object obj)
+Appends the string representation of the Object argument.
+
+append(String str)
+Appends the specified string to this character sequence.
+
+append(StringBuffer sb)
+Appends the specified StringBuffer to this sequence.
+
+appendCodePoint(int codePoint)
+Appends the string representation of the codePoint argument to this sequence.
+
+capacity()
+Returns the current capacity.
+
+charAt(int index)
+Returns the char value in this sequence at the specified index.
+
+codePointAt(int index)
+Returns the character (Unicode code point) at the specified index.
+
+codePointBefore(int index)
+Returns the character (Unicode code point) before the specified index.
+
+codePointCount(int beginIndex, int endIndex)
+Returns the number of Unicode code points in the specified text range of this sequence.
+
+delete(int start, int end)
+Removes the characters in a substring of this sequence.
+
+deleteCharAt(int index)
+Removes the char at the specified position in this sequence.
+
+ensureCapacity(int minimumCapacity)
+Ensures that the capacity is at least equal to the specified minimum.
+
+getChars(int srcBegin, int srcEnd, char[] dst, int dstBegin)
+Characters are copied from this sequence into the destination character array dst.
+
+indexOf(String str)
+Returns the index within this string of the first occurrence of the specified substring.
+
+indexOf(String str, int fromIndex)
+Returns the index within this string of the first occurrence of the specified substring, starting at the specified index.
+
+------------------------
+
+- insert - vlozi na zvoleny index zvoleny typ (String...)
+
+insert(int offset, boolean b)
+Inserts the string representation of the boolean argument into this sequence.
+
+insert(int offset, char c)
+Inserts the string representation of the char argument into this sequence.
+
+insert(int offset, char[] str)
+Inserts the string representation of the char array argument into this sequence.
+
+insert(int index, char[] str, int offset, int len)
+Inserts the string representation of a subarray of the str array argument into this sequence.
+
+insert(int dstOffset, CharSequence s)
+Inserts the specified CharSequence into this sequence.
+
+insert(int dstOffset, CharSequence s, int start, int end)
+Inserts a subsequence of the specified CharSequence into this sequence.
+
+insert(int offset, double d)
+Inserts the string representation of the double argument into this sequence.
+
+insert(int offset, float f)
+Inserts the string representation of the float argument into this sequence.
+
+insert(int offset, int i)
+Inserts the string representation of the second int argument into this sequence.
+
+insert(int offset, long l)
+Inserts the string representation of the long argument into this sequence.
+
+insert(int offset, Object obj)
+Inserts the string representation of the Object argument into this character sequence.
+
+insert(int offset, String str)
+Inserts the string into this character sequence.
+
+lastIndexOf(String str)
+Returns the index within this string of the rightmost occurrence of the specified substring.
+
+lastIndexOf(String str, int fromIndex)
+Returns the index within this string of the last occurrence of the specified substring.
+
+length()
+Returns the length (character count).
+
+offsetByCodePoints(int index, int codePointOffset)
+Returns the index within this sequence that is offset from the given index by codePointOffset code points.
+
+replace(int start, int end, String str)
+Replaces the characters in a substring of this sequence with characters in the specified String.
+
+reverse()
+Causes this character sequence to be replaced by the reverse of the sequence.
+
+setCharAt(int index, char ch)
+The character at the specified index is set to ch.
+
+setLength(int newLength)
+Sets the length of the character sequence.
+
+subSequence(int start, int end)
+Returns a new character sequence that is a subsequence of this sequence.
+
+substring(int start)
+Returns a new String that contains a subsequence of characters currently contained in this character sequence.
+
+substring(int start, int end)
+Returns a new String that contains a subsequence of characters currently contained in this sequence.
+
+toString()
+Returns a string representing the data in this sequence.
+
+trimToSize()
+Attempts to reduce storage used for the character sequence.
+
+
+Methods inherited from class java.lang.Object
+clone, equals, finalize, getClass, hashCode, notify, notifyAll, wait, wait, wait
+
+Methods inherited from interface java.lang.CharSequence
+charAt, chars, codePoints, length, subSequence

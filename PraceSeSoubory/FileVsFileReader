@@ -1,0 +1,13 @@
+File:
+- reprezentuje cestu k souboru nebo adresáři v souborovém systému
+- slouží k manipulaci se soubory (vytváření, mazání, přejmenovávání, získávání informací o souboru nebo adresáři atd.) 
+- některé metody pro manipulaci se soubory, například `createNewFile()`, `delete()`, `renameTo()`, `exists()`, `isDirectory()` atd.
+
+FileReader:
+- slouží k čtení znaků ze souboru
+- používá se pro čtení textových souborů, když chceme pracovat s obsahem souboru jako s textem
+- umožňuje postupné čtení znaků ze souboru pomocí různých metod, jako je `read()`, `read(char[] buffer)`, `skip()`, `close()` atd.
+
+
+
+- File` slouží k manipulaci se soubory a adresáři v souborovém systému, zatímco trida FileReader` slouží k čtení znaků ze souboru jako textových dat.

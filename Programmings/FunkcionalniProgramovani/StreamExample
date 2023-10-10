@@ -1,0 +1,305 @@
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        Video video = new Video("GOT1 clip", "gots1e1.com", VideoType.CLIP);
+        Video video1 = new Video("GOT1 episode", "gots1e1.com", VideoType.EPISODE);
+        Video video2 = new Video("GOT2 preview", "gots1e2.com", VideoType.PREVIEW);
+        Video video3 = new Video("GOT2 clip", "gots1e2.com", VideoType.CLIP);
+        Video video4 = new Video("GOT2 episode", "gots1e2.com", VideoType.EPISODE);
+        Video video5 = new Video("GOT3", "gots1e3.com", VideoType.EPISODE);
+        Video video6 = new Video("GOT1 episode", "gots2e1.com", VideoType.EPISODE);
+        Video video7 = new Video("GOT2 episode", "gors2e2", VideoType.EPISODE);
+        
+        Episode episodeS1E1 = new Episode("Fire", 1, Arrays.asList(video, video1));
+        Episode episodeS1E2 = new Episode("Ice", 2, Arrays.asList(video2, video3, video4));
+        Episode episodeS1E3 = new Episode("Throne", 3, Arrays.asList(video5));
+        Episode episodeS2E1 = new Episode("Head", 1, Arrays.asList(video6));
+        Episode episodeS2E2 = new Episode("Death", 2, Arrays.asList(video7));
+    
+        
+        Season season1 = new Season("GOTS1", 1, Arrays.asList(episodeS1E1, episodeS1E2, episodeS1E3));
+        Season season2 = new Season("GOTS2", 2, Arrays.asList(episodeS2E1, episodeS2E2));
+
+        List<Season> seasons = Arrays.asList(season1, season2);
+
+        System.out.println("A list of all episodes.");
+        List<Episode> allEpisodes = seasons.stream()
+            .flatMap(s -> s.getEpisodes().stream())
+            .collect(Collectors.toList());
+        allEpisodes.forEach(System.out::println);
+        System.out.println();
+        
+
+        System.out.println("A list of all videos.");
+        List<Video> allVideos = seasons.stream()
+            .flatMap(s -> s.getEpisodes().stream())
+            .flatMap(e -> e.getVideos().stream())
+            .collect(Collectors.toList());
+        allVideos.forEach(System.out::println);
+        System.out.println();
+
+
+        System.out.println("A list of all season names.");
+        List<String> seasonNames = seasons.stream()
+            .map(s -> s.seasonName)
+            .collect(Collectors.toList());
+        seasonNames.forEach(System.out::println);
+        System.out.println();
+
+
+        System.out.println("A list of all season numbers.");
+        List<Integer> seasonNumbers = seasons.stream()
+            .map(s -> s.seasonNumber)
+            .collect(Collectors.toList());
+        seasonNumbers.forEach(System.out::println);
+        System.out.println();
+
+
+        System.out.println("A list of all episode names.");
+        List<String> episodeNames = seasons.stream()
+            .flatMap(s -> s.getEpisodes().stream())
+            .map(e -> e.getEpisodeName())
+            .collect(Collectors.toList());
+        episodeNames.forEach(System.out::println);
+        System.out.println();
+
+
+        System.out.println("A list of all episode numbers.");
+        List<Integer> episodeNumbers = seasons.stream()
+            .flatMap(s -> s.getEpisodes().stream())
+            .map(e -> e.getEpisodeNumber())
+            .collect(Collectors.toList());
+        episodeNumbers.forEach(System.out::println);    
+        System.out.println();
+
+
+        System.out.println("A list of all video names.");
+        List<String> videoNames = seasons.stream()
+            .flatMap(s -> s.getEpisodes().stream())
+            .flatMap(e -> e.getVideos().stream())
+            .map(v -> v.getTitle())
+            .collect(Collectors.toList());
+        videoNames.forEach(System.out::println);    
+        System.out.println();
+
+
+        System.out.println("A list of all url addresses for each video.");
+        List<String> urlAddresses = seasons.stream()
+            .flatMap(s -> s.getEpisodes().stream())
+            .flatMap(e -> e.getVideos().stream())
+            .map(v -> v.getUrl())
+            .collect(Collectors.toList());
+        urlAddresses.forEach(System.out::println);    
+        System.out.println();
+
+
+        System.out.println("Only episodes from even seasons.");
+        List<Episode> episodesFromEvenSeasons = seasons.stream()
+            .filter(s -> s.getSeasonNumber() %2 == 0)
+            .flatMap(e -> e.getEpisodes().stream())
+            .collect(Collectors.toList());
+        episodesFromEvenSeasons.forEach(System.out::println);
+        System.out.println();
+
+
+        System.out.println("Only videos from even seasons");
+        List<Video> videosFromEvenSeasons = seasons.stream()
+            .filter(s -> s.getSeasonNumber() %2 == 0)
+            .flatMap(e -> e.getEpisodes().stream())
+            .flatMap(v -> v.getVideos().stream())
+            .collect(Collectors.toList());
+        episodesFromEvenSeasons.forEach(System.out::println);
+        System.out.println();
+
+
+        System.out.println("Only videos from even episodes and seasons.");
+        List<Video> videosFromEvenEpisodesAndSeasons = seasons.stream()
+            .filter(s -> s.getSeasonNumber() %2 == 0)
+            .flatMap(e -> e.getEpisodes().stream())
+            .filter(e -> e.getEpisodeNumber() %2 == 0)
+            .flatMap(v -> v.getVideos().stream())
+            .collect(Collectors.toList());
+        videosFromEvenEpisodesAndSeasons.forEach(System.out::println);
+        System.out.println();
+
+
+        System.out.println("Only Clip videos from even episodes and odd seasons.");
+        List<Video> onlyClipVideosFromEvenEpisodeSAndOddSeasons = seasons.stream()
+            .filter(s -> s.getSeasonNumber() %2 != 0)
+            .flatMap(e -> e.getEpisodes().stream())
+            .filter(e -> e.getEpisodeNumber() %2 == 0)
+            .flatMap(v -> v.getVideos().stream())
+            .filter(v -> v.getVideoType().equals(VideoType.CLIP))
+            .collect(Collectors.toList());
+        onlyClipVideosFromEvenEpisodeSAndOddSeasons.forEach(System.out::println);
+        System.out.println();
+
+
+        System.out.println("Only Preview videos from odd episodes and even seasons.");
+        List<Video> onlyPreviewVideoFromOddEpisodesAndEvenSeasons = seasons.stream()
+            .filter(s -> s.getSeasonNumber() %2 == 0)
+            .flatMap(e -> e.getEpisodes().stream())
+            .filter(e -> e.getEpisodeNumber() %2 != 0)
+            .flatMap(v -> v.getVideos().stream())
+            .filter(v -> v.getVideoType().equals(VideoType.PREVIEW))
+            .collect(Collectors.toList());
+        onlyPreviewVideoFromOddEpisodesAndEvenSeasons.forEach(System.out::println);
+        System.out.println();
+    
+
+    }
+}
+
+-------------------------------------------------------------------------------------------------------------
+
+public class Video {
+    
+    public String title;
+    public String url;
+    public VideoType videoType;
+    
+    public Video(String title, String url, VideoType videoType) {
+        this.title = title;
+        this.url = url;
+        this.videoType = videoType;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public void setVideoType(VideoType videoType) {
+        this.videoType = videoType;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public VideoType getVideoType() {
+        return videoType;
+    }
+
+
+
+    @Override
+    public String toString() {
+        return "Video title: " +title+ ", Video url: " +url+ ", Video type: " + videoType;
+    }
+}
+
+
+-------------------------------------------------------------------------------------------------------------
+
+import java.beans.FeatureDescriptor;
+import java.util.List;
+
+public class Season {
+
+    public String seasonName;
+    public int seasonNumber;
+    List<Episode> episodes;
+
+    public Season(String seasonName, int seasonNumber, List<Episode> episodes) {
+        this.seasonName = seasonName;
+        this.seasonNumber = seasonNumber;
+        this.episodes = episodes;
+    }
+
+    public void setEpisodes(List<Episode> episodes) {
+        this.episodes = episodes;
+    }
+
+    public void setSeasonName(String seasonName) {
+        this.seasonName = seasonName;
+    }
+
+    public void setSeasonNumber(int seasonNumber) {
+        this.seasonNumber = seasonNumber;
+    }
+
+    public List<Episode> getEpisodes() {
+        return episodes;
+    }
+
+    public String getSeasonName() {
+        return seasonName;
+    }
+
+    public int getSeasonNumber() {
+        return seasonNumber;
+    }
+
+    @Override
+    public String toString() {
+        return "Season name: " +seasonName+ ", Season number: " +seasonNumber+ ", Episodes: " + episodes;
+    }
+}
+
+-------------------------------------------------------------------------------------------------------------
+
+import java.util.List;
+
+public class Episode {
+
+    public String episodeName;
+    public int episodeNumber;
+    List<Video> videos;
+    
+    public Episode(String episodeName, int episodeNumber, List<Video> videos) {
+        this.episodeName = episodeName;
+        this.episodeNumber = episodeNumber;
+        this.videos = videos;
+    }
+
+    public void setEpisodeName(String episodeName) {
+        this.episodeName = episodeName;
+    }
+
+    public void setEpisodeNumber(int episodeNumber) {
+        this.episodeNumber = episodeNumber;
+    }
+
+    public void setVideos(List<Video> videos) {
+        this.videos = videos;
+    }
+
+    public String getEpisodeName() {
+        return episodeName;
+    }
+
+    public int getEpisodeNumber() {
+        return episodeNumber;
+    }
+
+    public List<Video> getVideos() {
+        return videos;
+    }
+
+    @Override
+    public String toString() {
+        return "Episode name: " +episodeName+ ", Episode number: " +episodeNumber+ ", Videos: " + videos;
+    }
+}
+
+-------------------------------------------------------------------------------------------------------------
+
+public enum VideoType {
+    
+    CLIP, PREVIEW, EPISODE;
+
+}
+
+-------------------------------------------------------------------------------------------------------------

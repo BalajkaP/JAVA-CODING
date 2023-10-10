@@ -1,0 +1,41 @@
+Třída `File` je běžně používanou třídou v mnoha programovacích jazycích, která poskytuje metody pro manipulaci se soubory. 
+
+
+
+
+exists() 
+- zjišťuje, zda soubor existuje (boolean)
+
+getName() 
+- vrátí název souboru
+
+getPath()`
+- vrátí cestu k souboru.
+
+isDirectory()
+- ověřuje, zda se jedná o adresář (boolean)
+
+isFile()
+- ověřuje, zda se jedná o běžný soubor (boolean)
+
+length()
+- vrátí velikost souboru v bajtech.
+
+delete()
+- odstranění souboru. Soubor bude smazán a vrátí logickou hodnotu `true`, pokud byl smazán úspěšně, a `false`, pokud se nepodařilo soubor smazat.
+
+renameTo(File dest)
+- slouží k přejmenování souboru na zadané jméno. 
+- jako parametr přijímá objekt třídy File, který reprezentuje cílovou cestu a nový název souboru. Vrací logickou hodnotu `true`, pokud byl soubor úspěšně přejmenován, a `false`, pokud se nepodařilo soubor přejmenovat.
+
+createNewFile()
+- vytvoření nového prázdného souboru. Vrací logickou hodnotu `true`, pokud byl soubor vytvořen, a `false`, pokud se nepodařilo soubor vytvořit.
+
+mkdir()
+- vytvoření nového adresáře. Vrací logickou hodnotu `true`, pokud byl adresář úspěšně vytvořen, a `false`, pokud se nepodařilo adresář vytvořit.
+
+list()
+- vrátí pole obsahující seznam souborů a adresářů v daném adresáři.
+
+listFiles()
+- vrátí pole objektů File reprezentujících soubory a adres

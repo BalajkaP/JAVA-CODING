@@ -1,0 +1,668 @@
+JUNIT:
+
+Testy jsou obvykle umístěny v cestě src/java/test.
+Pokud se v naší aplikaci v balíčku x nachází třída Calculator.java, pak by se testovací třída měla jmenovat CalculatorTest.java 
+a měla by být také umístěna (i když to není nutné) v balíčku se stejným názvem, tj. x.
+
+Závislosti:
+Abychom mohli v testech používat knihovnu Junit, musíme do projektu založeného na Mavenu přidat následující závislost, 
+v souboru pom.xml v části závislosti:
+
+<dependency>
+    <groupId>org.junit.jupiter</groupId>
+    <artifactId>junit-jupiter-api</artifactId>
+    <version>5.6.2</version>
+    <scope>test</scope>
+</dependency>
+
+<dependency>
+    <groupId>org.junit.jupiter</groupId>
+    <artifactId>junit-jupiter-engine</artifactId>
+    <version>5.6.2</version>
+    <scope>test</scope>
+</dependency>
+
+
+
+import static org.junit.jupiter.api.Assertions.*;
+- staticky import vsech metod z Assertions, ne pouze jedne metody.
+
+
+
+Příklad jednoduchého testu napsaného pomocí JUnit může vypadat následovně:
+
+--------------------------------Klasická třída--------------------------------
+
+package pl.sdacademy.calculations;
+
+public class Calculator {
+
+    public double add(double first, double second) {
+        return first + second;
+    }
+}
+
+--------------------------------Testovací třída--------------------------------
+
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+class CalculatorTest {
+
+    @Test
+    void shouldAddTwoNumbers() {
+        // given
+        double valueA = 5.2;
+        double valueB = 3.1;
+        Calculator calculator = new Calculator();
+
+        // when
+        double actualResult = calculator.add(valueA, valueB);
+
+        //then
+        assertEquals(8.3, actualResult);
+    }
+}
+
+
+Při pohledu na výše uvedený příklad si můžeme všimnout, že:
+    - a test je metoda s libovolným názvem, ke které musíme přidat odkaz Test
+    - test nevrací nic (používáme klíčové slovo void)
+    - test, pokud není parametrizován, neobsahuje žádné vstupní argumenty
+    - test vždy testuje pouze jeden případ
+    - test se skládá ze tří částí, které jsou obvykle odděleny prázdnými řádky. Těmito sekcemi jsou:
+        - given, ve které definujeme předběžné podmínky testu (tj. připravíme všechny požadované objekty)
+        - when, která se obvykle skládá z jednoho řádku - volání metody testu
+        - then, v níž používáme tzv. assertions, které ověřují očekávané výsledky se skutečnými.
+
+POZNÁMKA: Testovací třídy, metody reprezentující testy a metody životního cyklu testu mohou mít libovolný modifikátor přístupu, ale obvykle se vynechává 
+(tj. používá se package-private).
+
+
+
+Provádění testů:
+Vytvořené testy lze spustit několika způsoby. 
+Obvykle při psaní kódu lze náš test spustit přímo z prostředí IDE. 
+Pokud náš projekt je založen na platformě Maven, pak lze naše testy spustit ve fázi testování pomocí příkazu mvn clean install.
+
+
+----------------------------------------------------------------------------------------------
+
+Assertions:
+- slouží k potvrzení, že objekty získané při testech splňují určité předpoklady a ověřují správnost provedeného testu. 
+- jsou statické metody ze třídy org.junit.jupiter.api.Assertions, které umožňují porovnat skutečné výsledky metody s očekávanými. 
+- jejich volání by se mělo nacházet na konci testu, tj. v sekci then.
+
+
+Základní tvrzení:
+JUnit nabízí různá tvrzení (assertions), každá z nich má mnoho přetížení a některé z nich jsou např.:
+    - assertEquals(expected, actual) - porovnává objekty pomocí metody equals. Očekávaná hodnota by měla být vždy prvním argumentem
+    - assertNotNull(object) - zkontroluje, zda se zadaný objekt nerovná null.
+    - assertNull(object) - zkontroluje, zda se zadaný objekt rovná null.
+    - assertTrue(value) - očekává, že logická hodnota předaná jako argument se rovná true.
+    - assertFalse(value) - podobně jako výše, očekává, že argument se rovná false.
+    - assertSame(o1, o2) - očekává, že reference jsou stejné (tj. porovnává objekty s ==).
+    - assertNotsame(o1, o2) - zkontroluje, zda se reference liší.
+    - assertFail() - což okamžitě ukončí test neúspěchem. Používá se například k testování výjimek pomocí metody try catch.
+
+
+Pokročilá tvrzení (od verze 5):
+    - assertArrayEquals(expectedArray, actualArray) - kontroluje rovnost a pořadí všech prvků v obou tabulkách.
+    - assertIterableEquals(expectedIterable, actualIterable) - kontroluje rovnost a pořadí všech prvků v objektech implementujících tabulky. 
+    rozhraní Iterable. Toto rozhraní je implementováno rozhraním Collection, proto lze toto tvrzení použít s libovolnou kolekcí.
+    - assertLinesMatch(expected, actual) - pomocí algoritmu a případně regulárních výrazů kontroluje, zda dva seznamy String obsahují stejné prvky.
+    - assertTimeout(timeout, executable) - kontroluje, zda je kód proveden rychleji, než je hodnota argumentu timeout. 
+    Úloha musí být dokončena, než přejdeme na další řádek.
+    - assertTimeoutPreemptively() - funguje podobně jako assertTimeout, ale spustitelná úloha nebude dokončena v případě, že bude dosaženo timeoutu.
+
+Každé tvrzení lze přetížit přidáním nového parametrur s vlastní zprávou, která se zobrazí v případě, že se takové tvrzení 
+assertion skončí neúspěchem.
+
+
+Seskupování tvrzení:
+- Test v sekci then může provádět libovolné množství tvrzení. 
+- Když jich bude několik a jedna z nich skončí selháním, další aserce se neprovedou. 
+- Pokud chceme, aby se vždy provedly všechny aserce, musíme je provést uvnitř aserce assertAll(...) (viz níže). 
+- Toto tvrzení používá varargs a očekává objekt typu Executable. 
+- Tento objekt lze implementovat pomocí lambdywith bez argumentů, np.:
+
+    assertAll(
+      () -> assertEquals(expectedObject, actualObject, "Assertion 1 failed"),
+      () -> assertTrue(actualResult, "Assertion 2 failed")
+    );
+
+Pokud ve výše uvedeném příkladu obě tvrzení skončí chybou, zobrazí se následující zpráva:
+
+Tvrzení 1 failed
+Tvrzení 2 failed
+
+
+----------------------------------------------------------------------------------------------
+
+References:
+
+Metody životního cyklu testů:
+
+JUnit umožňuje psát testy přidáním odkazu @Test k metodě. 
+Po přidání několika testů do jedné třídy je možné, že náš testovací kód bude obsahovat několik opakování, stejně jako v tomto příkladu.
+
+Abychom se takovým opakováním vyhnuli, umožňuje JUnit definovat takzvané metody životního cyklu testů. 
+Tyto metody musí mít nad svou signaturou určitý odkaz:
+
+    - @BeforeEach
+    - @AfterEach
+    - @BeforeAll
+    - @AfterAll
+
+Musíte si uvědomit, že všechny metody životního cyklu:
+
+    - neobsahují žádný objekt
+    - může mít libovolný název
+    - nemají argumenty
+    - nemusí mít definovaný modifikátor přístupu
+    - jsou nepovinné a můžeme je definovat často 
+    (tj. jedna testovací třída nemůže mít metodu s odkazem @AfterEach a mít několik metod s odkazem @BeforeEach).
+    - mohou být umístěny v libovolné části testovací třídy, ale v praxi se obvykle umísťují před definici testu.
+
+
+@BeforeEach
+- Metoda se provede před každou testovací metodou. 
+- Účelem této metody je připravit objekty pro každý test. 
+- Použití této metody najdete v tomto příkladu.
+- musi byt static nebo prvni musim udelat instanci
+
+@AfterEach
+- Metoda se provede po každé testovací metodě. 
+- Především pro odstranění dat nebo obnovení počátečního stavu po každém testu.
+
+@BeforeAll
+- Metoda tohoto cyklu musí být statická. 
+- Provede se jednou, na začátku testu provádění testu v dané třídě. 
+- Používá se především pro nastavení hodnot objektů, které budou použity v testech, ale nebudou v nich modifikovány 
+nebo jsou nákladné (např. čas vytvoření v časovém kontextu), např. etablování spojení s databází.
+
+@AfterAll
+- Podobně jako @BeforeAll musí být metoda statická. 
+- Bude provedena jednou, po provedení testu v dané třídě. 
+- Používá se pro mazání objektů, které byly společné pro všechny testy, jako např. uzavření spojení s databází.
+
+
+POZNÁMKA: JUnit 4 - odkazy na životní cyklus testu se liší: * @Before * @After * @AfterClass * @BeforeClass.
+
+
+Další odkazy:
+Knihovna JUnit obsahuje také odkazy, které zlepšují práci vývojářů. Jedná se o tyto příklady:
+
+    - @DisplayName
+    - @Disabled
+
+@DisplayName
+- Do testovací třídy a testovací metody můžeme přidat vlastní jméno.
+- Toto jméno se bude zobrazovat při provádění testu a v testovacích zprávách.
+
+@Disabled
+- Popisuje metodu nebo třídu, která by neměla být při provádění testu spuštěna. 
+- Má argument, do kterého můžeme přidat informaci, proč je tento test zakázán. 
+- Důvody použití tohoto odkazu mohou být různé. 
+- Takový test může být vytvořen před implementací kódu nebo aktuální kód obsahuje chybu, kterou je třeba před povolením testu opravit.
+
+
+
+
+
+----------------------------------Example A----------------------------------
+
+Tento příklad ukazuje použití referenčního testu. Všimněte si prosím rozdělení testů do uvedených oddílů, kdy a kdy a jaká je skutečnost, 
+že třída Test a testy nejsou veřejné.
+
+----------------------Klasická----------------------
+
+public class NameVerifier {
+
+  public boolean isNameValid(final String name) {
+    return name != null && name.length() > 0 && !name.toUpperCase().equals(name) && !name.toLowerCase().equals(name);
+  }
+}
+
+----------------------Testovací----------------------
+
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class NameVerifierTest {
+
+  @Test
+  void shouldValidateName() {
+    String name = "Adam";
+    NameVerifier nameVerifier = new NameVerifier();
+
+    final boolean validationResult = nameVerifier.isNameValid(name);
+
+    assertTrue(validationResult);
+  }
+
+  @Test
+  void shouldNotValidateNameWhenAllLettersAreLowerCase() {
+    String name = "adam";
+    NameVerifier nameVerifier = new NameVerifier();
+
+    final boolean validationResult = nameVerifier.isNameValid(name);
+
+    assertFalse(validationResult);
+  }
+
+  @Test
+  void shouldNotValidateEmptyName() {
+    String emptyName = "";
+    NameVerifier nameVerifier = new NameVerifier();
+
+    final boolean validationResult = nameVerifier.isNameValid(emptyName);
+
+    assertFalse(validationResult);
+  }
+
+  @Test
+  void shouldNotValidateNullName() {
+    String nullName = null;
+    NameVerifier nameVerifier = new NameVerifier();
+
+    final boolean validationResult = nameVerifier.isNameValid(nullName);
+
+    assertFalse(validationResult);
+  }
+}
+
+
+
+----------------------------------Example B----------------------------------
+
+Tento příklad je založen na třídě NameVerifier z příkladu A. Používá metodu [test lifecycle](references.md#test-lifecycle-methods]. 
+eliminuje některá opakování.
+
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class NameVerifierTest {
+
+  private NameVerifier nameVerifier;
+
+  @BeforeEach
+  void setUp() {
+    nameVerifier = new NameVerifier();
+  }
+
+  @Test
+  void shouldValidateName() {
+    String name = "Adam";
+
+    final boolean validationResult = nameVerifier.isNameValid(name);
+
+    assertTrue(validationResult);
+  }
+
+  @Test
+  void shouldNotValidateNameWhenAllLettersAreLowerCase() {
+    String name = "adam";
+
+    final boolean validationResult = nameVerifier.isNameValid(name);
+
+    assertFalse(validationResult);
+  }
+
+  @Test
+  void shouldNotValidateEmptyName() {
+    String emptyName = "";
+
+    final boolean validationResult = nameVerifier.isNameValid(emptyName);
+
+    assertFalse(validationResult);
+  }
+
+  @Test
+  void shouldNotValidateNullName() {
+    String nullName = null;
+
+    final boolean validationResult = nameVerifier.isNameValid(nullName);
+
+    assertFalse(validationResult);
+  }
+}
+
+
+
+
+----------------------------------Example C----------------------------------
+
+
+Tento příklad ukazuje možné použití všech metod životního cyklu testu.
+
+
+// not a real connection - just imitating slow connection
+public class Connection {
+
+  private boolean state;
+
+  public void open() throws InterruptedException {
+    Thread.sleep(500L); // I am a slow opening connection
+    state = true;
+  }
+
+  public void close() throws InterruptedException {
+    Thread.sleep(500L); // I am slow closing connection
+    state = false;
+  }
+
+  public boolean isOpened() {
+    return state;
+  }
+
+  public boolean isClosed() {
+    return !isOpened();
+  }
+
+  public void refresh() {
+    System.out.println("Refreshing the connection");
+  }
+}
+
+public class StorageConnectionException extends RuntimeException {
+  public StorageConnectionException(String message) {
+    super(message);
+  }
+}
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Storage {
+
+  private List<Object> data = new ArrayList<>();
+
+  private final Connection connection;
+
+  public Storage(Connection connection) {
+    this.connection = connection;
+  }
+
+  // adds value to storage data and returns number of elements
+  public int addValue(final Object value) {
+    if (connection.isClosed()) {
+      throw new StorageConnectionException("Connection is closed so data cannot be added");
+    }
+    data.add(value);
+    return data.size();
+  }
+
+  // tries to remove value in storage. Returns true if value was removed, false otherwise.
+  public boolean removeValue(final Object value) {
+    if (connection.isClosed()) {
+      throw new StorageConnectionException("Connection is closed so data cannot be removed");
+    }
+    return data.remove(value);
+  }
+
+  public List<Object> getData() {
+    if (connection.isClosed()) {
+      throw new StorageConnectionException("Connection is closed so data cannot be retrieved");
+    }
+    return data;
+  }
+}
+
+import org.junit.jupiter.api.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class StorageTest {
+
+  private static final String EXAMPLE_DATA = "Hello";
+
+  private static Connection connection;
+  private Storage storage;
+
+  @BeforeAll
+  static void setUpTestCase() throws InterruptedException {
+    connection = new Connection();
+    connection.open();
+  }
+
+  @AfterAll
+  static void tearDownTestCase() throws InterruptedException {
+    connection.close();
+  }
+
+  @BeforeEach
+  void setUp() {
+    storage = new Storage(connection);
+  }
+
+  @AfterEach
+  void tearDown() {
+    connection.refresh();
+  }
+
+  @Test
+  void shouldAddDataToStorage() {
+    final int result = storage.addValue(EXAMPLE_DATA);
+
+    assertEquals(1, result);
+    assertTrue(storage.getData().contains(EXAMPLE_DATA));
+  }
+
+  @Test
+  void shouldRemoveExistingData() {
+    storage.addValue(EXAMPLE_DATA);
+
+    final boolean removeResult = storage.removeValue(EXAMPLE_DATA);
+
+    assertTrue(removeResult);
+  }
+
+  @Test
+  void shouldNotRemoveNonExistingData() {
+    storage.addValue(EXAMPLE_DATA);
+
+    final boolean removeResult = storage.removeValue("NotExistingData");
+
+    assertFalse(removeResult);
+    assertEquals(storage.getData().size(), 1);
+  }
+
+}
+
+
+
+
+
+----------------------------------Example D----------------------------------
+
+
+Tento příklad ukazuje použití tvrzení assertIterableEquals a assertNotSame.
+
+
+public class ListUtils {
+
+  public List<Integer> multiplyInputs(final List<Integer> input, final int multiplier) {
+    final List<Integer> results = new ArrayList<>();
+    for (final Integer value : input) {
+      results.add(value * multiplier);
+    }
+    return results;
+  }
+}
+
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class ListUtilsTest {
+
+  private final ListUtils listUtils = new ListUtils(); // do inicjalizacji obiektu NIE musimy wykorzystywać metody z `@BeforeEach`.
+
+  @Test
+  void shouldTripleInput() {
+    final List<Integer> inputs = List.of(4, 2, 7);
+    final List<Integer> expectedOutput = List.of(12, 6, 21);
+    final int multiplier = 3;
+
+    final List<Integer> actualResults = listUtils.multiplyInputs(inputs, multiplier);
+
+    assertIterableEquals(expectedOutput, actualResults, "Lists do not match in terms of values or size");
+    assertNotSame(inputs, actualResults, "The input list was modified while it should not be touched");
+  }
+}
+
+
+
+
+----------------------------------Example E----------------------------------
+
+
+Tento příklad používá assertLinesMatch a odkazy @DisplayName amd @Disabled.
+
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class StringUtils {
+
+  public List<String> toUpperCase(final List<String> inputs) {
+    return inputs.stream()
+        .map(String::toUpperCase)
+        .collect(Collectors.toUnmodifiableList());
+  }
+
+  public List<String> toLowerCase(final List<String> inputs) {
+    return inputs.stream()
+        .map(String::toLowerCase)
+        .collect(Collectors.toUnmodifiableList());
+  }
+
+  public List<String> toSnakeCase(final List<String> inputs) {
+    throw new UnsupportedOperationException("Not yet implemented");
+  }
+}
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertLinesMatch;
+
+class StringUtilsTest {
+
+  private StringUtils stringUtils;
+
+  @BeforeEach
+  void setUp() {
+    stringUtils = new StringUtils();
+  }
+
+  @Test
+  void shouldUpperCaseInputs() {
+    final List<String> inputs = List.of("Hello", "From", "sda");
+    final List<String> exepectedOutput = List.of("HELLO", "FROM", "SDA");
+
+    final List<String> actualOutputs = stringUtils.toUpperCase(inputs);
+
+    assertLinesMatch(exepectedOutput, actualOutputs);
+  }
+
+  @Test
+  @DisplayName("Test that checks toLowerCase method behavior")
+  void shouldLowerCaseInputs() {
+    final List<String> inputs = List.of("Hello", "From", "SDA");
+    final List<String> exepectedOutput = List.of("hello", "from", "sda");
+
+    final List<String> actualOutputs = stringUtils.toLowerCase(inputs);
+
+    assertLinesMatch(exepectedOutput, actualOutputs);
+  }
+
+  @Test
+  @Disabled("waiting for actual method implementation. TDD approach")
+  void shouldSnakeCaseInputs() {
+    final List<String> inputs = List.of("helloFrom", "testExamples");
+    final List<String> exepectedOutput = List.of("hello_from", "test_example");
+
+    final List<String> actualOutputs = stringUtils.toLowerCase(inputs);
+
+    assertLinesMatch(exepectedOutput, actualOutputs);
+  }
+
+}
+
+
+
+----------------------------------Example F----------------------------------
+
+
+Tento příklad ukazuje použití seskupovacího tvrzení - assertAll.
+
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Person {
+  private String prefix;
+  private String firstName;
+  private String lastName;
+}
+
+public class PersonFactory {
+
+  public Person createPerson(final String firstName, final String lastName) {
+    final String prefix = firstName.endsWith("a") ? "Ms" : "Mr";
+    return new Person(prefix, firstName, lastName);
+  }
+}
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class PersonFactoryTest {
+
+  private static final String MALE_NAME = "Adam";
+  private static final String FEMALE_NAME = "Lisa";
+  private static final String SURNAME = "Jobs";
+  private static final String MALE_PREFIX = "Mr";
+  private static final String FEMALE_PREFIX = "Ms";
+
+  private final PersonFactory personFactory = new PersonFactory();
+
+  @Test
+  void shouldCreateMalePerson() {
+    final Person person = personFactory.createPerson(MALE_NAME, SURNAME);
+
+    assertAll(
+        () -> assertEquals(SURNAME, person.getLastName()),
+        () -> assertEquals(MALE_NAME, person.getFirstName()),
+        () -> assertEquals(MALE_PREFIX, person.getPrefix())
+    );
+  }
+
+  @Test
+  void shouldCreateFemalePerson() {
+    final Person person = personFactory.createPerson(FEMALE_NAME, SURNAME);
+
+    assertAll(
+        () -> assertEquals(SURNAME, person.getLastName()),
+        () -> assertEquals(FEMALE_NAME, person.getFirstName()),
+        () -> assertEquals(FEMALE_PREFIX, person.getPrefix())
+    );
+  }
+}

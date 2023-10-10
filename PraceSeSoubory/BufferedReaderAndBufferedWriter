@@ -1,0 +1,67 @@
+Třídy `BufferedReader` a `BufferedWriter` jsou často používané třídy pro efektivní čtení a zápis dat ze souborů nebo jiných proudů v programovacích jazycích. Tyto třídy poskytují vyrovnávací paměť (buffer), která zlepšuje výkon při čtení a zápisu velkého množství dat.
+
+
+
+
+BufferedReader:
+
+read()
+-čte a vrátí další znak ze vstupního proudu jako číselnou hodnotu `int`. Pokud je dosaženo konce proudu, vrátí -1.
+
+read(char[] arr)
+-čte znaky ze vstupního proudu a ukládá je do předaného pole arr. Vrací počet skutečně přečtených znaků nebo -1, pokud byl dosažen konec proudu.
+
+readLine()
+-čte a vrátí další řádek textu ze vstupního proudu jako řetězec. Vrací `null`, pokud je dosaženo konce proudu.
+
+skip(long n)
+-přeskočí `n` znaků ve vstupním proudu.
+
+close()
+-uzavře proud a uvolní všechny související zdroje.
+
+read(char[] arr, int off, int length)
+-čte pocet znaků do delky length ze vstupního proudu a ukládá je do předaného pole `arr`, začínaje na indexu `off`. Vrací počet skutečně přečtených znaků nebo -1, pokud byl dosažen konec proudu.
+
+ready()
+-vrací logickou hodnotu `true`, pokud je z vstupního proudu dostupný minimálně jeden znak k přečtení, jinak vrací `false`.
+
+
+
+
+BufferedWriter:
+
+write(int c)
+-zapíše jeden znak daný číselnou hodnotou `c` do výstupního proudu.
+
+write(char[] arr)
+-zapíše všechny znaky z pole `arr` do výstupního proudu.
+
+write(String str)
+-zapíše obsah řetězce `str` do výstupního proudu.
+
+newLine()
+-zapíše znak nového řádku do výstupního proudu.
+
+flush()
+-vynutí vyprázdnění všech dat z bufferu do výstupního proudu.
+
+close()
+-uzavře proud a uvolní všechny související zdroje.
+
+write(char[] arr, int off, int length)
+-zapíše pocet znaku az do delky length z pole `arr` do výstupního proudu, začínaje na indexu `off`.
+
+write(String str, int off, int len)
+- zapíše pocet znaku String str az do delky length do výstupního proudu, začínaje na indexu `off`.
+
+append(CharSequence csq)
+-připojí řetězec `csq` na konec výstupního proudu a vrátí odkaz na aktuální objekt `BufferedWriter`.
+
+append(CharSequence csq, int start, int end)
+-připojí podřetězec `csq` od indexu `start` (včetně) do indexu `end` (bez něj) na konec výstupního proudu a vrátí odkaz na aktuální objekt `BufferedWriter
+
+
+
+Obě třídy `BufferedReader` a `BufferedWriter` zdědily některé metody od svých předků, třídy `Reader` a `Writer`, které poskytují další funkce pro práci se znakovými proudy, jako je čtení a zápis znakových sad, manipulace s pozicí v proudu a
+

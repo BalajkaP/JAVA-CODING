@@ -1,0 +1,38 @@
+instance
+V Javě 17 je možné použít novou syntaxi s klíčovým slovem instanceof, která umožňuje přiřadit proměnné hodnotu při kontrole typu.
+
+Předpokládejme, že máme základní třídu a dvě třídy rozšiřující tuto základní třídu:
+
+public class BaseClass {
+}
+
+public class Impl1 extends BaseClass {
+  public void sayHi() {
+    System.out.println("hi");
+  }
+}
+
+public class Impl2 extends BaseClass {
+}
+
+Pokud bychom chtěli zkontrolovat, zda je odkaz určitého typu, a použít ho, museli bychom to udělat ve dvou krocích, jako v příkladu níže:
+
+private void showInstanceOfExample(BaseClass baseClass) {
+  if (baseClass instanceof Impl1) {
+    Impl1 impl1 = (Impl1) baseClass;
+    impl1.sayHi();
+  }
+}
+
+
+Nová syntaxe umožňuje za typ, který kontrolujeme, zadat název reference, který pak lze přímo použít v případě, že je podmínka pravdivá. 
+Díky tomu je náš kód o něco kratší a čitelnější:
+
+private void showInstanceOfExample(BaseClass baseClass) {
+  if (baseClass instanceof Impl1 impl1) { //impl1 is reference name of type Impl1 which we can access inside if
+    impl1.sayHi();
+  }
+}
+
+
+

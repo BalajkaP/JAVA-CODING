@@ -1,0 +1,173 @@
+close()
+Zavře tento skener
+
+delimiter()
+Vrací vzor, který tento skener právě používá k porovnávání oddělovačů.
+
+findInLine(Pattern pattern)
+Pokusí se najít další výskyt zadaného vzoru bez ohledu na oddělovače.
+
+findInLine(String pattern)
+Pokusí se najít další výskyt vzoru vytvořeného ze zadaného řetězce, přičemž ignoruje oddělovače.
+
+findWithinHorizon(Pattern pattern, int horizon)
+Pokusí se najít další výskyt zadaného vzoru.
+
+findWithinHorizon(String pattern, int horizon)
+Pokusí se najít další výskyt vzoru vytvořeného ze zadaného řetězce, přičemž ignoruje oddělovače.
+
+hasNext()
+Vrací hodnotu true, pokud má tento skener na vstupu další token.
+
+hasNext(Pattern pattern)
+Vrací hodnotu true, pokud další úplný token odpovídá zadanému vzoru.
+
+hasNext(String pattern)
+Vrací hodnotu true, pokud další token odpovídá vzoru vytvořenému ze zadaného řetězce String.
+
+hasNextBigDecimal()
+Vrací hodnotu true, pokud lze další token na vstupu tohoto skeneru interpretovat jako BigDecimal pomocí metody nextBigDecimal().
+
+hasNextBigInteger()
+Vrací true, pokud lze další token na vstupu tohoto skeneru interpretovat jako BigInteger ve výchozím radixu pomocí metody nextBigInteger().
+
+hasNextBigInteger(int radix)
+Vrací true, pokud lze další token na vstupu tohoto skeneru interpretovat jako BigInteger v zadaném radixu pomocí metody nextBigInteger().
+
+hasNextBoolean()
+Vrací hodnotu true, pokud lze další token na vstupu tohoto skeneru interpretovat jako logickou hodnotu pomocí vzoru vytvořeného z řetězce "true|false" bez ohledu na velikost písmen.
+
+hasNextByte()
+Vrací hodnotu true, pokud lze další token na vstupu tohoto skeneru interpretovat jako bajtovou hodnotu ve výchozím radixu pomocí metody nextByte().
+
+hasNextByte(int radix)
+Vrací hodnotu true, pokud lze další token na vstupu tohoto skeneru interpretovat jako bajtovou hodnotu v zadaném radixu pomocí metody nextByte().
+
+hasNextDouble()
+Vrací hodnotu true, pokud lze další token na vstupu tohoto skeneru interpretovat jako dvojnásobnou hodnotu pomocí metody nextDouble().
+
+hasNextFloat()
+Vrací hodnotu true, pokud lze další token na vstupu tohoto skeneru interpretovat jako hodnotu float pomocí metody nextFloat().
+
+hasNextInt()
+Vrací hodnotu true, pokud lze další token na vstupu tohoto skeneru interpretovat jako hodnotu int ve výchozím radixu pomocí metody nextInt().
+
+hasNextInt(int radix)
+Vrací hodnotu true, pokud lze další token na vstupu tohoto skeneru interpretovat jako hodnotu int v zadaném radixu pomocí metody nextInt().
+
+hasNextLine()
+Vrací hodnotu true, pokud je na vstupu tohoto skeneru další řádek.
+
+hasNextLong()
+Vrací hodnotu true, pokud lze další token na vstupu tohoto skeneru interpretovat jako dlouhou hodnotu ve výchozím radixu pomocí metody nextLong().
+
+hasNextLong(int radix)
+Vrací hodnotu true, pokud lze další token na vstupu tohoto skeneru interpretovat jako dlouhou hodnotu v zadaném radixu pomocí metody nextLong().
+
+hasNextShort()
+Vrací hodnotu true, pokud lze další token na vstupu tohoto skeneru interpretovat jako krátkou hodnotu ve výchozím radixu pomocí metody nextShort().
+
+hasNextShort(int radix)
+Vrací hodnotu true, pokud lze další token na vstupu tohoto skeneru interpretovat jako krátkou hodnotu v zadaném radixu pomocí metody nextShort().
+
+ioException()
+Vrací výjimku IOException, kterou naposledy vyhodil základní modul Readable tohoto skeneru.
+
+locale()
+Vrací locale tohoto skeneru.
+
+match()
+Vrací výsledek shody poslední operace skenování provedené tímto skenerem.
+
+next()
+Vyhledá a vrátí další úplný token z tohoto skeneru.
+
+next(Pattern pattern)
+Vrátí další token, pokud odpovídá zadanému vzoru.
+
+next(String pattern)
+Vrátí další token, pokud odpovídá vzoru sestavenému ze zadaného řetězce.
+
+nextBigDecimal()
+Skenuje další token vstupu jako BigDecimal.
+
+nextBigInteger()
+Prohledá další token vstupu jako BigInteger.
+
+nextBigInteger(int radix)
+Prohledá další token vstupu jako BigInteger.
+
+nextBoolean()
+Prohledá další token vstupu na logickou hodnotu a tuto hodnotu vrátí.
+
+nextByte()
+Skenuje další token vstupu jako bajt.
+
+nextByte(int radix)
+Skenuje další token vstupu jako bajt.
+
+nextDouble()
+Skenuje další token vstupu jako double.
+
+nextFloat()
+Skenuje další token vstupu jako float.
+
+nextInt()
+Skenuje další token vstupu jako int.
+
+nextInt(int radix)
+Skenuje další token vstupu jako int.
+
+nextLine()
+Posune tento skener za aktuální řádek a vrátí přeskočený vstup.
+
+nextLong()
+Skenuje další token vstupu jako long.
+
+nextLong(int radix)
+Skenuje další token vstupu jako long.
+
+nextShort()
+Skenuje další token vstupu jako short.
+
+nextShort(int radix)
+Skenuje další token vstupu jako short.
+
+radix()
+Vrací výchozí radix tohoto skeneru.
+
+remove()
+Tato implementace Iteratoru nepodporuje operaci remove.
+
+reset()
+Obnoví tento skener.
+
+skip(Pattern pattern)
+Přeskočí vstup, který odpovídá zadanému vzoru, přičemž ignoruje oddělovače.
+
+skip(String pattern)
+Přeskočí vstup, který odpovídá vzoru vytvořenému ze zadaného řetězce.
+
+toString()
+Vrací řetězcovou reprezentaci tohoto skeneru.
+
+useDelimiter(Pattern pattern)
+Nastaví ohraničující vzor tohoto skeneru na zadaný vzor.
+
+useDelimiter(String pattern)
+Nastaví ohraničující vzor tohoto skeneru na vzor vytvořený ze zadaného řetězce.
+
+useLocale(Locale locale)
+Nastaví locale tohoto skeneru na zadané locale.
+
+useRadix(int radix)
+Nastaví výchozí radix tohoto skeneru na zadaný radix.
+
+
+
+Methods inherited from class java.lang.Object
+clone, equals, finalize, getClass, hashCode, notify, notifyAll, wait, wait, wait
+
+Methods inherited from interface java.util.Iterator
+forEachRemaining
+

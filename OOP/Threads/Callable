@@ -1,0 +1,17 @@
+Callable:
+- Obecné funkční rozhraní reprezentující úlohu, která může vracet výsledek nebo výjimku 
+- Rozhraní Callable je podobné rozhraní Runnable s tím rozdílem, že metoda run() nemůže vrátit žádný výsledek. 
+
+
+Metody:
+call()
+- Vypočítá výsledek, nebo vyhodí výjimku, pokud se to nepodaří.
+
+
+	public class GetRequest implements Callable<String> {
+    	@Override
+    	public String call() throws Exception {
+        	return "Dummy http response";
+    	}
+	}
+

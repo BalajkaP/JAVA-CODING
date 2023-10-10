@@ -1,0 +1,712 @@
+Introduction
+- Stejně jako JDBC API umožňuje komunikaci s databází na úrovni Java aplikace
+- Osvobozuje vývojáře od přímého používání JDBC a v některých případech osvobozuje vývojáře od povinnosti psát také SQL dotazy.
+
+- Hibernate navíc využívá techniku ORM (Object-relational mapping), která umožňuje reprezentovat databázovou tabulku Java objektem.
+
+
+-----------------------------------------Základní konfigurace-----------------------------------------
+
+- Abychom mohli používat framework Hibernate v aplikaci, musíme vytvořit nějaké konfigurační soubory.
+- Jednou z nejdůležitějších součástí je soubor hibernate.cfg.xml, který je kupř. zodpovědný za konfiguraci připojení k databázi
+  a obsahuje informace o třídách, které představují tabulky v databázi.
+
+Ukázková konfigurace může vypadat takto:
+
+  <!DOCTYPE hibernate-configuration PUBLIC
+          "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+          "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+  <hibernate-configuration>
+      <session-factory>
+          <property name="connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+          <property name="connection.url">jdbc:mysql://localhost:3306/sda</property>
+          <property name="connection.username">root</property>
+          <property name="connection.password">my-secret-pw</property>
+          <property name="dialect">org.hibernate.dialect.MySQL8Dialect</property>
+      </session-factory>
+  </hibernate-configuration>
+
+- V praxi je tato konfigurace často složitější, ale výše uvedený příklad ukazuje minimum informací, které Hibernate potřebuje.
+
+
+-----------------------------------------Pripojeni-----------------------------------------
+
+SessionFactory
+- Díky výše uvedenému konfiguračnímu souboru jsme schopni vytvořit objekt SessionFactory
+- Pomocí něj vytvoříme objekt Session, který je potřebný k provádění jakýchkoli operací s databází.
+
+Session
+- Díky objektu SessionFactory vytvoříme objekt Session, který může přímo provádět databázové operace.
+- Podle záměru by měl být tento objekt vytvořen pokaždé, když je potřeba provést databázovou operaci (jednu nebo více).
+- Po jejich provedení by měla být relace uzavřena.
+
+POZNÁMKA: Objekt Session implementuje rozhraní AutoCloseable, takže můžeme vytvářet relace pomocí try-with-resource.
+POZNÁMKA: Objekt Session implementuje rozhraní EntityManager, které umožňuje správu entit.
+
+Transactions
+- Session je objekt, který umožňuje vytvářet a spravovat transakce.
+- Abychom vytvořili transakci, zavoláme metodu getTransaction()
+- Poté po provedení operace na databázi, můžeme zavolat metodu commit() nebo rollback(), např.:
+
+  final SessionFactory sessionFactory = new Configuration()
+      .configure("hibernate.cfg.xml")
+      .buildSessionFactory();
+
+  try (Session session = sessionFactory.openSession()) {
+    Transaction transaction = session.beginTransaction();
+
+    // performing database operations
+
+    if (success) {
+      transaction.commit();
+    } else {
+      transaction.rollback();
+    }
+  }
+
+----------------
+
+K vytvoření objektu SessionFactory použijeme objekt Configuration, např.:
+
+  public class DbConnect {
+
+    public static Session getSession() {
+        SessionFactory sessionFactory = new Configuration()
+                .configure("hibernate.cfg.xml")
+                .addAnnotatedClass(MovieEntity.class)
+                .addAnnotatedClass(DirectorEntity.class)
+                .addAnnotatedClass(ActorEntity.class)
+                .buildSessionFactory();
+        Session session = sessionFactory.openSession();
+        return session;
+
+    }
+  }
+
+----
+
+  public class AppMain {
+
+    public static void main(String[] args){
+
+      // nacteni session z tridy, kde mame objekt SessionFactory
+      Session session = DbConnect.getSession();                   
+
+      // zahajeni transakce
+      Transaction transaction = session.beginTransaction();       
+
+      EntityManager entityManager = session;
+
+      // databazove operace
+      selects2Tables(session);
+      selectsMtoMtables(session);
+      basicHql(session);
+      updateSimple(session);
+      pdateList(session);
+      addMovieAndItsActors(session);
+      simpleDelete(session);
+      insertNewMovie(session,"New Movie", 1);
+      updateMovieDirector(session, 6, 2);
+      printMovieAndDirector(session, 6);
+
+
+      transaction.commit();
+
+      // uzavreni session po provedeni databazovych operaci
+      session.close();
+
+    }
+  }  
+
+
+-----------------------------------------Modelování entit-----------------------------------------
+
+- Abychom povolili správu entit objektu EntityManager, musíme je vhodně označit.
+- Můžeme to udělat pomocí konfigurace v souboru xml nebo pomocí anotací. 
+- Databázová entita by měla definovat konstruktor bez argumentů a gettry a settery pro všechna pole.
+
+Tato část představuje konfigurace provedené na úrovni kódu.
+
+
+@Entity
+Aby bylo možné definovat entitu databáze, měla by být deklarace třídy označena anotací @Entity
+
+@Table
+- Umožňuje, stejně jako anotace @Entity, definovat název tabulky, ale také označení adresáře nebo názvu databáze, ve které se nachází.
+- Umožňuje také definovat další indexy a omezení (např. jedinečnost hodnot sloupců nebo skupin).
+
+@Column
+- Ve výchozím nastavení jsou názvy polí přímo mapovány na názvy sloupců v databázové tabulce.
+- Anotace @Column umožňuje zadat konkrétní mapovaný název, který bude představovat název sloupce databáze ...
+
+@Id
+- definice primarniho klice
+
+@GeneratedValue
+- Automaticke generovani Primárního klíče
+- mohu si zvolit zpusob generovani pomoci zapisu @GeneratedValue(strategy = GenerationType.IDENTITY)
+- GenerationType mohou byt (TABLE, SEQUENCE, IDENTITY, AUTO)
+
+----
+
+  import javax.persistence.*;
+
+  @Entity
+  @Table(name = "movies")
+  public class Movie {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    private String name;
+
+    @Column(name = "movie_title")
+    private String title;
+  }
+
+----
+
+------------------------Spojeni vice tabulek do jedne Entity------------------------
+
+@SecondaryTable
+- Tento mechanismus umožňuje mapování databázových tabulek v rámci jedné entity.
+
+
+  @Entity
+  @Table(name="a_movie")
+  @SecondaryTable(name="a_director")
+  public class MovieDirectorEntity {
+
+    @Id
+    @Column(name="id_movie")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @Column(name="name")
+    private String name;
+
+    @Column(name="name", table = "a_director")
+    private String dirctorname;
+
+  }
+
+
+------------------------Dedicnost------------------------
+
+@MappedSuperclass
+- Relační databáze propojují tabulky na principu vazeb, zatímco entity se řídí plně objektově orientovaným paradigmatem.
+- Proto lze mnoho aspektů obchodní logiky vyřešit pomocí dědičnosti, která není kompatibilní s konceptem relační databáze.
+- Základní formou řešení tohoto problému je použití anotace @MappedSuperclass.
+- Ta umožňuje vytvořit základní třídy, které se fyzicky neprojeví v tabulkách, ale budou použity k definování báze pro entitu.
+- Všechny sloupce ve třídě označené @MappedSuperclass budou zahrnuty do odvozené třídy, což je skutečná implementace tabulky.
+
+
+  @MappedSuperclass
+  public abstract class BaseEntity  {
+
+      @Id
+      private int id;
+  }
+
+----
+
+  @Entity
+  public class ComputerGame extends BaseEntity {
+
+      private String name;
+      private String description;
+      private String type;
+  }
+
+----
+
+- Na základě výše uvedeného příkladu bude vygenerována tabulka ComputerGame, ve které kromě sloupců název, popis, typ,
+existuje sloupec základní třídy: id.
+
+POZNÁMKA: @MappedSuperclass může, ale nemusí být použit k definování identifikátoru v základní třídě.
+
+
+
+------------------------Slozeny klic a propojeni tabulek------------------------
+
+@EmbeddedId
+- Tabulky mohou mít také klíče, které se skládají z více sloupců.
+- Abychom mohli takový klíč definovat, musíme provést následující kroky:
+  - definovat třídu, která představuje složený klíč (tato třída musí implementovat rozhraní Serializable)
+  - označit třídu představující složený klíč anotací @Embeddable
+  - na entitě, na kterou chceme takový klíč použít, definovat pole klíče a umístit nad něj anotaci @EmbeddedId.
+
+POZNÁMKA:
+Třídu, která představuje více sloupců v entitě a která není klíčem entity, můžeme vložit podobným způsobem jako složený klíč.
+V tomto případě místo anotace @EmbeddedId použijeme anotaci @Embedded.
+
+
+Následující příklad ukazuje, jak použít složený klíč v entitě, a také ukazuje, jak vložit třídu představující dva sloupce do entity:
+
+  import lombok.AllArgsConstructor;
+  import lombok.Data;
+  import lombok.NoArgsConstructor;
+
+  import javax.persistence.Embeddable;
+
+  @Embeddable
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public class Person {
+    private String firstName;
+    private String lastName;
+  }
+
+  import lombok.AllArgsConstructor;
+  import lombok.Data;
+  import lombok.NoArgsConstructor;
+
+  import javax.persistence.Embeddable;
+  import java.io.Serializable;
+
+  @Embeddable
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public class TeacherId implements Serializable { // interfejs Serializable jest wymagany
+    private int documentId;
+    private String license;
+  }
+
+  import lombok.AllArgsConstructor;
+  import lombok.Data;
+  import lombok.NoArgsConstructor;
+
+  import javax.persistence.Embedded;
+  import javax.persistence.EmbeddedId;  
+  import javax.persistence.Entity;
+
+  @Entity
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public class Teacher {
+
+    @EmbeddedId // klucz złożony
+    private TeacherId teacherId;
+
+    @Embedded // osadzenie kolumn firstName i lastName w encji za pomocą pola klasy Person
+    private Person person;
+  }
+
+----
+
+@IdClass
+- Dalším způsobem, jak definovat klíče s více sloupci, je anotace @IdClass, je však o něco méně intuitivní než použití @EmbeddedId.
+
+- Třída představující klíč vypadá úplně stejně jako použití @EmbeddedId.
+
+  import lombok.AllArgsConstructor;
+  import lombok.Data;
+  import lombok.NoArgsConstructor;
+
+  import javax.persistence.Embeddable;
+  import java.io.Serializable;
+
+  @Embeddable
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public class TeacherId implements Serializable {
+    private int documentId;
+    private String license;
+  }
+
+- Rozdíl se projevuje v entitě, ve které definujeme složený klíč.
+- Anotace @IdClass musí být nad definicí třídy a musí ukazovat na objekt, který uchovává informace o sloupcích, které tvoří primární klíč.
+- Tyto sloupce musí být dodatečně deklarovány na úrovni entity databáze spolu s jejich označením jako @Id.
+- Toto řešení může fungovat, když je jeden ze sloupců relací, např.
+
+  import lombok.AllArgsConstructor;
+  import lombok.Data;
+  import lombok.NoArgsConstructor;
+
+  import javax.persistence.*;
+
+  @Entity
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @IdClass(TeacherId.class)
+  public class Teacher {
+
+    @Id
+    private int documentId;
+
+    @Id
+    private String license;
+
+    @Embedded
+    private Person person;
+  }
+
+
+
+------------------------Modelování vztahů------------------------
+
+- Pomocí frameworku Hibernate můžeme naznačit, jak vypadají vztahy mezi tabulkami v relační databázi.
+- Ve standardním relačním modelu se tabulky spojují pomocí cizích klíčů.
+- V objektově orientovaném přístupu by měly být vytvořeny vztahy mezi celými objekty.
+
+- Hibernace umožňuje definovat vztahy:
+  - @OneToOne
+  - @OneToMany a @ManyToOne
+  - @ManyToMany
+
+- Související vztahy mohou být:
+  - obousměrné - když obě tabulky na úrovni třídy na sebe vzájemně odkazují (tj. třída A ukazuje na třídu B a B ukazuje na A)
+  - jednosměrné - pouze jedna strana vztahu odkazuje na tabulku reprezentovanou jinou třídou
+    (tj. třída A ukazuje na třídu B, ale třída B neukazuje na třídu A).
+
+----
+
+mappedBy:
+- Tento parametr ukazuje na název pole ve třídě, která je vlastníkem vztahu (např. má odkaz na druhou tabulku pomocí cizího klíče).
+
+
+
+
+
+------------------------Basic entity management------------------------
+
+- Poté, co jsme definovali a vymodelovali entity a jejich vztahy, můžeme je začít spravovat z úrovně kódu.
+
+- Provádění jednoduchých operací CRUD na základě připravených metod v rozhraní EntityManager, které je jedním z rozhraní, jež session rozšiřuje.
+
+CRUD operations:
+
+  import lombok.Data;
+  import lombok.NoArgsConstructor;
+
+  import javax.persistence.Entity;
+  import javax.persistence.GeneratedValue;
+  import javax.persistence.Id;
+
+  @Entity
+  @Data
+  @NoArgsConstructor
+  public class Car {
+
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    private String modelName;
+
+    private String producer;
+
+    private Double engineVolume;
+
+    public Car(String modelName, String producer, Double engineVolume) {
+      this.modelName = modelName;
+      this.producer = producer;
+      this.engineVolume = engineVolume;
+    }
+  }
+
+- Všimněte si, že námi definovaný konstruktor nemá možnost nastavit hodnotu pole identifikátoru, protože 
+  je automaticky vygenerována systémem Hibernate (díky anotaci @GeneratedValue).
+
+- Abychom mohli uložit neexistující řádek do databáze, musíme použít metodu persist():
+
+  final Car car = new Car("Corolla", "Toyota", 2.0);
+  entityManager.persist(car);
+  System.out.println(car.getId()); // given ID, e.g. 1
+
+--
+
+- Abychom získali hodnotu entity z databáze, musíme použít metodu find().
+  (První argument je typ entity, kterou chceme získat, druhý je hodnota primárního klíče)
+
+  Car car = entityManager.find(Car.class, 1L);
+  System.out.println(car); // Car(id=1, modelName=Corolla, producer=Toyota, engineVolume=2.0)
+
+POZNÁMKA: Metoda find může vrátit hodnotu Null, pokud záznam s daným primárním klíčem neexistuje.
+
+--
+
+- Vytvořenou entitu můžeme také odstranit z databáze pomocí metody remove, např.:
+
+  Car car = entityManager.find(Car.class, 1L);
+  System.out.println(car); // Car(id=1, modelName=Corolla, producer=Toyota, engineVolume=2.0)
+  entityManager.remove(car);
+
+--
+
+- Poslední operací, kterou můžeme použít, je aktualizace existujícího záznamu v tabulce.
+- To se provádí pomocí metody merge(), která na rozdíl od metody thepersist() vrací aktualizovaný objekt:
+
+  Car car = entityManager.find(Car.class, 1L);
+  car.setEngineVolume(1.8);
+  Car updatedCar = entityManager.merge(car);
+
+POZNÁMKA: 
+Metody persist(), merge() a remove() vyžadují transakce k provedení operace a mohou způsobit výjimky, pokud jsou předány nesprávné argumenty 
+(např. pokus o aktualizaci nebo odstranění neexistující entity vyvolá výjimku typu IllegalArgumentException).
+
+
+
+------------------------HQL------------------------
+
+- Hibernate umožňuje spravovat entity bez nutnosti [write] (basic_entity_mgmt.md) dotazů.
+- Složitější operace však vyžadují ruční psaní dotazů.
+- V závislosti na implementaci databáze (např. MySQL nebo OracleDB) se syntaxe takového dotazu může mírně lišit.
+- Hibernate zavádí další vrstvu abstrakce k překonání těchto rozdílů a je Hibernate Query Language
+  (dotazovací jazyk používaný pro režim spánku)
+
+- HQL je velmi podobný SQL, ale umožňuje použití polymorfismu, asociace a dalších funkcí objektového modelu ve vašich dotazech.
+- HQL dotazy jsou automaticky přeloženy do SQL a výsledky dotazů jsou vráceny jako odkazy na příslušné objekty.
+- V HQL najdeme klíčová slova, která jsou také v SQL, např.:
+  - SELECT, GROUP BY, WHERE, ORDER BY, FROM
+  - AVG, SUM, MIN, MAX, COUNT
+
+- Jazyk HQL nerozlišuje malá a velká písmena.
+
+HQL provedení dotazu:
+We can execute HQL queries using theEntityManager object and the createQuery method. This method returns a Query object which allows, for example:
+executing the query using the executeUpdate method
+retrieving the returned result using the getFirstResult or getResultList methods
+setting the parameters of the setParameter query
+
+NOTE: If you want to retrieve the query result, we can pass an additional argument to the createQuery method, which is the return type.
+
+- HQL dotazy můžeme provádět pomocí objektu EntityManager a metody createQuery(). 
+- Tato metoda vrací objekt Query, který umožňuje například:
+  - provedení dotazu pomocí metody executeUpdate
+  - načtení vráceného výsledku pomocí metod getFirstResult nebo getResultList
+  - nastavení parametrů dotazu setParameter
+
+POZNÁMKA: Pokud chcete získat výsledek dotazu, můžeme předat metodě createQuery() další argument, což je návratový typ.
+
+----
+
+FROM
+- Klauzule FROM se používá k označení třídy, která má být použita v procesu hledání její instance.
+- Je to jakási zkratka pro tabulkový dotaz SQL SELECT * FROM. Umožňuje také přidělit entitě alias (podobně jako SQL).
+
+Syntaxe je následující:
+
+  FROM entityName [[AS] alias]
+
+POZNÁMKA: 
+entityName ve výše uvedeném příkladu je název třídy nebo název uvedený v anotaci @Entity.
+Pokud je název tabulky uveden v anotaci @Table, stále používáme název třídy v dotazech HQL.
+
+
+- V příkladech v této části předpokládáme, že máme přístup ke správně inicializovanému objektu EntityManager.
+- Navíc v některých příkladech budeme vycházet z následující definice entity:
+
+  import lombok.AllArgsConstructor;
+  import lombok.Data;
+  import lombok.NoArgsConstructor;
+
+  import javax.persistence.Entity;
+  import javax.persistence.GeneratedValue;
+  import javax.persistence.Id;
+
+  @Entity(name = "cars")
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public class Car {
+
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    private String modelName;
+
+    private String producer;
+
+    private Double engineVolume;
+
+    public Car(String modelName, String producer, Double engineVolume) {
+      this.modelName = modelName;
+      this.producer = producer;
+      this.engineVolume = engineVolume;
+    }
+  }
+
+Example:
+- Pro načtení všech objektů typu Car provedeme dotaz:
+
+  List<Car> cars = entityManager.createQuery("FROM cars", Car.class).getResultList();
+
+- Následující příklad ukazuje stejný dotaz pomocí aliasu:
+
+  List<Car> cars = entityManager.createQuery("FROM cars c, Car.class).getResultList();
+
+-----
+
+SELECT
+Klauzule SELECT je podobná klauzuli FROM, kromě toho, že vám umožňuje určit, které z atributů objektu by měl dotaz vrátit, tj.:
+
+  SELECT classAfieldName, classBfieldName FROM entityName [[AS] alias]
+
+Následující příklad obsahuje seznam nejvýše 3 výrobců:
+
+  List<String> producers = entityManager.createQuery("SELECT c.producer FROM cars c", String.class)
+          .setMaxResults(3)
+          .getResultList();
+
+----
+
+WHERE
+- Klauzule WHERE umožňuje zadat podmínky, které by měly prvky výsledku dotazu splňovat.
+- Syntaxe a význam jsou prakticky totožné s těmi z jazyka SQL, nicméně místo názvů sloupců používáme názvy polí tříd:
+
+  FROM entityName [[AS] alias] WHERE entityName[alias]=indicated_value
+
+- Pro načtení všech objektů typu Car, jehož modelmodelName má hodnotu Aygo, provedeme dotaz:
+
+  List<Car> cars = entityManager.createQuery("FROM cars c WHERE c.modelName = 'Aygo'", Car.class).getResultList();
+
+- Následující příklad obsahuje seznam výrobců, kteří nabízejí vůz s názvem Aygo:
+
+  List<String> producers = entityManager.createQuery("SELECT c.producer FROM cars c WHERE c.modelName = 'Aygo'", String.class)
+          .getResultList();
+
+----
+
+ORDER BY
+- ORDER BY umožňuje seřadit vrácené výsledky pod libovolným atributem vráceného objektu.
+- Stejně jako SQL je ORDER BY na konci dotazu.
+- Výsledky lze seřadit vzestupně pomocí klíčového slova ASC nebo sestupně pomocí DESC.
+
+  List<Car> cars = entityManager.createQuery("SELECT c FROM cars c ORDER BY c.engineVolume DESC", Car.class).getResultList();
+
+----
+
+GROUP BY
+- GROUP BY funguje přesně jako v SQL. 
+- Vrátí výsledky seskupené podle libovolného atributu objektu, např.:
+
+  List<Object> avgEngineVolumes = entityManager.createQuery("SELECT AVG(c.engineVolume) FROM cars c GROUP BY c.modelName", Object.class).getResultList();
+
+----
+
+JOIN
+HQL umožňuje spojování tabulek pomocí klíčového slova JOIN.
+
+Some possible types of joins are:
+  - LEFT JOIN
+  - INNER JOIN
+
+  import lombok.AllArgsConstructor;
+  import lombok.Data;
+  import lombok.NoArgsConstructor;
+
+  import javax.persistence.*;
+  import java.util.List;
+
+  @Entity(name = "cars")
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public class Car {
+
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    private String modelName;
+
+    private String producer;
+
+    private Double engineVolume;
+
+    public Car(String modelName, String producer, Double engineVolume) {
+      this.modelName = modelName;
+      this.producer = producer;
+      this.engineVolume = engineVolume;
+    }
+
+    @OneToMany
+    @JoinColumn(name = "car_id")
+    private List<Wheel> wheels;
+  }
+
+  import lombok.AllArgsConstructor;
+  import lombok.Data;
+  import lombok.NoArgsConstructor;
+
+  import javax.persistence.Entity;
+  import javax.persistence.GeneratedValue;
+  import javax.persistence.Id;
+
+  @Entity(name = "wheels")
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public class Wheel {
+
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    private Integer diameter;
+
+    private String producer;
+
+    private Long ageInDays;
+  }
+
+  Car car = entityManager.createQuery("SELECT c FROM cars c left join c.wheels w WHERE w.diameter > 15", Car.class).getSingleResult();
+
+- Kromě toho vám klauzule with umožňuje zadat podmínku pro spojenou tabulku, např.:
+
+  List<Car> cars = entityManager.createQuery("SELECT c 
+    FROM cars c left join c.wheels as w with w.producer = 'Pirelli' WHERE w.diameter > 15", Car.class).getResultList();
+
+POZNÁMKA: HQL vám také umožňuje použít klíčové slovo načíst, které načte objekty, které lze načíst „líně“.
+
+----
+
+
+- HQL, stejně jako JDBC, umožňuje provádět parametrizované dotazy. 
+- Hodnota každého parametru by měla mít jakýkoli jedinečný název, kterému předchází znak :.
+
+  List<Car> cars = entityManager.createQuery("SELECT c FROM cars c WHERE c.modelName = :modelName AND c.engineVolume = :engineVolume", Car.class)
+          .setParameter("modelName", "Corolla")
+          .setParameter("engineVolume", 2.0)
+          .getResultList();
+
+----
+
+Subqueries:
+
+  FROM Product AS p
+  WHERE p.price > (
+      SELECT AVG(product.price) FROM product
+  )
+
+- Výše uvedený dotaz umožňuje najít produkty, jejichž cena je vyšší než průměrná cena všech produktů.
+- Poddotazy se mohou objevit v klauzulích SELECT a WHERE.
+
+-----
+
+Aggregate functions:
+
+  SELECT AVG(p.price), SUM(p.quantity), MAX(p.quantity), COUNT(p) FROM Product p
+
+--------------------------
+
+Useful configuration properties:
+- Hibernate vyžaduje konfigurační soubor, ve kterém jsou kromě informací o připojení k databázi, definované další vlastnosti. 
+  - show_sql - chceme-li aby byly dotazy HQL prováděné Hibernatem protokolovány v konzoly, měli bychom nastavit hodnotu této vlastnosti na true
+  - format_sql - v případě, že je show_sql zapnutá, nastavení true pro format_sql zlepší čitelnost dlouhých a komplikovaných dotazů
+  - hbm2ddl.auto - umožňuje definovat, zda a jak má Hibernate generovat (tj. vytvářet) tabulky na základě definice entity.
+      - none - Režim spánku nevygeneruje tabulku databáze
+      - create-drop - tabulky budou vytvořeny při spuštění SessionFactory a odstraněny při zavření SessionFactory
+      - create - odstraní stará data z databáze a vytvoří tabulky
+      - update - aktualizuje tabulky (v případě potřeby nebo vytvoří, pokud neexistují)
+      - validate - kontroluje, zda databázové tabulky odpovídají definicím entit
+  - dialect - označuje třídu, která definuje dialekt konkrétní implementace databáze, např.:
+      - org.hibernate.dialect.MySQL8Dialect
+      - org.hibernate.dialect.PostgreSQLDialect

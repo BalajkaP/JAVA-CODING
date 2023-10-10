@@ -1,0 +1,86 @@
+- vzory umoznujici overit zda dany text odpovida predem zvolenemu formatu
+"[A-Z][a-z]"
+- struktura: 1 atom = 1 znak / cislo / spec.znak
+- muzou byt pouzity tzv. kvantifikatory - pocitaji pocet vyskytu atomu a alternativni znak
+abcde
+a+bcde      // vrati hodnotu true pro abcde, aabcde, aaabcde, ...
+
+Oblibene kvantifikatory:
+
+kvantifikator   popis                                           pr.                    regex matches
+*               0 nebo vice vyskytu                             a * b                  ab, b, aab, aaab, aaaab, ...
++               1 nebo vice vyskytu                             a + b                  ab, aab, aaaab, aaaaab, ...
+?               0 nebo 1 vyskyt                                 a ? b                  ab, b 
+{n,m}           min. n a max. m vyskytu                         a {1,4} b              ab, aab, aaab, aaaab
+{n,}            alespon n vyskytu                               a {3,} b               aab, aaab, aaaab, aaaaab, ...
+{,n}            max. n vyskytu                                  a {,3} b               b, ab, aab, aaab, ...
+{n}             presne n vyskytu                                a {3} b                aaab 
+
+
+Rozsah a skupiny:
+- rozsahem se rozumi i atom
+- definovan v []
+
+2 zpusoby:
+1) vyjmenovani vsechn znaku vedle sebe, bez pouziti carek
+2) zavedeni skupiny (1-3; 0-9; 1-5); (a-z; A-Z) - muze byt i jejich kombinace
+
+
+Tabulka skupin:
+
+vyraz                       popis
+[abcde]                     jeden z charakteru a, b, c, d, e 
+[a-z A-Z]                   jakekoli mala a velka pismena a-z 
+[a-c 3-5]                   jakekoli pismena a-c, nebo cisla 3-5
+[a-c 14-7]                  jakekoli pismena a-c, cislo 1, nebo 4-7
+[abc\[\]]                   jakekoli pismeno a, b, c, nebo []
+[.]                         jakekoli pismeno
+
+
+Implementace regularnich vyrazu pomoci trid: Pattern, Matcher 
+
+Pattern:
+- predstavuje zkompilovany regex
+- vyraz vyrobeny pocitacem, coz zefektnuje provadeni
+- objekt ziskame reprezentaci vyrazu pomoci staticke metody compile(regexAsString)
+Pattern pattern = Pattern.compile("a+bcd")
+
+Matcher:
+- ziskame instanci tridy Pattern, ktera obsahuje metodu matcher(), ktera vrati instanci tridy Matcher
+Matcher matcher = pattern.matcher("aaaaabcd aaaaaaaabbcd")
+
+- objekt Matcher ma take metodu matches(), ktera nas informuje zda retezec znaku pouzity k vytvoreni instance tridy Matcher zapada do naseho regularniho vyrazu 
+matcher.matches();              // vraci true misto false
+
+- trida Matcher ma metodu find(), ktera vraci true, pokud existuje neco, co odpovida vyrazu regularniho vyrazu 
+matcher.find();
+
+
+
+-------------------------------------------------------------------------------------
+
+
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class RegEx1 {
+    public static void main(String[] args) {
+        String regEx = "[a-z0-9]+@[a-z]+\\.[a-z]{2,3}";
+        String regEx2 = "^(.+)@(.+)$"
+        Pattern pattern = Pattern.compile(regEx);
+
+        //priklad 1
+        Matcher matcher = pattern.matcher("aaaaabcd aaaaaaabbcd");
+        matcher.matches();                                            //false - aaaaabcd aaaaaaabbcd neni email
+
+        //priklad 2
+        Scanner scanner = new Scanner(System.in);
+        String line = "";
+        while (!line.equals("exit")){
+            line = scanner.nextLine();
+            Matcher matcher1 = pattern.matcher(line);
+            System.out.println(matcher1.matches() ? "Jedna se o email" : "Nejedna se o email");
+        }
+    }
+}

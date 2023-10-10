@@ -1,0 +1,33 @@
+/*
+Záměr vzoru 
+- Umožňuje objektu měnit své chování v závislosti na stavu 
+- Zapouzdřuje stav do samostatných objektů 
+
+Problém, který řeší 
+- Pokud má objekt mnoho různých stavů a v různých stavech se chová odlišně, může být kód tohoto objektu velmi složitý
+
+Kdy chceme tento vzor použít? 
+- Pokud máme objekt, který se chová různě v závislosti na svém stavu, a počet stavů je vysoký. 
+- Pokud se kód související se stavem často mění 
+- Když v kódu najdeme mnoho příkazů if a switch, které závisí na proměnných a polích objektu 
+- Pokud se v celé kódové základně vyskytuje mnoho duplicitního kódu pro podobné stavy 
+
+----------------------------
+
+Výhody 
+- SRP => kód odpovědný za provádění chování žije v samostatné třídě 
+- OCP => nový stav = nová třída, nemusíme tolik upravovat původní objekt 
+- Zjednodušuje kód tím, že eliminuje spoustu příkazů if 
+
+Nevýhody 
+- Použití pouze v případě, že se počet stavů vymkne kontrole
+
+
+
+
+-------------------------------------Priklad-------------------------------------
+
+
+*/
+
+//------------------------Main------------------------

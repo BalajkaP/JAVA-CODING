@@ -1,0 +1,227 @@
+- anonymní třída je vnitřní třída bez názvu 
+- není třeba vytvářet samostatnou vnitřní třídu, když ji potřebujeme pouze jednou
+- z jedné třídy se vytvoří pouze jeden objekt
+- měly by být deklarovány, pokud je potřebujeme pouze jednou
+- vytvoření objektu anonymní třídy je téměř totožné s vytvořením běžného objektu. 
+- při vytváření objektu jsou implementovány všechny požadované metody. 
+
+Výraz se skládá z:
+- operátoru new nebo použití lambda
+- názvu rozhraní, které implementujeme, nebo abstraktní třídy, kterou dědíme
+- parametrů konstruktoru (v případě rozhraní použijeme prázdný konstruktor)
+- tělo třídy/rozhraní
+
+V rámci anonymní třídy můžeme deklarovat:
+- proměnné (včetně statických proměnných)
+- metody (včetně statických metod)
+- konstanty
+
+Nelze však deklarovat:
+- konstruktory
+- rozhraní
+- statické inicializační bloky
+
+
+
+------------------Implementace rozhrani pomoci metody vyuzivajici anonymni tridu------------------
+- v balicih z JAVA CoreAPI umoznujici GUI se postup zjednodusuje
+- kod mene citelny, proto pouze u velmi jednoduchych rozhrani
+...
+
+
+------------------Promenna typu rozhrani vyuzivajici anonymni vnitrni tridu------------------
+- moc se nevyuziva
+- pomoci anonymni vnitrni tridy inicializujeme promennou instance typu rozhrani
+...
+
+
+------------------Vnitrni anonymni trida vznikne dedenim------------------
+...
+
+
+
+
+
+------------------Implementace anonymní třídy pomocí klíčového slova new a následně pomocí lambdy------------------
+
+    public interface ClickListener {
+        void onClick();
+    }
+
+
+    public class UIComponents {
+        void showComponents() {
+        
+        // implementace anonymní třídy pomocí klíčového slova new
+        ClickListener buttonClick = new ClickListener() {
+            @Override
+            public void onClick() {
+                System.out.println("On Button click!");
+            }
+        };
+        // konec anonymní třídy ukončeno středníkem
+
+        buttonClick.onClick();
+
+        // implementace anonymní třídy pomocí lambda
+        // je to možné, protože ClickListener je funkční rozhraní, tj. má jednu metodu, kterou lze implementovat.
+        ClickListener checkboxClick  = () -> System.out.println("On Checkbox click!");
+        checkboxClick.onClick();
+    }
+}
+
+------------------Další možnosti anonymní třídy implementované pomocí klíčového slova new------------------
+
+    public interface ClickListener {
+        void onClick();
+    }
+
+
+    void showComponentsV2() {
+    
+        // implementace anonymní třídy
+        ClickListener buttonClick = new ClickListener() {
+
+            // proměnná v anonymní třídě
+            private String name; 
+
+            // statická proměnná v anonymní třídě
+            private static final String BUTTON_CLICK_MESSAGE ="On Button click!"; 
+
+            // implementace metody v anonymní třídě
+            public void sayHello() { 
+                System.out.println("I am new method in anonymous class");
+            }
+
+            @Override
+            public void onClick() {
+                sayHello();
+                System.out.println(BUTTON_CLICK_MESSAGE);
+            }
+        };
+    }
+
+------------------------------------------------------------------------------------
+
+
+
+
+Přístup k rodičovským třídám:
+- anonymní třídy mohou odkazovat na proměnné a lokální proměnné nadřazených tříd, pokud jsou final. 
+- jako u vnořených tříd platí, že proměnné se stejnými názvy jako proměnné nadřazené třídy přepisují jejich vlastnosti.
+
+
+- kazdy objekt stejneho typu muze delat neco jineho
+
+    public class Animal {
+        public void makeNoise() {
+            System.out.println("Yap");
+        }
+    }
+
+1. Typ pouziti:
+
+    public class AnonymousInnerClass {
+
+        public static void main (String [] args) {
+
+            Animal myAnimal = new Animal() {
+                myAnimal.makeNoise();
+            }
+
+            Animal bigfoot = new Animal() {
+                public void makeNoise() {
+                    System.out.println("Grawlnhee");
+                }
+            };
+            bigfoot.makeNoise();
+        }
+    }
+
+
+2. Typ pouziti (implementace rozhrani):
+
+    public class AnonymousInnerClass {
+
+        public static void main (String [] args) {
+
+            Animal myAnimal = new Animal() {
+                myAnimal.makeNoise();
+            }
+
+            Animal bigfoot = new Animal() {
+                public void makeNoise() {
+                    System.out.println("Grawlnhee");
+                }
+            };
+            bigfoot.makeNoise();
+
+            // Runnable neni trida, ale rozhrani
+            Runnable myAnonymousRunnable = new Runnable();                          
+                @Override
+                public void run() {
+                    System.out.println("I am an anonymous runnable");
+                }
+            };
+            myAnonymousRunnable.run();
+        }
+    }
+
+------------------------------------------------------------------------------------
+
+    public class Main {
+
+        public static void main(String[] args) {
+
+            MyFrame myFrame = new MyFrame();
+
+        }
+    }
+
+
+    import java.awt.event.*;
+    import javax.swing.*;
+
+    public class MyFrame extends JFrame{
+
+        JButton button1 = new JButton("Button #1");
+        JButton button2 = new JButton("Button #2");
+        JButton button3 = new JButton("Button #3");
+ 
+ 
+        MyFrame(){
+  
+            button1.setBounds(100,100,100,100);
+            button2.setBounds(200,100,100,100);
+            button3.setBounds(300,100,100,100);
+            
+            button1.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    System.out.println("You pressed button #1");
+                }
+            });
+
+            button2.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    System.out.println("You pressed button #2");
+                }
+            });
+
+            button3.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    System.out.println("You pressed button #3");
+                }
+            });
+
+            this.add(button1);
+            this.add(button2);
+            this.add(button3);
+            this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            this.setSize(500, 500);
+            this.setLayout(null);
+            this.setVisible(true);
+        }
+    }

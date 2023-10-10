@@ -1,0 +1,37 @@
+/*
+Záměr tohoto vzoru 
+- Úspora paměti sdílením společného stavu mezi objekty 
+
+Problém, který řeší 
+- Plýtvání prostředky, které by mohly být sdíleny mezi mnoha objekty
+
+Kdy ji chceme použít 
+- Když je v paměti velké množství objektů a začíná to být problematické. 
+- Když je možné sdílet část stavu 
+
+----------------------------
+
+Výhody 
+- Šetří paměť 
+
+Nevýhody 
+- Náročnější na procesor 
+- Velmi složitý kód
+
+----------------------------
+
+Příklad 
+- Řekněme, že máme hru se spoustou kulek létajících po obrazovce. 
+- Kdybychom je chtěli všechny vykreslit (vykreslit 1000 unikátních objektů na obrazovce), náš počítač by se zhroutil 
+- Zjistíme, že nejvíce RAM zatěžuje sprite a většina kulek sdílí stejný sprite 
+- Takže místo toho, abychom pro každou částici vytvářeli nový sprite, budeme pouze odkazovat na ten samý!
+
+
+
+
+-------------------------------------Priklad-------------------------------------
+
+
+*/
+
+//------------------------Main------------------------
