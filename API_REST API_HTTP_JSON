@@ -1,0 +1,58 @@
+
+1) OBECNĚ
+Interface mezi FRONTEND a BACKEND
+Existují miliony API, některé jsou i zdarma
+Mohu zadat do browser: free test api . Ono mi to vyhledá API, které jsou zdarma, a týkají se různých témat.
+Školitel našel např. apipheny.io , kde jsou různé zdarma API
+
+2) JSON
+   Příklad JSON souboru:
+   {
+     "people": [
+       {
+         "craft": "Tiangong",
+         "name": "Jing Haiping"
+       },
+       {
+         "craft": "Tiangong",
+         "name": "Gui Haichow"
+       },
+       {
+         "craft": "Tiangong",
+         "name": "Zhu Yangzhu"
+       },
+       {
+         "craft": "ISS",
+         "name": "Jasmin Moghbeli"
+       },
+       {
+         "craft": "ISS",
+         "name": "Andreas Mogensen"
+       },
+       {
+         "craft": "ISS",
+         "name": "Satoshi Furukawa"
+       },
+       {
+         "craft": "ISS",
+         "name": "Konstantin Borisov"
+       },
+       {
+         "craft": "ISS",
+         "name": "Oleg Kononenko"
+       },
+       {
+         "craft": "ISS",
+         "name": "Nikolai Chub"
+       },
+       {
+         "craft": "ISS",
+         "name": "Loral O'Hara"
+       }
+     ],
+     "number": 10,
+     "message": "success"
+   }
+   VYSVĚTLENÍ POLOŽEK!!!!!!!!!!!!!!!!
+   * když v programu zadám: people.get[0] , tak dostanu tento objekt: "craft": "Tiangong", "name": "Jing Haiping"
+                            people.get[1] , tak dostanu tento objekt: "craft": "Tiangong", "name": "Gui Haichow"
