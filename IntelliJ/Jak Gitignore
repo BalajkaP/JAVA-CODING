@@ -1,0 +1,3 @@
+
+Pokud přidám file do nějakého adresáře, který je v gitignore, anebo jde o příponu, která je zmíněna v gitignore,
+tak tento soubor bude ČERVENÝ. POKUD NENÍ V GITIGNORE, TAK BUDE ZELENÝ.
