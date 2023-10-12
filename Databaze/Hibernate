@@ -353,6 +353,7 @@ Následující příklad ukazuje, jak použít složený klíč v entitě, a tak
 - Pomocí frameworku Hibernate můžeme naznačit, jak vypadají vztahy mezi tabulkami v relační databázi.
 - Ve standardním relačním modelu se tabulky spojují pomocí cizích klíčů.
 - V objektově orientovaném přístupu by měly být vytvořeny vztahy mezi celými objekty.
+- Níže uvedenými vztahy mezi objekty tedy definuji cizí klíče, tj. vztahy mezi tabulkami.
 
 - Hibernace umožňuje definovat vztahy:
   - @OneToOne
