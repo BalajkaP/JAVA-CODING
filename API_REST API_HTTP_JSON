@@ -5,7 +5,21 @@ Existují miliony API, některé jsou i zdarma
 Mohu zadat do browser: free test api . Ono mi to vyhledá API, které jsou zdarma, a týkají se různých témat.
 Školitel našel např. apipheny.io , kde jsou různé zdarma API
 
-2) JSON
+2) API integration :
+   - je pomocí odkazu na patřičnou WEB SERVICE. Zde pro ISS-NOW to je buď ta celková stránka
+     http://open-notify.org/Open-Notify-API/ISS-Location-Now/  nebo už konkrétní API služba:
+     http://api.open-notify.org/iss-now.json .
+
+   The functionality of the application should be based on the API: http://open-notify.org/Open-Notify-API
+
+   If you don't want to use HTTP protocol, generate data and save it in external files (use CSV or JSON format).
+   Example data (in JSON format) can be found here: http://api.open-notify.org/iss-now.json.
+
+   ISS speed calculation
+   The user should be informed about the ISS speed on the basis of two readings using the
+   API http://open-notify.org/Open-Notify-API/ISS-Location-Now/. The calculated speed should be saved to the database.
+
+3) JSON
    Příklad JSON souboru:
    {
      "people": [
