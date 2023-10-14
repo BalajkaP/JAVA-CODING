@@ -23,13 +23,32 @@ Ukázková konfigurace může vypadat takto:
           <property name="connection.username">root</property>
           <property name="connection.password">my-secret-pw</property>
           <property name="dialect">org.hibernate.dialect.MySQL8Dialect</property>
+          <property name = "hibernate.show_sql">false</property>
+          <property name = "hibernate.hbm2ddl.auto">update</property>
       </session-factory>
   </hibernate-configuration>
+
+  VYSVETLENI jednotlivých položek v hibernate.cfg:
+  1.<property name = "hibernate.hbm2ddl.auto">update</property>
+    - zde mohu dát UPDATE, CREATE-DROP,...
+    * UPDATE: automaticky update SCHEMA. Vždy obnoví, když spustím nový program a zůstanou ty tabulky již vytvořené
+              (obnoví stávající tabulky)
+    * CREATE-DROP: Po spuštění programu nejprve smaže všechny tabulky a pak vytvoří nové.
+         POZOR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! KDYŽ SPUSTÍM POPRVÉ, NEVADÍ ŽE OBJEVÍ NĚJAKÉ EXCEPTIONS=CHYBY.
+         JE TO PROTO, ŽE CHCI MAZAT TABULKY (DANE SCHEMA), ALE TY JEŠTĚ NEJSOU VYTVOŘENÉ. SPUSTIT PAK ZNOVU, A BUDE OK.
 
 - V praxi je tato konfigurace často složitější, ale výše uvedený příklad ukazuje minimum informací, které Hibernate potřebuje.
 
 
 -----------------------------------------Pripojeni-----------------------------------------
+
+DŮLEŽITÉ: Podle školitele Martina je lépe v každé metodě, kde zpracovávám DB tabulky, dát vždy znovu otevření SESSION!!!!!!!!!!!!!!!
+          Session session = DbConnect.getSession();
+          Transaction transaction = session.beginTransaction();
+          a taky hned uzavření SESSION:
+          transaction.commit();
+          session.close();
+  A v rámci tohoto procesu si mohu SESSION rozdělit na jednotlivé TRANSACTION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 SessionFactory
 - Díky výše uvedenému konfiguračnímu souboru jsme schopni vytvořit objekt SessionFactory
