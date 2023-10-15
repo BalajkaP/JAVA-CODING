@@ -1,0 +1,21 @@
+
+In Git, a "fork" typically refers to a copy of a repository hosted on a platform like GitHub, GitLab, or Bitbucket.
+Forking is a way to create a separate and independent copy of a repository. Here's what it's used for:
+1.	Contributing to Open Source Projects: When you want to contribute to an open source project, you may not have direct
+write access to the original repository. By forking the repository, you can create your copy, make changes to it, and then
+submit a pull request to the original project. This allows the project maintainers to review your changes and merge them if they find them suitable.
+
+2.	Collaborative Work: In collaborative software development, team members might fork a central repository to create their
+own working copies. This can be useful for feature development or bug fixing. They can then merge their changes back into the
+central repository when their work is complete.
+
+3.	Experimentation: Forking can also be used for experimentation or creating branches that may not necessarily be merged into the
+original project. This is useful for trying out new ideas or approaches without affecting the main project.
+
+4.	Backup and Archiving: Some people fork repositories as a way to create a backup or archive of a project. This ensures that a snapshot
+ of the code is preserved even if the original repository changes or gets deleted.
+
+When you fork a repository on platforms like GitHub, you essentially clone the repository into your own account, creating a
+separate Git repository that you have control over. You can make changes, commit them, and push them to your fork. If you want to contribute your changes back to the original repository, you can do so through a pull request, which is a request to merge your changes into the original project.
+Forking is a fundamental concept for open source collaboration and distributed version control in Git.
+
