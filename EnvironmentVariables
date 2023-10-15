@@ -57,6 +57,13 @@ Slouží pro nastavení proměnných pro danou platformu INTELLIJ nebo OPERAČN�
    </hibernate-configuration>
 
 
-   NAPŘ. PRO PROJEKT ISS_DASHBOARD  PŘI RUN, KDE ZVOLÍM EDIT Configuration, A DO OKNA NASTAVIT TAKTO: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   NAPŘ. PRO PROJEKT ISS_DASHBOARD DAT RUN, KDE ZVOLÍM EDIT Configuration, A DO OKNA NASTAVIT TAKTO: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    MYSQLDB_PASSWORD=heslo;MYSQLDB_SERVER_URL=jdbc:mysql://localhost:3306/issdb;MYSQLDB_USER=root
+   Pak PRO VLASTNÍ SPUŠTĚNÍ DÁT :Run APPMain WITH COVERAGE
+   Pokud Hibernate project tak přidat toto do class:
+   String dbUsername= System.getenv("MYSQLDB_USER");
+   String dbPassword= System.getenv("MYSQLDB_PASSWORD");
+   .setProperty("hibernate.connection.username", dbUsername)
+   .setProperty("hibernate.connection.password", dbPassword)
+
 
