@@ -1,0 +1,4 @@
+
+Kontroluje kvalitu kodu, test compatibility, a další věci dle toho , co si nastavím.
+Pak vidím v PULL REQUESTS v GitHub vedle názvu toho PULL REQUEST buď kolečko, nebo zelenou fajfku, která signalizuje, jak prošly
+ty jednotlivé zadané kontroly- tj. kvalitu kodu, test compatibility, a další věci
