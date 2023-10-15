@@ -55,3 +55,7 @@ Slouží pro nastavení proměnných pro danou platformu INTELLIJ nebo OPERAČN�
            <property name="hibernate.hbm2ddl.auto">update</property>
        </session-factory>
    </hibernate-configuration>
+
+   NAPŘ. PRO PROJEKT ISS_DASHBOARD NASTAVIT TAKTO: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   MYSQLDB_PASSWORD=heslo;MYSQLDB_SERVER_URL=jdbc:mysql://localhost:3306/issdb;MYSQLDB_USER=root
+
