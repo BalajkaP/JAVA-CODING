@@ -29,7 +29,7 @@ Slouží pro nastavení proměnných pro danou platformu INTELLIJ nebo OPERAČN�
    In the "Environment" section, you can add environment variables by clicking the "..." (Browse) button next to "Environment variables."
 
    In the "Environment Variables" dialog, you can add (+) new environment variables. For example, you can add variables
-   like DB_USERNAME and DB_PASSWORD and set their values.
+   like MYSQLDB_USER and MYSQLDB_PASSWORD and set their values.
 
    Click "OK" to save the environment variables.
 
@@ -45,8 +45,8 @@ Slouží pro nastavení proměnných pro danou platformu INTELLIJ nebo OPERAČN�
            <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/issdb</property>
 
            <!-- Use environment variables for username and password -->
-           <property name="hibernate.connection.username">${DB_USERNAME}</property>
-           <property name="hibernate.connection.password">${DB_PASSWORD}</property>
+           <property name="hibernate.connection.username">${MYSQLDB_USER}</property>
+           <property name="hibernate.connection.password">${MYSQLDB_PASSWORD}</property>
 
            <!-- Disable SQL logging -->
            <property name="hibernate.show_sql">false</property>
@@ -59,8 +59,8 @@ Slouží pro nastavení proměnných pro danou platformu INTELLIJ nebo OPERAČN�
 
    NAPŘ. PRO PROJEKT ISS_DASHBOARD DAT RUN, KDE ZVOLÍM EDIT Configuration, A DO OKNA NASTAVIT TAKTO: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    MYSQLDB_PASSWORD=heslo;MYSQLDB_SERVER_URL=jdbc:mysql://localhost:3306/issdb;MYSQLDB_USER=root
-   Pak PRO VLASTNÍ SPUŠTĚNÍ DÁT :Run APPMain
-   Pokud Hibernate project tak přidat toto do class:
+   Pak PRO VLASTNÍ SPUŠTĚNÍ DÁT : Run APPMain
+   Pokud Hibernate project tak přidat toto do DbConnect class- metody public static Session getSession() :
    String dbUsername= System.getenv("MYSQLDB_USER");
    String dbPassword= System.getenv("MYSQLDB_PASSWORD");
    .setProperty("hibernate.connection.username", dbUsername)
