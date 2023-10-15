@@ -379,6 +379,8 @@ Následující příklad ukazuje, jak použít složený klíč v entitě, a tak
   - @OneToMany a @ManyToOne
   - @ManyToMany
 
+  POZOR: POKUD POUŽIJI OneToMany z jedné tabulky, musím z té druhé použít do protivky: ManyToOne.
+
 - Související vztahy mohou být:
   - obousměrné - když obě tabulky na úrovni třídy na sebe vzájemně odkazují (tj. třída A ukazuje na třídu B a B ukazuje na A)
   - jednosměrné - pouze jedna strana vztahu odkazuje na tabulku reprezentovanou jinou třídou

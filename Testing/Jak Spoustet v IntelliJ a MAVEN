@@ -1,0 +1,5 @@
+
+MAVEN projekt:
+Když mám více testů, tak všechny spustím následovně:
+1. V Maven dát Execute Maven Goal ikonku
+2. Zadam do okénka: mvn test

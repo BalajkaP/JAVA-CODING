@@ -56,6 +56,7 @@ Slouží pro nastavení proměnných pro danou platformu INTELLIJ nebo OPERAČN�
        </session-factory>
    </hibernate-configuration>
 
-   NAPŘ. PRO PROJEKT ISS_DASHBOARD NASTAVIT TAKTO: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   NAPŘ. PRO PROJEKT ISS_DASHBOARD  PŘI RUN, KDE ZVOLÍM EDIT Configuration, A DO OKNA NASTAVIT TAKTO: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    MYSQLDB_PASSWORD=heslo;MYSQLDB_SERVER_URL=jdbc:mysql://localhost:3306/issdb;MYSQLDB_USER=root
 

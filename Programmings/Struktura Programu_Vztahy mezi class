@@ -1,0 +1,5 @@
+
+PRINCIPY:
+1. NELZE volat class, který je přímo pod JAVA v tree, z jiné třídy, která je v nějakém vytvořeném package
+2. Jinak všechny ostatní možnosti lze
+3. JAK TEDY STRUKTURA: Všechny class dávat do packages
