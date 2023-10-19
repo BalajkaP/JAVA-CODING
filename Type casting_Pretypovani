@@ -1,0 +1,19 @@
+
+What is the function of (HttpURLConnection) inside this code: HttpURLConnection connection = (HttpURLConnection) url.openConnection():
+
+The (HttpURLConnection) is a type casting operation. It is used to cast the result of url.openConnection() to the HttpURLConnection type.
+
+The url.openConnection() method returns a generic URLConnection object. However, in many cases, you know that the connection
+you are creating is an HTTP connection, and you want to work with the specific features and methods of HttpURLConnection,
+which is a subclass of URLConnection specialized for HTTP connections.!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+So, by using (HttpURLConnection), you are essentially telling the Java compiler to treat the URLConnection object returned by
+url.openConnection() as an HttpURLConnection object. This allows you to access the specific HTTP-related methods and properties
+provided by HttpURLConnection, such as setting the request method, handling response codes, and more.
+
+In summary, the (HttpURLConnection) casting operation is used to convert the generic URLConnection object to an
+HttpURLConnection object so that you can work with HTTP-specific features when making HTTP requests and handling responses.
+
+
+
+
