@@ -1,6 +1,6 @@
 SWITCH:
 
-- výraz, který může mít více hodnot a pro každou chceme provést jinou akci
+- výraz, který může mít více hodnot a pro každou chceme provést jinou akci !!!!!!!!!!!
 - switch si lze představit jako několik basketbalových košů case zavěšených nad sebou
 - pokud trefím 1, balon propadne všemi, pokud ho někdo nevyrazí zpět přes break
 - pokud za case neuvedu break nebo return, kód na dalším návěstí case neskončí, ale pokračuje dál (provede se vše až do konce konstrukce switch)
